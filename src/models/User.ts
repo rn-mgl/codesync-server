@@ -10,11 +10,4 @@ class User implements UserInterface {
     this.last_name = data.last_name;
     this.email = data.email;
   }
-
-  static async create() {
-    try {
-    } catch (error) {
-      console.log(error);
-    }
-  }
 }
