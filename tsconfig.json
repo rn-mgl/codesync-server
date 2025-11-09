@@ -43,7 +43,14 @@
     "allowImportingTsExtensions": true,
     "emitDeclarationOnly": true,
     "paths": {
-      "@/src/*": ["./src/*"]
+      "@/src/*": ["./src/*"],
+      "@/controllers/*": ["./src/controllers/*"],
+      "@/database/*": ["./src/database/*"],
+      "@/middlewares/*": ["./src/middlewares/*"],
+      "@/routers/*": ["./src/routers/*"],
+      "@/services/*": ["./src/services/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/utils/*": ["./src/utils/*"]
     }
   },
   "include": ["src/**/*"],
