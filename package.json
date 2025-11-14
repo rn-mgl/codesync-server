@@ -4,9 +4,20 @@
   "description": "Codesync",
   "main": "app.js",
   "type": "module",
+  "imports": {
+    "#src/*": "./src/*.ts",
+    "#controllers/*": "./src/controllers/*.ts",
+    "#database/*": "./src/database/*.ts",
+    "#middlewares/*": "./src/middlewares/*.ts",
+    "#models/*": "./src/models/*.ts",
+    "#routers/*": "./src/routers/*.ts",
+    "#services/*": "./src/services/*.ts",
+    "#types/*": "./src/types/*.ts",
+    "#utils/*": "./src/utils/*.ts"
+  },
   "scripts": {
-    "start": "node app.js",
-    "dev": "npx nodemon src/server.ts",
+    "start": "node src/server.js",
+    "dev": "nodemon ./src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Rein Buenaventura",

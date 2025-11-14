@@ -23,14 +23,6 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
 
-    // Style Options
-    // "noImplicitReturns": true,
-    // "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
-
     // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
@@ -41,17 +33,7 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": true,
-    "emitDeclarationOnly": true,
-    "paths": {
-      "@/src/*": ["./src/*"],
-      "@/controllers/*": ["./src/controllers/*"],
-      "@/database/*": ["./src/database/*"],
-      "@/middlewares/*": ["./src/middlewares/*"],
-      "@/routers/*": ["./src/routers/*"],
-      "@/services/*": ["./src/services/*"],
-      "@/types/*": ["./src/types/*"],
-      "@/utils/*": ["./src/utils/*"]
-    }
+    "emitDeclarationOnly": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
