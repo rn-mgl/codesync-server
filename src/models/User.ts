@@ -1,5 +1,5 @@
-import type { UserInterface } from "#types/user-type";
-import db from "#database/database";
+import type { UserInterface } from "@/types/user-type";
+import db from "@/database/database";
 
 class User implements UserInterface {
   first_name: string;
@@ -20,7 +20,7 @@ class User implements UserInterface {
     this.total_submissions = data.total_submissions;
   }
 
-  static async createUser(
+  static async create(
     first_name: string,
     last_name: string,
     username: string,
@@ -33,9 +33,69 @@ class User implements UserInterface {
 
       const values = [first_name, last_name, username, email, password];
 
-      const res = await db.execute(query, values);
+      const [result, fields] = await db.execute(query, values);
 
-      return res;
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async findById(id: number) {
+    try {
+      const query = `SELECT * FROM users WHERE id = ?;`;
+
+      const values = [id];
+
+      const [result, fields] = await db.execute(query, values);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async findByEmail(email: string) {
+    try {
+      const query = `SELECT * FROM users WHERE email = ?;`;
+
+      const values = [email];
+
+      const [result, fields] = await db.execute(query, values);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async updateById(
+    id: number,
+    updates: { key: string; value: string | number }[]
+  ) {
+    try {
+      const update = updates.map((update) => `${update.key} = ?`).join(", ");
+      const values = updates.map((update) => update.value);
+
+      const query = `UPDATE users SET ${update} WHERE id = ?;`;
+
+      const [result, fields] = await db.execute(query, [...values, id]);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async deleteById(id: number) {
+    try {
+      const query = `DELETE FROM users WHERE id = ?;`;
+
+      const values = [id];
+
+      const [result, fields] = await db.execute(query, values);
+
+      return result;
     } catch (error) {
       console.log(error);
     }
