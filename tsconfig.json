@@ -43,7 +43,7 @@
       "@/models/*": ["models/*"],
       "@/routers/*": ["routers/*"],
       "@/services/*": ["services/*"],
-      "@/types/*": ["types/*"],
+      "@/interface/*": ["interface/*"],
       "@/utils/*": ["utils/*"]
     }
   },

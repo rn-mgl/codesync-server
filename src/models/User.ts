@@ -1,7 +1,7 @@
-import type { UserInterface } from "@/types/user-type";
+import type { FullUserData } from "@/src/interface/user-interface";
 import db from "@/database/database";
 
-class User implements UserInterface {
+class User implements FullUserData {
   first_name: string;
   last_name: string;
   email: string;
@@ -10,7 +10,7 @@ class User implements UserInterface {
   problems_solved: number;
   total_submissions: number;
 
-  constructor(data: UserInterface) {
+  constructor(data: FullUserData) {
     this.first_name = data.first_name;
     this.last_name = data.last_name;
     this.email = data.email;
@@ -41,7 +41,7 @@ class User implements UserInterface {
     }
   }
 
-  static async findById(id: number) {
+  static async findById(id: string | number) {
     try {
       const query = `SELECT * FROM users WHERE id = ?;`;
 
