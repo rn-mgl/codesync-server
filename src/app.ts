@@ -5,6 +5,8 @@ import helmet from "helmet";
 
 import userRouter from "@/routers/user-router";
 
+import errorMiddleware from "@/middlewares/error-middleware";
+
 const app = express();
 
 app.use(helmet());
@@ -12,5 +14,6 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/user", userRouter);
+app.use(errorMiddleware);
 
 export default app;

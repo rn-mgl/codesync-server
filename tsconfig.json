@@ -44,7 +44,8 @@
       "@/routers/*": ["routers/*"],
       "@/services/*": ["services/*"],
       "@/interface/*": ["interface/*"],
-      "@/utils/*": ["utils/*"]
+      "@/utils/*": ["utils/*"],
+      "@/errors/*": ["errors/*"]
     }
   },
   "include": ["src/**/*"],
