@@ -1,5 +1,6 @@
 import type { FullUserData } from "@/src/interface/user-interface";
 import db from "@/database/database";
+import type { FieldPacket, RowDataPacket } from "mysql2";
 
 class User implements FullUserData {
   first_name: string;
@@ -61,7 +62,7 @@ class User implements FullUserData {
 
       const values = [email];
 
-      const [result, fields] = await db.execute(query, values);
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 
       return result;
     } catch (error) {
