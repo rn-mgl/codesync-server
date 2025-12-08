@@ -1,5 +1,5 @@
-import type { FullUserData } from "@/src/interface/user-interface";
-import db from "@/database/database";
+import type { FullUserData } from "@src/interface/user-interface.ts";
+import db from "@database/database.ts";
 import type { FieldPacket, RowDataPacket } from "mysql2";
 
 class User implements FullUserData {

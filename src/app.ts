@@ -3,9 +3,9 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 
-import userRouter from "@/routers/user-router";
+import userRouter from "@routers/user-router.ts";
 
-import errorMiddleware from "@/middlewares/error-middleware";
+import errorMiddleware from "@middlewares/error-middleware.ts";
 
 const app = express();
 

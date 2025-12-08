@@ -1,4 +1,4 @@
-import { create } from "@/controllers/user-controller";
+import { create } from "@controllers/user-controller.ts";
 import { Router } from "express";
 
 const router = Router();

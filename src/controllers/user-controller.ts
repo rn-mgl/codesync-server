@@ -1,8 +1,8 @@
-import type { BaseUserData } from "@/src/interface/user-interface";
-import User from "@/src/models/User";
-import { hashString } from "@/src/utils/crypt-utils";
+import AppError from "@errors/AppError.ts";
+import type { BaseUserData } from "@src/interface/user-interface.ts";
+import User from "@src/models/User.ts";
+import { hashString } from "@src/utils/crypt-utils.ts";
 import type { Request, Response } from "express";
-import AppError from "@/errors/AppError";
 import { StatusCodes } from "http-status-codes";
 
 const isCreateUserData = (data: any): data is BaseUserData => {

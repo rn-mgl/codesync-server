@@ -1,8 +1,8 @@
+import AppError from "@errors/AppError.ts";
+import User from "@models/User.ts";
+import { verifyHash } from "@utils/crypt-utils";
 import { response, type Request, type Response } from "express";
-import User from "@/models/User";
-import AppError from "@/errors/AppError";
 import { StatusCodes } from "http-status-codes";
-import { verifyHash } from "../utils/crypt-utils";
 import jwt from "jsonwebtoken";
 
 export const login = async (req: Request, res: Response) => {
