@@ -1,12 +1,20 @@
 import AppError from "@errors/AppError.ts";
 import User from "@models/User.ts";
-import { verifyHash } from "@utils/crypt-utils";
-import { response, type Request, type Response } from "express";
+import { isBaseUserData } from "@src/utils/type-utils";
+import { hashString, verifyHash } from "@utils/crypt-utils";
+import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 
 export const login = async (req: Request, res: Response) => {
   const { candidateEmail, candidatePassword } = req.body;
+
+  if (!candidateEmail || !candidatePassword) {
+    throw new AppError(
+      "Please fill out email and password.",
+      StatusCodes.BAD_GATEWAY
+    );
+  }
 
   const user = await User.findByEmail(candidateEmail);
 
@@ -17,7 +25,7 @@ export const login = async (req: Request, res: Response) => {
     );
   }
 
-  const { user_id, email, password } = user[0];
+  const { id, email, password } = user[0];
 
   const isCorrectPassword = await verifyHash(candidatePassword, password);
 
@@ -28,15 +36,52 @@ export const login = async (req: Request, res: Response) => {
     );
   }
 
-  if (!process.env.AUTH_TOKEN) {
+  if (!process.env.JWT_AUTH_TOKEN) {
     throw new AppError(`No Auth Token applied.`, StatusCodes.FAILED_DEPENDENCY);
   }
 
-  const token = jwt.sign(
-    { user_id, email, password },
-    process.env.AUTH_TOKEN!,
-    { algorithm: "ES256" }
+  if (!process.env.JWT_AUTH_ALGO) {
+    throw new AppError(
+      `No Auth Algorithm applied.`,
+      StatusCodes.FAILED_DEPENDENCY
+    );
+  }
+
+  const token = jwt.sign({ id, email, password }, process.env.JWT_AUTH_TOKEN, {
+    algorithm: process.env.JWT_AUTH_ALGO as jwt.Algorithm,
+  });
+
+  return res.json({ token });
+};
+
+export const register = async (req: Request, res: Response) => {
+  const data = req.body;
+
+  if (!data || !isBaseUserData(data)) {
+    throw new AppError(
+      "Please fill out the required fields.",
+      StatusCodes.BAD_REQUEST
+    );
+  }
+
+  const { email, first_name, last_name, password, username } = data;
+
+  const hashedString = await hashString(password);
+
+  const user = await User.create(
+    first_name,
+    last_name,
+    username,
+    email,
+    hashedString
   );
 
-  return response.json({ token });
+  if (!user) {
+    throw new AppError(
+      `An error occurred when creating your account.`,
+      StatusCodes.BAD_REQUEST
+    );
+  }
+
+  return res.json({ success: true, user });
 };

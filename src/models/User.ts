@@ -1,6 +1,6 @@
 import type { FullUserData } from "@src/interface/user-interface.ts";
 import db from "@database/database.ts";
-import type { FieldPacket, RowDataPacket } from "mysql2";
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class User implements FullUserData {
   first_name: string;
@@ -34,7 +34,7 @@ class User implements FullUserData {
 
       const values = [first_name, last_name, username, email, password];
 
-      const [result, fields] = await db.execute(query, values);
+      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
 
       return result;
     } catch (error) {
@@ -48,7 +48,7 @@ class User implements FullUserData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute(query, values);
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 
       return result;
     } catch (error) {
@@ -80,7 +80,10 @@ class User implements FullUserData {
 
       const query = `UPDATE users SET ${update} WHERE id = ?;`;
 
-      const [result, fields] = await db.execute(query, [...values, id]);
+      const [result, fields] = await db.execute<ResultSetHeader>(query, [
+        ...values,
+        id,
+      ]);
 
       return result;
     } catch (error) {
@@ -94,7 +97,7 @@ class User implements FullUserData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute(query, values);
+      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
 
       return result;
     } catch (error) {

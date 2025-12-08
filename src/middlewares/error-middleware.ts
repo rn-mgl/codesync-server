@@ -11,12 +11,21 @@ const errorMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  res
-    .status(500)
-    .json({
-      success: false,
-      error: "An error in the server occurred. Please try again.",
-    });
+  let message = "An error in the server occurred. Please try again.";
+  let statusCode = 500;
+
+  if ("message" in err && typeof err.message === "string") {
+    message = err.message;
+  }
+
+  if ("statusCode" in err && typeof err.statusCode === "number") {
+    statusCode = err.statusCode;
+  }
+
+  res.status(statusCode).json({
+    success: false,
+    error: message,
+  });
 };
 
 export default errorMiddleware;

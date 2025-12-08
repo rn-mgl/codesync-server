@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 
 import userRouter from "@routers/user-router.ts";
+import authRouter from "@routers/auth-router.ts";
 
 import errorMiddleware from "@middlewares/error-middleware.ts";
 
@@ -14,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/user", userRouter);
+app.use("/auth", authRouter);
 app.use(errorMiddleware);
 
 export default app;
