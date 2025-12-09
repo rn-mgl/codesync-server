@@ -1,5 +1,6 @@
 import AppError from "@errors/AppError.ts";
 import User from "@models/User.ts";
+import { accountVerificationEmail } from "@src/services/email-service";
 import { isBaseUserData } from "@src/utils/type-utils";
 import { hashString, verifyHash } from "@utils/crypt-utils";
 import { type Request, type Response } from "express";
@@ -36,7 +37,7 @@ export const login = async (req: Request, res: Response) => {
     );
   }
 
-  if (!process.env.JWT_AUTH_TOKEN) {
+  if (!process.env.JWT_LOGIN_TOKEN) {
     throw new AppError(`No Auth Token applied.`, StatusCodes.FAILED_DEPENDENCY);
   }
 
@@ -47,7 +48,7 @@ export const login = async (req: Request, res: Response) => {
     );
   }
 
-  const token = jwt.sign({ id, email, password }, process.env.JWT_AUTH_TOKEN, {
+  const token = jwt.sign({ id, email, password }, process.env.JWT_LOGIN_TOKEN, {
     algorithm: process.env.JWT_AUTH_ALGO as jwt.Algorithm,
   });
 
@@ -83,5 +84,20 @@ export const register = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ success: true, user });
+  if (!process.env.JWT_REGISTER_TOKEN) {
+    throw new AppError(
+      `No register token applied`,
+      StatusCodes.FAILED_DEPENDENCY
+    );
+  }
+
+  const token = jwt.sign(
+    { first_name, last_name, username, email },
+    process.env.JWT_REGISTER_TOKEN,
+    { algorithm: "HS512" }
+  );
+
+  const sendVerification = await accountVerificationEmail(email, token);
+
+  return res.json({ success: true, token });
 };
