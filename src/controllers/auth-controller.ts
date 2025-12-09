@@ -26,7 +26,8 @@ export const login = async (req: Request, res: Response) => {
     );
   }
 
-  const { id, email, password } = user[0];
+  const { id, first_name, last_name, username, email, password, is_verified } =
+    user[0];
 
   const isCorrectPassword = await verifyHash(candidatePassword, password);
 
@@ -37,9 +38,7 @@ export const login = async (req: Request, res: Response) => {
     );
   }
 
-  if (!process.env.JWT_LOGIN_TOKEN) {
-    throw new AppError(`No Auth Token applied.`, StatusCodes.FAILED_DEPENDENCY);
-  }
+  let token: string | null = null;
 
   if (!process.env.JWT_AUTH_ALGO) {
     throw new AppError(
@@ -48,11 +47,35 @@ export const login = async (req: Request, res: Response) => {
     );
   }
 
-  const token = jwt.sign({ id, email, password }, process.env.JWT_LOGIN_TOKEN, {
-    algorithm: process.env.JWT_AUTH_ALGO as jwt.Algorithm,
-  });
+  if (!is_verified) {
+    if (!process.env.JWT_REGISTER_TOKEN) {
+      throw new AppError(
+        `No Register Token applied.`,
+        StatusCodes.FAILED_DEPENDENCY
+      );
+    }
 
-  return res.json({ token });
+    token = jwt.sign(
+      { first_name, last_name, email, username },
+      process.env.JWT_REGISTER_TOKEN,
+      { algorithm: process.env.JWT_AUTH_ALGO as jwt.Algorithm }
+    );
+
+    const sendVerification = await accountVerificationEmail(email, token);
+  } else {
+    if (!process.env.JWT_LOGIN_TOKEN) {
+      throw new AppError(
+        `No Auth Token applied.`,
+        StatusCodes.FAILED_DEPENDENCY
+      );
+    }
+
+    token = jwt.sign({ id, email, password }, process.env.JWT_LOGIN_TOKEN, {
+      algorithm: process.env.JWT_AUTH_ALGO as jwt.Algorithm,
+    });
+  }
+
+  return res.json({ token, user: { id, is_verified } });
 };
 
 export const register = async (req: Request, res: Response) => {
@@ -91,10 +114,17 @@ export const register = async (req: Request, res: Response) => {
     );
   }
 
+  if (!process.env.JWT_AUTH_ALGO) {
+    throw new AppError(
+      `No Auth Algorithm applied`,
+      StatusCodes.FAILED_DEPENDENCY
+    );
+  }
+
   const token = jwt.sign(
     { first_name, last_name, username, email },
     process.env.JWT_REGISTER_TOKEN,
-    { algorithm: "HS512" }
+    { algorithm: process.env.JWT_AUTH_ALGO as jwt.Algorithm }
   );
 
   const sendVerification = await accountVerificationEmail(email, token);
