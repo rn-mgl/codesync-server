@@ -21,18 +21,20 @@ class User implements FullUserData {
     this.total_submissions = data.total_submissions;
   }
 
-  static async create(
-    first_name: string,
-    last_name: string,
-    username: string,
-    email: string,
-    password: string
-  ) {
+  static async create(data: Record<string, string | number | boolean>) {
     try {
-      const query = `INSERT INTO users (first_name, last_name, username, email, password)
-                      VALUES (?, ?, ?, ?, ?);`;
+      const insert = Object.keys(data)
+        .map((key) => `${key}`)
+        .join(", ");
 
-      const values = [first_name, last_name, username, email, password];
+      const preparedValues = Object.values(data)
+        .map((value) => "?")
+        .join(", ");
+
+      const values = Object.values(data);
+
+      const query = `INSERT INTO users (${insert})
+                      VALUES (${preparedValues});`;
 
       const [result, fields] = await db.execute<ResultSetHeader>(query, values);
 
@@ -72,11 +74,13 @@ class User implements FullUserData {
 
   static async updateById(
     id: number,
-    updates: { key: string; value: string | number }[]
+    updates: Record<string, string | number | boolean>
   ) {
     try {
-      const update = updates.map((update) => `${update.key} = ?`).join(", ");
-      const values = updates.map((update) => update.value);
+      const update = Object.keys(updates)
+        .map((key) => `${key} = ?`)
+        .join(", ");
+      const values = Object.values(updates);
 
       const query = `UPDATE users SET ${update} WHERE id = ?;`;
 
