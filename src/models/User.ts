@@ -10,6 +10,8 @@ class User implements FullUserData {
   password: string;
   problems_solved: number;
   total_submissions: number;
+  created_at: string;
+  updated_at: string;
 
   constructor(data: FullUserData) {
     this.first_name = data.first_name;
@@ -19,6 +21,8 @@ class User implements FullUserData {
     this.password = data.password;
     this.problems_solved = data.problems_solved;
     this.total_submissions = data.total_submissions;
+    this.created_at = data.created_at;
+    this.updated_at = data.updated_at;
   }
 
   static async create(data: Record<string, string | number | boolean>) {

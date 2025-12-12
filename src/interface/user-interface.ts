@@ -9,6 +9,8 @@ export interface BaseUserData {
 export interface AdditionalUserData {
   problems_solved: number;
   total_submissions: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export type FullUserData = BaseUserData & AdditionalUserData;
