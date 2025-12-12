@@ -1,5 +1,5 @@
 import type { FullUserData } from "@src/interface/user-interface.ts";
-import db from "@database/database.ts";
+import { createConnection } from "@database/database.ts";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class User implements FullUserData {
@@ -27,6 +27,8 @@ class User implements FullUserData {
 
   static async create(data: Record<string, string | number | boolean>) {
     try {
+      const db = createConnection();
+
       const insert = Object.keys(data)
         .map((key) => `${key}`)
         .join(", ");
@@ -50,6 +52,8 @@ class User implements FullUserData {
 
   static async findById(id: string | number) {
     try {
+      const db = createConnection();
+
       const query = `SELECT * FROM users WHERE id = ?;`;
 
       const values = [id];
@@ -64,6 +68,8 @@ class User implements FullUserData {
 
   static async findByEmail(email: string) {
     try {
+      const db = createConnection();
+
       const query = `SELECT * FROM users WHERE email = ?;`;
 
       const values = [email];
@@ -81,6 +87,8 @@ class User implements FullUserData {
     updates: Record<string, string | number | boolean>
   ) {
     try {
+      const db = createConnection();
+
       const update = Object.keys(updates)
         .map((key) => `${key} = ?`)
         .join(", ");
@@ -101,6 +109,8 @@ class User implements FullUserData {
 
   static async deleteById(id: number) {
     try {
+      const db = createConnection();
+
       const query = `DELETE FROM users WHERE id = ?;`;
 
       const values = [id];
