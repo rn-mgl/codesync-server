@@ -14,8 +14,6 @@ import type {
 export const create = async (req: Request, res: Response) => {
   const data = req.body;
 
-  console.log(data);
-
   if (!data || !isBaseProblemData(data)) {
     throw new AppError(
       `Invalid Problem data. Missing values.`,
