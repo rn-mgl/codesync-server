@@ -11,6 +11,7 @@ export interface AdditionalUserData {
   total_submissions: number;
   created_at: string;
   updated_at: string;
+  is_verified: boolean;
 }
 
 export type FullUserData = BaseUserData & AdditionalUserData;

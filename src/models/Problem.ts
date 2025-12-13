@@ -1,5 +1,9 @@
 import { createConnection } from "@src/database/database";
-import type { FullProblemData } from "@src/interface/problem-interface";
+import type {
+  AdditionalProblemData,
+  BaseProblemData,
+  FullProblemData,
+} from "@src/interface/problem-interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Problem implements FullProblemData {
@@ -29,7 +33,7 @@ class Problem implements FullProblemData {
     this.updated_at = data.updated_at;
   }
 
-  static async create(data: Record<string, string>) {
+  static async create(data: BaseProblemData & Partial<AdditionalProblemData>) {
     try {
       const db = createConnection();
 
@@ -99,7 +103,7 @@ class Problem implements FullProblemData {
 
   static async update(
     id: string,
-    updates: Record<string, string | number | boolean>
+    updates: Partial<BaseProblemData & AdditionalProblemData>
   ) {
     try {
       const db = createConnection();

@@ -1,5 +1,6 @@
 import AppError from "@errors/AppError.ts";
 import User from "@models/User.ts";
+import type { AdditionalUserData } from "@src/interface/user-interface";
 import { accountVerificationEmail } from "@src/services/email-service";
 import { isBaseUserData } from "@src/utils/type-utils";
 import { hashString, verifyHash } from "@utils/crypt-utils";
@@ -199,7 +200,9 @@ export const verify = async (req: Request, res: Response) => {
     throw new AppError(`Invalid token provided`, StatusCodes.FORBIDDEN);
   }
 
-  const verified = await User.updateById(user[0].id, { is_verified: true });
+  const verified = await User.update(user[0].id, {
+    is_verified: true,
+  });
 
   if (!verified) {
     throw new AppError(

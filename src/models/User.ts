@@ -1,4 +1,8 @@
-import type { FullUserData } from "@src/interface/user-interface.ts";
+import type {
+  AdditionalUserData,
+  BaseUserData,
+  FullUserData,
+} from "@src/interface/user-interface.ts";
 import { createConnection } from "@database/database.ts";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
@@ -12,6 +16,7 @@ class User implements FullUserData {
   total_submissions: number;
   created_at: string;
   updated_at: string;
+  is_verified: boolean;
 
   constructor(data: FullUserData) {
     this.first_name = data.first_name;
@@ -23,9 +28,10 @@ class User implements FullUserData {
     this.total_submissions = data.total_submissions;
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
+    this.is_verified = data.is_verified;
   }
 
-  static async create(data: Record<string, string | number | boolean>) {
+  static async create(data: BaseUserData) {
     try {
       const db = createConnection();
 
@@ -95,7 +101,7 @@ class User implements FullUserData {
 
   static async update(
     id: number,
-    updates: Record<string, string | number | boolean>
+    updates: Partial<BaseUserData & AdditionalUserData>
   ) {
     try {
       const db = createConnection();
