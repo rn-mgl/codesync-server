@@ -29,20 +29,31 @@ class User implements FullUserData {
     try {
       const db = createConnection();
 
-      const insert = Object.keys(data)
+      const columns = Object.keys(data)
         .map((key) => `${key}`)
-        .join(", ");
-
-      const preparedValues = Object.values(data)
-        .map((value) => "?")
         .join(", ");
 
       const values = Object.values(data);
 
-      const query = `INSERT INTO users (${insert})
-                      VALUES (${preparedValues});`;
+      const preparedValues = values.map((value) => "?").join(", ");
+
+      const query = `INSERT INTO users (${columns}) VALUES (${preparedValues});`;
 
       const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async all() {
+    try {
+      const db = createConnection();
+
+      const query = `SELECT * FROM users;`;
+
+      const [result, fields] = await db.execute(query);
 
       return result;
     } catch (error) {
@@ -82,7 +93,7 @@ class User implements FullUserData {
     }
   }
 
-  static async updateById(
+  static async update(
     id: number,
     updates: Record<string, string | number | boolean>
   ) {
