@@ -50,6 +50,7 @@ class User implements FullUserData {
       return result;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 
@@ -64,6 +65,7 @@ class User implements FullUserData {
       return result;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 
@@ -80,6 +82,7 @@ class User implements FullUserData {
       return result;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 
@@ -96,6 +99,7 @@ class User implements FullUserData {
       return result;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 
@@ -121,6 +125,7 @@ class User implements FullUserData {
       return result;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 
@@ -137,6 +142,7 @@ class User implements FullUserData {
       return result;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 }

@@ -52,6 +52,7 @@ class Problem implements FullProblemData {
       return result;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 
@@ -66,6 +67,7 @@ class Problem implements FullProblemData {
       return result;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 
@@ -73,7 +75,7 @@ class Problem implements FullProblemData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM probles WHERE id = ?;`;
+      const query = `SELECT * FROM problems WHERE id = ?;`;
 
       const values = [id];
 
@@ -82,6 +84,7 @@ class Problem implements FullProblemData {
       return result;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 
@@ -98,6 +101,7 @@ class Problem implements FullProblemData {
       return result;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 
@@ -124,6 +128,7 @@ class Problem implements FullProblemData {
       return result;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 }
