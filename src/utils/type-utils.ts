@@ -1,14 +1,16 @@
 import { type BaseUserData } from "@interface/user-interface.ts";
-import AppError from "@src/errors/AppError";
 import type {
   AdditionalProblemData,
   BaseProblemData,
 } from "@src/interface/problem-interface";
-import { StatusCodes } from "http-status-codes";
+import type {
+  AdditionalTopicData,
+  BaseTopicData,
+} from "@src/interface/topic-interface";
 
 export const isBaseUserData = (data: unknown): data is BaseUserData => {
   if (typeof data !== "object" || data === null) {
-    throw new AppError(`Invalid user data.`, StatusCodes.BAD_REQUEST);
+    return false;
   }
 
   const REQUIRED_FIELDS: readonly (keyof BaseUserData)[] = [
@@ -28,7 +30,7 @@ export const isBaseUserData = (data: unknown): data is BaseUserData => {
 
 export const isBaseProblemData = (data: unknown): data is BaseProblemData => {
   if (typeof data !== "object" || data === null) {
-    throw new AppError(`Invalid Problem data`, StatusCodes.BAD_REQUEST);
+    return false;
   }
 
   const REQUIRED_FIELDS: readonly (keyof BaseProblemData)[] = [
@@ -48,7 +50,7 @@ export const isAdditionalProblemData = (
   data: unknown
 ): data is AdditionalProblemData => {
   if (typeof data !== "object" || data === null) {
-    throw new AppError(`Invalid Problem data`, StatusCodes.BAD_REQUEST);
+    return false;
   }
 
   const REQUIRED_FIELDS: readonly (keyof AdditionalProblemData)[] = [
@@ -57,6 +59,40 @@ export const isAdditionalProblemData = (
     "input_format",
     "output_format",
   ];
+
+  return REQUIRED_FIELDS.every(
+    (field) =>
+      data[field as keyof object] &&
+      typeof data[field as keyof object] === "string"
+  );
+};
+
+export const isBaseTopicData = (data: unknown): data is BaseTopicData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseTopicData)[] = [
+    "name",
+    "slug",
+    "description",
+  ];
+
+  return REQUIRED_FIELDS.every(
+    (field) =>
+      data[field as keyof object] &&
+      typeof data[field as keyof object] === "string"
+  );
+};
+
+export const isAdditionalTopicData = (
+  data: unknown
+): data is AdditionalTopicData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalTopicData)[] = ["icon"];
 
   return REQUIRED_FIELDS.every(
     (field) =>
