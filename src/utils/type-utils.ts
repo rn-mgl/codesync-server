@@ -8,7 +8,10 @@ import type {
   BaseTopicData,
 } from "@src/interface/topic-interface";
 
-export const isBaseUserData = (data: unknown): data is BaseUserData => {
+export const isBaseUserData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseUserData => {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -21,14 +24,25 @@ export const isBaseUserData = (data: unknown): data is BaseUserData => {
     "username",
   ];
 
-  return REQUIRED_FIELDS.every(
-    (field) =>
-      data[field as keyof object] &&
-      typeof data[field as keyof object] === "string"
-  );
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        data[field as keyof object] &&
+        typeof data[field as keyof object] === "string"
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        data[field as keyof object] &&
+        typeof data[field as keyof object] === "string"
+    );
+  }
 };
 
-export const isBaseProblemData = (data: unknown): data is BaseProblemData => {
+export const isBaseProblemData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseProblemData => {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -39,15 +53,24 @@ export const isBaseProblemData = (data: unknown): data is BaseProblemData => {
     "description",
   ];
 
-  return REQUIRED_FIELDS.every(
-    (field) =>
-      data[field as keyof object] &&
-      typeof data[field as keyof object] === "string"
-  );
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        data[field as keyof object] &&
+        typeof data[field as keyof object] === "string"
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        data[field as keyof object] &&
+        typeof data[field as keyof object] === "string"
+    );
+  }
 };
 
 export const isAdditionalProblemData = (
-  data: unknown
+  data: unknown,
+  type: "full" | "partial" = "full"
 ): data is AdditionalProblemData => {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -60,14 +83,25 @@ export const isAdditionalProblemData = (
     "output_format",
   ];
 
-  return REQUIRED_FIELDS.every(
-    (field) =>
-      data[field as keyof object] &&
-      typeof data[field as keyof object] === "string"
-  );
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        data[field as keyof object] &&
+        typeof data[field as keyof object] === "string"
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        data[field as keyof object] &&
+        typeof data[field as keyof object] === "string"
+    );
+  }
 };
 
-export const isBaseTopicData = (data: unknown): data is BaseTopicData => {
+export const isBaseTopicData = (
+  data: unknown,
+  type: "partial" | "full" = "full"
+): data is BaseTopicData => {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -78,15 +112,24 @@ export const isBaseTopicData = (data: unknown): data is BaseTopicData => {
     "description",
   ];
 
-  return REQUIRED_FIELDS.every(
-    (field) =>
-      data[field as keyof object] &&
-      typeof data[field as keyof object] === "string"
-  );
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        data[field as keyof object] &&
+        typeof data[field as keyof object] === "string"
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        data[field as keyof object] &&
+        typeof data[field as keyof object] === "string"
+    );
+  }
 };
 
 export const isAdditionalTopicData = (
-  data: unknown
+  data: unknown,
+  type: "full" | "partial" = "full"
 ): data is AdditionalTopicData => {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -94,9 +137,17 @@ export const isAdditionalTopicData = (
 
   const REQUIRED_FIELDS: (keyof AdditionalTopicData)[] = ["icon"];
 
-  return REQUIRED_FIELDS.every(
-    (field) =>
-      data[field as keyof object] &&
-      typeof data[field as keyof object] === "string"
-  );
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        data[field as keyof object] &&
+        typeof data[field as keyof object] === "string"
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        data[field as keyof object] &&
+        typeof data[field as keyof object] === "string"
+    );
+  }
 };

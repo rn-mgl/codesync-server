@@ -13,36 +13,44 @@ import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
-  const data = req.body;
+  const body = req.body;
 
-  if (!data || !isBaseProblemData(data)) {
+  if (!body || !isBaseProblemData(body)) {
     throw new AppError(
       `Invalid Problem data. Missing values.`,
       StatusCodes.BAD_REQUEST
     );
   }
 
-  const { title, slug, description } = data;
+  const { title, slug, description } = body;
 
-  let problemData: BaseProblemData & Partial<AdditionalProblemData> = {
+  let createData: BaseProblemData & Partial<AdditionalProblemData> = {
     title,
     slug,
     description,
   };
 
-  if (isAdditionalProblemData(data)) {
-    problemData = {
-      ...problemData,
-      constraints: data.constraints,
-      editorial: data.editorial,
-      input_format: data.input_format,
-      output_format: data.output_format,
-    };
+  if (isAdditionalProblemData(body, "partial")) {
+    const FIELDS: (keyof AdditionalProblemData)[] = [
+      "constraints",
+      "editorial",
+      "input_format",
+      "output_format",
+    ];
+
+    for (const field of FIELDS) {
+      if (
+        body[field as keyof object] &&
+        typeof body[field as keyof object] === "string"
+      ) {
+        createData[field as keyof object] = body[field as keyof object];
+      }
+    }
   }
 
-  const created = await Problem.create(problemData);
+  const created = await Problem.create(createData);
 
-  return res.json({ created: !!created });
+  return res.json({ success: !!created });
 };
 
 export const all = async (req: Request, res: Response) => {
@@ -55,11 +63,11 @@ export const find = async (req: Request, res: Response) => {
   const params = req.params;
   const body = req.body;
 
-  if (!("param" in params)) {
+  if (typeof params !== "object" || params === null || !("param" in params)) {
     throw new AppError(`Invalid parameter`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!("lookup" in body)) {
+  if (typeof body !== "object" || body === null || !("lookup" in body)) {
     throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
 
@@ -84,47 +92,61 @@ export const find = async (req: Request, res: Response) => {
 };
 
 export const update = async (req: Request, res: Response) => {
-  const data = req.body;
-  const { id } = req.params;
+  const body = req.body;
+  const params = req.params;
 
-  if (!id) {
+  if (typeof params !== "object" || params === null || !("id" in params)) {
     throw new AppError(`Invalid request`, StatusCodes.BAD_REQUEST);
   }
 
   if (
-    typeof data !== "object" ||
-    data === null ||
-    (!isBaseProblemData(data) && !isAdditionalProblemData(data))
+    typeof body !== "object" ||
+    body === null ||
+    (!isBaseProblemData(body, "partial") &&
+      !isAdditionalProblemData(body, "partial"))
   ) {
     throw new AppError(`Invalid problem data.`, StatusCodes.BAD_REQUEST);
   }
 
   let updateData: Partial<BaseProblemData & AdditionalProblemData> = {};
 
-  if (isBaseProblemData(data)) {
-    updateData = {
-      ...updateData,
-      title: data.title,
-      description: data.description,
-      slug: data.slug,
-    };
+  if (isBaseProblemData(body, "partial")) {
+    const FIELDS: (keyof BaseProblemData)[] = ["slug", "title", "description"];
+
+    for (const field of FIELDS) {
+      if (
+        body[field as keyof object] &&
+        typeof body[field as keyof object] === "string"
+      ) {
+        updateData[field as keyof object] = body[field as keyof object];
+      }
+    }
   }
 
-  if (isAdditionalProblemData(data)) {
-    updateData = {
-      ...updateData,
-      constraints: data.constraints,
-      editorial: data.editorial,
-      input_format: data.input_format,
-      output_format: data.output_format,
-    };
+  if (isAdditionalProblemData(body, "partial")) {
+    const FIELDS: (keyof AdditionalProblemData)[] = [
+      "constraints",
+      "editorial",
+      "input_format",
+      "output_format",
+    ];
+
+    for (const field of FIELDS) {
+      if (
+        body[field as keyof object] &&
+        typeof body[field as keyof object] === "string"
+      ) {
+        updateData[field as keyof object] = body[field as keyof object];
+      }
+    }
   }
 
+  const id = parseInt(params.id);
   const updated = await Problem.update(id, updateData);
 
   if (!updated) {
     throw new AppError(
-      `An error occured when the update was being performed.`,
+      `An error occurred when the update was being performed.`,
       StatusCodes.INTERNAL_SERVER_ERROR
     );
   }

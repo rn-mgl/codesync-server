@@ -61,7 +61,7 @@ class Topic implements FullTopicData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM topics WHERE slued = ?;`;
+      const query = `SELECT * FROM topics WHERE slug = ?;`;
 
       const values = [slug];
 

@@ -106,7 +106,7 @@ class Problem implements FullProblemData {
   }
 
   static async update(
-    id: string,
+    id: number,
     updates: Partial<BaseProblemData & AdditionalProblemData>
   ) {
     try {
