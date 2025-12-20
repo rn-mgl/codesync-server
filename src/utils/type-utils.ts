@@ -27,12 +27,14 @@ export const isBaseUserData = (
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
+        field in data &&
         data[field as keyof object] &&
         typeof data[field as keyof object] === "string"
     );
   } else {
     return REQUIRED_FIELDS.some(
       (field) =>
+        field in data &&
         data[field as keyof object] &&
         typeof data[field as keyof object] === "string"
     );
@@ -56,12 +58,14 @@ export const isBaseProblemData = (
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
+        field in data &&
         data[field as keyof object] &&
         typeof data[field as keyof object] === "string"
     );
   } else {
     return REQUIRED_FIELDS.some(
       (field) =>
+        field in data &&
         data[field as keyof object] &&
         typeof data[field as keyof object] === "string"
     );
@@ -86,12 +90,14 @@ export const isAdditionalProblemData = (
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
+        field in data &&
         data[field as keyof object] &&
         typeof data[field as keyof object] === "string"
     );
   } else {
     return REQUIRED_FIELDS.some(
       (field) =>
+        field in data &&
         data[field as keyof object] &&
         typeof data[field as keyof object] === "string"
     );
@@ -115,12 +121,14 @@ export const isBaseTopicData = (
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
+        field in data &&
         data[field as keyof object] &&
         typeof data[field as keyof object] === "string"
     );
   } else {
     return REQUIRED_FIELDS.some(
       (field) =>
+        field in data &&
         data[field as keyof object] &&
         typeof data[field as keyof object] === "string"
     );
@@ -140,12 +148,14 @@ export const isAdditionalTopicData = (
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
+        field in data &&
         data[field as keyof object] &&
         typeof data[field as keyof object] === "string"
     );
   } else {
     return REQUIRED_FIELDS.some(
       (field) =>
+        field in data &&
         data[field as keyof object] &&
         typeof data[field as keyof object] === "string"
     );
