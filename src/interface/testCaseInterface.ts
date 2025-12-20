@@ -9,3 +9,5 @@ export interface BaseTestCaseData {
 export interface AdditionalTestCaseData {
   order_index: number;
 }
+
+export type FullTestCaseData = BaseTestCaseData & AdditionalTestCaseData;

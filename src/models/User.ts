@@ -2,7 +2,7 @@ import type {
   AdditionalUserData,
   BaseUserData,
   FullUserData,
-} from "@src/interface/user-interface.ts";
+} from "@src/interface/userInterface.ts";
 import { createConnection } from "@database/database.ts";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 

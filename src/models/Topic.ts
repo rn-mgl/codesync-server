@@ -3,7 +3,7 @@ import type {
   AdditionalTopicData,
   BaseTopicData,
   FullTopicData,
-} from "@src/interface/topic-interface";
+} from "@src/interface/topicInterface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Topic implements FullTopicData {

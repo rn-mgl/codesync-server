@@ -3,7 +3,7 @@ import type {
   AdditionalProblemData,
   BaseProblemData,
   FullProblemData,
-} from "@src/interface/problem-interface";
+} from "@src/interface/problemInterface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Problem implements FullProblemData {
