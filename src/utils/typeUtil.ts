@@ -4,6 +4,10 @@ import type {
   BaseProblemData,
 } from "@src/interface/problemInterface";
 import type {
+  AdditionalTestCaseData,
+  BaseTestCaseData,
+} from "@src/interface/testCaseInterface";
+import type {
   AdditionalTopicData,
   BaseTopicData,
 } from "@src/interface/topicInterface";
@@ -24,19 +28,21 @@ export const isBaseUserData = (
     "username",
   ];
 
+  const VALID_TYPES = ["string", "number", "boolean"];
+
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
         field in data &&
         data[field as keyof object] &&
-        typeof data[field as keyof object] === "string"
+        VALID_TYPES.includes(typeof data[field as keyof object])
     );
   } else {
     return REQUIRED_FIELDS.some(
       (field) =>
         field in data &&
         data[field as keyof object] &&
-        typeof data[field as keyof object] === "string"
+        VALID_TYPES.includes(typeof data[field as keyof object])
     );
   }
 };
@@ -55,19 +61,21 @@ export const isBaseProblemData = (
     "description",
   ];
 
+  const VALID_TYPES = ["string", "number", "boolean"];
+
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
         field in data &&
         data[field as keyof object] &&
-        typeof data[field as keyof object] === "string"
+        VALID_TYPES.includes(typeof data[field as keyof object])
     );
   } else {
     return REQUIRED_FIELDS.some(
       (field) =>
         field in data &&
         data[field as keyof object] &&
-        typeof data[field as keyof object] === "string"
+        VALID_TYPES.includes(typeof data[field as keyof object])
     );
   }
 };
@@ -87,19 +95,21 @@ export const isAdditionalProblemData = (
     "output_format",
   ];
 
+  const VALID_TYPES = ["string", "number", "boolean"];
+
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
         field in data &&
         data[field as keyof object] &&
-        typeof data[field as keyof object] === "string"
+        VALID_TYPES.includes(typeof data[field as keyof object])
     );
   } else {
     return REQUIRED_FIELDS.some(
       (field) =>
         field in data &&
         data[field as keyof object] &&
-        typeof data[field as keyof object] === "string"
+        VALID_TYPES.includes(typeof data[field as keyof object])
     );
   }
 };
@@ -118,19 +128,21 @@ export const isBaseTopicData = (
     "description",
   ];
 
+  const VALID_TYPES = ["string", "number", "boolean"];
+
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
         field in data &&
         data[field as keyof object] &&
-        typeof data[field as keyof object] === "string"
+        VALID_TYPES.includes(typeof data[field as keyof object])
     );
   } else {
     return REQUIRED_FIELDS.some(
       (field) =>
         field in data &&
         data[field as keyof object] &&
-        typeof data[field as keyof object] === "string"
+        VALID_TYPES.includes(typeof data[field as keyof object])
     );
   }
 };
@@ -145,19 +157,85 @@ export const isAdditionalTopicData = (
 
   const REQUIRED_FIELDS: (keyof AdditionalTopicData)[] = ["icon"];
 
+  const VALID_TYPES = ["string", "number", "boolean"];
+
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
         field in data &&
         data[field as keyof object] &&
-        typeof data[field as keyof object] === "string"
+        VALID_TYPES.includes(typeof data[field as keyof object])
     );
   } else {
     return REQUIRED_FIELDS.some(
       (field) =>
         field in data &&
         data[field as keyof object] &&
-        typeof data[field as keyof object] === "string"
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
+
+export const isBaseTestCaseData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseTestCaseData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseTestCaseData)[] = [
+    "input",
+    "expected_output",
+    "memory_limit_mb",
+    "problem_id",
+    "time_limit_ms",
+  ];
+
+  const VALID_TYPES = ["string", "number", "boolean"];
+
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
+
+export const isAdditionalTestCaseData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalTestCaseData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalTestCaseData)[] = ["order_index"];
+
+  const VALID_TYPES = ["string", "number", "boolean"];
+
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(data[field as keyof object])
     );
   }
 };

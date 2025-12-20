@@ -121,3 +121,5 @@ class TestCase implements FullTestCaseData {
     }
   }
 }
+
+export default TestCase;
