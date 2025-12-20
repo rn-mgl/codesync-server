@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsup src/server.ts --format esm --out-dir dist",
-    "start": "node src/server.js",
+    "start": "node dist/server.js",
     "dev": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
