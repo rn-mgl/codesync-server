@@ -1,9 +1,8 @@
 import AppError from "@errors/AppError.ts";
 import User from "@models/User.ts";
-import type { AdditionalUserData } from "@src/interface/user-interface";
-import { accountVerificationEmail } from "@src/services/email-service";
-import { isBaseUserData } from "@src/utils/type-utils";
-import { hashString, verifyHash } from "@utils/crypt-utils";
+import { accountVerificationEmail } from "@src/services/emailService";
+import { isBaseUserData } from "@src/utils/typeUtil";
+import { hashString, verifyHash } from "@utils/cryptUtil";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";

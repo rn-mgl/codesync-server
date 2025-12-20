@@ -2,9 +2,9 @@ import AppError from "@src/errors/AppError";
 import type {
   AdditionalTopicData,
   BaseTopicData,
-} from "@src/interface/topic-interface";
+} from "@src/interface/topicInterface";
 import Topic from "@src/models/Topic";
-import { isAdditionalTopicData, isBaseTopicData } from "@src/utils/type-utils";
+import { isAdditionalTopicData, isBaseTopicData } from "@src/utils/typeUtil";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";

@@ -1,4 +1,4 @@
-import { login, register, verify } from "@controllers/auth-controller.ts";
+import { login, register, verify } from "@controllers/authController.ts";
 import { Router } from "express";
 
 const router = Router();

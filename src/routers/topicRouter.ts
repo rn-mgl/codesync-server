@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { all, create, find, update } from "@controllers/topic-controller.ts";
+import { all, create, find, update } from "@controllers/topicController.ts";
 
 const router = Router();
 

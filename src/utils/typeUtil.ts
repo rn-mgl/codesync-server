@@ -1,12 +1,12 @@
-import { type BaseUserData } from "@interface/user-interface.ts";
+import { type BaseUserData } from "@interface/userInterface.ts";
 import type {
   AdditionalProblemData,
   BaseProblemData,
-} from "@src/interface/problem-interface";
+} from "@src/interface/problemInterface";
 import type {
   AdditionalTopicData,
   BaseTopicData,
-} from "@src/interface/topic-interface";
+} from "@src/interface/topicInterface";
 
 export const isBaseUserData = (
   data: unknown,

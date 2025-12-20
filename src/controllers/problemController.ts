@@ -2,12 +2,12 @@ import AppError from "@src/errors/AppError";
 import type {
   AdditionalProblemData,
   BaseProblemData,
-} from "@src/interface/problem-interface";
+} from "@src/interface/problemInterface";
 import Problem from "@src/models/Problem";
 import {
   isAdditionalProblemData,
   isBaseProblemData,
-} from "@src/utils/type-utils";
+} from "@src/utils/typeUtil";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";

@@ -3,12 +3,12 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 
-import authRouter from "@routers/auth-router.ts";
-import userRouter from "@routers/user-router.ts";
-import problemRouter from "@routers/problem-router.ts";
-import topicRouter from "@routers/topic-router.ts";
+import authRouter from "@routers/authRouter.ts";
+import userRouter from "@routers/userRouter.ts";
+import problemRouter from "@routers/problemRouter.ts";
+import topicRouter from "@routers/topicRouter.ts";
 
-import errorMiddleware from "@middlewares/error-middleware.ts";
+import errorMiddleware from "@middlewares/errorMiddleware.ts";
 
 const app = express();
 
