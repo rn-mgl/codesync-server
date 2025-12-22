@@ -95,7 +95,7 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<FullHintData> = {};
+  let updateData: Partial<BaseHintData & AdditionalHintData> = {};
 
   if (isBaseHintData(body, "partial")) {
     const FIELDS: (keyof BaseHintData)[] = [
