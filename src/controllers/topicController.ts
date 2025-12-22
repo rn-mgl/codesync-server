@@ -12,7 +12,7 @@ import type { RowDataPacket } from "mysql2";
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!body || !isBaseTopicData(body)) {
+  if (!isBaseTopicData(body)) {
     throw new AppError(`Invalid topic data.`, StatusCodes.BAD_REQUEST);
   }
 
@@ -96,10 +96,8 @@ export const update = async (req: Request, res: Response) => {
   }
 
   if (
-    typeof body !== "object" ||
-    body === null ||
-    (!isBaseTopicData(body, "partial") &&
-      !isAdditionalTopicData(body, "partial"))
+    !isBaseTopicData(body, "partial") &&
+    !isAdditionalTopicData(body, "partial")
   ) {
     throw new AppError(`Invalid topic data.`, StatusCodes.BAD_REQUEST);
   }

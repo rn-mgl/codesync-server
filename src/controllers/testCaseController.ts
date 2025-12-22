@@ -15,7 +15,7 @@ import type { RowDataPacket } from "mysql2";
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (typeof body !== "object" || body === null || !isBaseTestCaseData(body)) {
+  if (!isBaseTestCaseData(body)) {
     throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
 
@@ -94,10 +94,8 @@ export const update = async (req: Request, res: Response) => {
   const params = req.params;
 
   if (
-    typeof body !== "object" ||
-    body === null ||
-    (!isBaseTestCaseData(body, "partial") &&
-      !isAdditionalTestCaseData(body, "partial"))
+    !isBaseTestCaseData(body, "partial") &&
+    !isAdditionalTestCaseData(body, "partial")
   ) {
     throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }

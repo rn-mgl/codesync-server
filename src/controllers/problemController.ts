@@ -15,7 +15,7 @@ import type { RowDataPacket } from "mysql2";
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!body || !isBaseProblemData(body)) {
+  if (!isBaseProblemData(body)) {
     throw new AppError(
       `Invalid Problem data. Missing values.`,
       StatusCodes.BAD_REQUEST
@@ -101,10 +101,8 @@ export const update = async (req: Request, res: Response) => {
   }
 
   if (
-    typeof body !== "object" ||
-    body === null ||
-    (!isBaseProblemData(body, "partial") &&
-      !isAdditionalProblemData(body, "partial"))
+    !isBaseProblemData(body, "partial") &&
+    !isAdditionalProblemData(body, "partial")
   ) {
     throw new AppError(`Invalid problem data.`, StatusCodes.BAD_REQUEST);
   }
