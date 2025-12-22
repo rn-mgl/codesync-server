@@ -1,5 +1,9 @@
 import { type BaseUserData } from "@interface/userInterface.ts";
 import type {
+  AdditionalHintData,
+  BaseHintData,
+} from "@src/interface/hintInterface";
+import type {
   AdditionalProblemData,
   BaseProblemData,
 } from "@src/interface/problemInterface";
@@ -236,6 +240,68 @@ export const isAdditionalTestCaseData = (
         field in data &&
         data[field as keyof object] &&
         VALID_TYPES.includes(data[field as keyof object])
+    );
+  }
+};
+
+export const isBaseHintData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseHintData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseHintData)[] = [
+    "hint_level",
+    "hint_text",
+    "problem_id",
+  ];
+
+  const VALID_TYPES = ["string", "number", "boolean"];
+
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
+
+export const isAdditionalHintData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalHintData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalHintData)[] = ["order_index"];
+
+  const VALID_TYPES = ["string", "number", "boolean"];
+
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
     );
   }
 };

@@ -8,6 +8,7 @@ import userRouter from "@routers/userRouter.ts";
 import problemRouter from "@routers/problemRouter.ts";
 import topicRouter from "@routers/topicRouter.ts";
 import testCaseRouter from "@routers/testCaseRouter.ts";
+import hintRouter from "@routers/hintRouter.ts";
 
 import errorMiddleware from "@middlewares/errorMiddleware.ts";
 
@@ -22,6 +23,7 @@ app.use("/user", userRouter);
 app.use("/problem", problemRouter);
 app.use("/topic", topicRouter);
 app.use("/test-case", testCaseRouter);
+app.use("/hint", hintRouter);
 app.use(errorMiddleware);
 
 export default app;
