@@ -98,7 +98,11 @@ export const update = async (req: Request, res: Response) => {
   let updateData: Partial<FullHintData> = {};
 
   if (isBaseHintData(body, "partial")) {
-    const FIELDS = ["hint_level", "hint_text", "problem_id"] as const;
+    const FIELDS: (keyof BaseHintData)[] = [
+      "hint_level",
+      "hint_text",
+      "problem_id",
+    ];
 
     for (const field of FIELDS) {
       if (field in body && body[field as keyof object]) {
