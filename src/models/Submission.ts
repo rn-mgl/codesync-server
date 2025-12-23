@@ -134,29 +134,6 @@ class Submission implements FullSubmissionData {
       return [];
     }
   }
-
-  static async update(id: number, updates: Partial<FullSubmissionData>) {
-    try {
-      const db = createConnection();
-
-      const update = Object.keys(updates)
-        .map((column) => `${column} = ?`)
-        .join(", ");
-      const values = Object.values(updates);
-
-      const query = `UPDATE submissions ${update} WHERE id = ?;`;
-
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        id,
-      ]);
-
-      return result;
-    } catch (error) {
-      console.log(error);
-      return [];
-    }
-  }
 }
 
 export default Submission;
