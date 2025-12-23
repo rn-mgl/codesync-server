@@ -8,6 +8,10 @@ import type {
   BaseProblemData,
 } from "@src/interface/problemInterface";
 import type {
+  AdditionalSubmissionData,
+  BaseSubmissionData,
+} from "@src/interface/submissionInterface";
+import type {
   AdditionalTestCaseData,
   BaseTestCaseData,
 } from "@src/interface/testCaseInterface";
@@ -286,6 +290,75 @@ export const isAdditionalHintData = (
   }
 
   const REQUIRED_FIELDS: (keyof AdditionalHintData)[] = ["order_index"];
+
+  const VALID_TYPES = ["string", "number", "boolean"];
+
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
+
+export const isBaseSubmissionData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseSubmissionData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseSubmissionData)[] = [
+    "code",
+    "language",
+    "problem_id",
+    "status",
+    "user_id",
+  ] as const;
+
+  const VALID_TYPES = ["string", "number", "boolean"];
+
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
+
+export const isAdditionalSubmissionData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalSubmissionData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalSubmissionData)[] = [
+    "error_message",
+    "execution_time_ms",
+    "memory_used_kb",
+    "test_results",
+  ] as const;
 
   const VALID_TYPES = ["string", "number", "boolean"];
 
