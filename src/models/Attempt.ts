@@ -6,7 +6,7 @@ import type {
 } from "@src/interface/attemptsInterface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
-class Attempts implements FullAttemptData {
+class Attempt implements FullAttemptData {
   attempt_count: number;
   hints_used: number;
   is_solved: boolean;
@@ -72,7 +72,7 @@ class Attempts implements FullAttemptData {
       return result;
     } catch (error) {
       console.log(error);
-      return;
+      return [];
     }
   }
 
@@ -111,4 +111,4 @@ class Attempts implements FullAttemptData {
   }
 }
 
-export default Attempts;
+export default Attempt;

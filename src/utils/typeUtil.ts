@@ -1,5 +1,9 @@
 import { type BaseUserData } from "@interface/userInterface.ts";
 import type {
+  AdditionalAttemptData,
+  BaseAttemptData,
+} from "@src/interface/attemptsInterface";
+import type {
   AdditionalHintData,
   BaseHintData,
 } from "@src/interface/hintInterface";
@@ -359,6 +363,70 @@ export const isAdditionalSubmissionData = (
     "memory_used_kb",
     "test_results",
   ] as const;
+
+  const VALID_TYPES = ["string", "number", "boolean"];
+
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
+
+export const isBaseAttemptData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseAttemptData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseAttemptData)[] = [
+    "attempt_count",
+    "hints_used",
+    "problem_id",
+    "time_spent_seconds",
+    "user_id",
+  ];
+
+  const VALID_TYPES = ["string", "number", "boolean"];
+
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
+
+export const isAdditionalAttemptData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalAttemptData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalAttemptData)[] = ["is_solved"];
 
   const VALID_TYPES = ["string", "number", "boolean"];
 
