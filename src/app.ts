@@ -11,6 +11,7 @@ import testCaseRouter from "@routers/testCaseRouter.ts";
 import hintRouter from "@routers/hintRouter.ts";
 import submissionRouter from "@routers/submissionRouter.ts";
 import attemptRouter from "@routers/attemptRouter.ts";
+import sessionRouter from "@routers/sessionRouter.ts";
 
 import errorMiddleware from "@middlewares/errorMiddleware.ts";
 
@@ -28,6 +29,8 @@ app.use("/test-case", testCaseRouter);
 app.use("/hint", hintRouter);
 app.use("/submission", submissionRouter);
 app.use("/attempt", attemptRouter);
+app.use("/session", sessionRouter);
+
 app.use(errorMiddleware);
 
 export default app;

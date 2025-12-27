@@ -12,6 +12,10 @@ import type {
   BaseProblemData,
 } from "@src/interface/problemInterface";
 import type {
+  AdditionalSessionData,
+  BaseSessionData,
+} from "@src/interface/sessionInterface";
+import type {
   AdditionalSubmissionData,
   BaseSubmissionData,
 } from "@src/interface/submissionInterface";
@@ -23,6 +27,8 @@ import type {
   AdditionalTopicData,
   BaseTopicData,
 } from "@src/interface/topicInterface";
+
+const VALID_TYPES = ["string", "number", "boolean"];
 
 export const isBaseUserData = (
   data: unknown,
@@ -39,8 +45,6 @@ export const isBaseUserData = (
     "password",
     "username",
   ];
-
-  const VALID_TYPES = ["string", "number", "boolean"];
 
   if (type === "full") {
     return REQUIRED_FIELDS.every(
@@ -72,8 +76,6 @@ export const isBaseProblemData = (
     "slug",
     "description",
   ];
-
-  const VALID_TYPES = ["string", "number", "boolean"];
 
   if (type === "full") {
     return REQUIRED_FIELDS.every(
@@ -107,8 +109,6 @@ export const isAdditionalProblemData = (
     "output_format",
   ];
 
-  const VALID_TYPES = ["string", "number", "boolean"];
-
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
@@ -140,8 +140,6 @@ export const isBaseTopicData = (
     "description",
   ];
 
-  const VALID_TYPES = ["string", "number", "boolean"];
-
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
@@ -168,8 +166,6 @@ export const isAdditionalTopicData = (
   }
 
   const REQUIRED_FIELDS: (keyof AdditionalTopicData)[] = ["icon"];
-
-  const VALID_TYPES = ["string", "number", "boolean"];
 
   if (type === "full") {
     return REQUIRED_FIELDS.every(
@@ -204,8 +200,6 @@ export const isBaseTestCaseData = (
     "time_limit_ms",
   ];
 
-  const VALID_TYPES = ["string", "number", "boolean"];
-
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
@@ -232,8 +226,6 @@ export const isAdditionalTestCaseData = (
   }
 
   const REQUIRED_FIELDS: (keyof AdditionalTestCaseData)[] = ["order_index"];
-
-  const VALID_TYPES = ["string", "number", "boolean"];
 
   if (type === "full") {
     return REQUIRED_FIELDS.every(
@@ -266,8 +258,6 @@ export const isBaseHintData = (
     "problem_id",
   ];
 
-  const VALID_TYPES = ["string", "number", "boolean"];
-
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
@@ -294,8 +284,6 @@ export const isAdditionalHintData = (
   }
 
   const REQUIRED_FIELDS: (keyof AdditionalHintData)[] = ["order_index"];
-
-  const VALID_TYPES = ["string", "number", "boolean"];
 
   if (type === "full") {
     return REQUIRED_FIELDS.every(
@@ -330,8 +318,6 @@ export const isBaseSubmissionData = (
     "user_id",
   ] as const;
 
-  const VALID_TYPES = ["string", "number", "boolean"];
-
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
@@ -363,8 +349,6 @@ export const isAdditionalSubmissionData = (
     "memory_used_kb",
     "test_results",
   ] as const;
-
-  const VALID_TYPES = ["string", "number", "boolean"];
 
   if (type === "full") {
     return REQUIRED_FIELDS.every(
@@ -399,8 +383,6 @@ export const isBaseAttemptData = (
     "user_id",
   ];
 
-  const VALID_TYPES = ["string", "number", "boolean"];
-
   if (type === "full") {
     return REQUIRED_FIELDS.every(
       (field) =>
@@ -428,7 +410,72 @@ export const isAdditionalAttemptData = (
 
   const REQUIRED_FIELDS: (keyof AdditionalAttemptData)[] = ["is_solved"];
 
-  const VALID_TYPES = ["string", "number", "boolean"];
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
+
+export const isBaseSessionData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseSessionData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseSessionData)[] = [
+    "code",
+    "host_id",
+    "language",
+    "max_participants",
+    "problem_id",
+    "status",
+    "title",
+    "type",
+  ];
+
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
+
+export const isAdditionalSessionData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalSessionData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalSessionData)[] = [
+    "ended_at",
+    "password",
+    "started_at",
+  ];
 
   if (type === "full") {
     return REQUIRED_FIELDS.every(

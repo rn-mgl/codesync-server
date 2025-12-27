@@ -1,8 +1,5 @@
 import { createConnection } from "@src/database/database";
-import type {
-  AdditionalAttemptData,
-  BaseAttemptData,
-} from "@src/interface/attemptsInterface";
+
 import type {
   AdditionalSessionData,
   BaseSessionData,
@@ -126,7 +123,7 @@ class Session implements FullSessionData {
 
   static async update(
     id: number,
-    updates: Partial<BaseAttemptData & AdditionalAttemptData>
+    updates: Partial<BaseSessionData & AdditionalSessionData>
   ) {
     try {
       const db = createConnection();
