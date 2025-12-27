@@ -1,9 +1,9 @@
 export interface BaseSessionData {
-  session_code: string;
+  code: string;
   title: string;
   problem_id: string;
   host_id: string;
-  session_type: keyof typeof SESSION_TYPES;
+  type: keyof typeof SESSION_TYPES;
   status: keyof typeof STATUS;
   language: string;
   max_participants: number;
