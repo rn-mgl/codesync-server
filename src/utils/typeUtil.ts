@@ -13,7 +13,9 @@ import type {
 } from "@src/interface/problemInterface";
 import type {
   AdditionalSessionData,
+  AdditionalSessionParticipantData,
   BaseSessionData,
+  BaseSessionParticipantData,
 } from "@src/interface/sessionInterface";
 import type {
   AdditionalSubmissionData,
@@ -475,6 +477,69 @@ export const isAdditionalSessionData = (
     "ended_at",
     "password",
     "started_at",
+  ];
+
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
+
+export const isBaseSessionParticipantData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseSessionParticipantData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseSessionParticipantData)[] = [
+    "role",
+    "session_id",
+    "user_id",
+  ];
+
+  if (type === "full") {
+    return REQUIRED_FIELDS.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return REQUIRED_FIELDS.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
+
+export const isAdditionalSessionParticipantData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalSessionParticipantData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalSessionParticipantData)[] = [
+    "is_active",
+    "left_at",
+    "lines_added",
+    "lines_deleted",
   ];
 
   if (type === "full") {

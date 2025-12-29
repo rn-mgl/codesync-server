@@ -34,7 +34,7 @@ const STATUS = {
 export interface BaseSessionParticipantData {
   session_id: number;
   user_id: number;
-  role: string;
+  role: keyof typeof PARTICIPANT_ROLES;
   joined_at: string;
 }
 
@@ -47,3 +47,9 @@ export interface AdditionalSessionParticipantData {
 
 export type FullSessionParticipantData = BaseSessionParticipantData &
   AdditionalSessionParticipantData;
+
+const PARTICIPANT_ROLES = {
+  host: "host",
+  collaborator: "collaborator",
+  observer: "observer",
+} as const;

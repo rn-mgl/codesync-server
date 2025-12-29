@@ -95,7 +95,10 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!isBaseSessionData(body) && !isAdditionalSessionData(body)) {
+  if (
+    !isBaseSessionData(body, "partial") &&
+    !isAdditionalSessionData(body, "partial")
+  ) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 

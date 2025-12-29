@@ -12,7 +12,7 @@ class SessionParticipant implements FullSessionParticipantData {
   left_at: string | null;
   lines_added: number;
   lines_deleted: number;
-  role: string;
+  role: "host" | "collaborator" | "observer";
   session_id: number;
   user_id: number;
 
@@ -82,13 +82,13 @@ class SessionParticipant implements FullSessionParticipantData {
     }
   }
 
-  static async findBySession(id: number) {
+  static async findBySession(sessionId: number) {
     try {
       const db = createConnection();
 
       const query = `SELECT * FROM session_participants WHERE session_id = ?;`;
 
-      const values = [id];
+      const values = [sessionId];
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 
