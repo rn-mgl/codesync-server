@@ -30,3 +30,20 @@ const STATUS = {
   completed: "completed",
   cancelled: "cancelled",
 } as const;
+
+export interface BaseSessionParticipantData {
+  session_id: number;
+  user_id: number;
+  role: string;
+  joined_at: string;
+}
+
+export interface AdditionalSessionParticipantData {
+  left_at: string | null;
+  lines_added: number;
+  lines_deleted: number;
+  is_active: boolean;
+}
+
+export type FullSessionParticipantData = BaseSessionParticipantData &
+  AdditionalSessionParticipantData;
