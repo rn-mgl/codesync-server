@@ -31,7 +31,7 @@ app.use("/hint", hintRouter);
 app.use("/submission", submissionRouter);
 app.use("/attempt", attemptRouter);
 app.use("/session", sessionRouter);
-app.use("/session-participatn", sessionParticipantRouter);
+app.use("/session-participant", sessionParticipantRouter);
 
 app.use(errorMiddleware);
 
