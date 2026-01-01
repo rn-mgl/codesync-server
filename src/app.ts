@@ -13,6 +13,7 @@ import submissionRouter from "@routers/submissionRouter.ts";
 import attemptRouter from "@routers/attemptRouter.ts";
 import sessionRouter from "@routers/sessionRouter.ts";
 import sessionParticipantRouter from "@routers/sessionParticipantRouter.ts";
+import codeSnapshotRouter from "@routers/codeSnapshotRouter.ts";
 
 import errorMiddleware from "@middlewares/errorMiddleware.ts";
 
@@ -32,6 +33,7 @@ app.use("/submission", submissionRouter);
 app.use("/attempt", attemptRouter);
 app.use("/session", sessionRouter);
 app.use("/session-participant", sessionParticipantRouter);
+app.use("/code-snapshot", codeSnapshotRouter);
 
 app.use(errorMiddleware);
 

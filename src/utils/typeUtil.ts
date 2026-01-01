@@ -4,6 +4,10 @@ import type {
   BaseAttemptData,
 } from "@src/interface/attemptsInterface";
 import type {
+  AdditionalCodeSnapshotData,
+  BaseCodeSnapshotData,
+} from "@src/interface/codeSnapshot";
+import type {
   AdditionalHintData,
   BaseHintData,
 } from "@src/interface/hintInterface";
@@ -30,7 +34,29 @@ import type {
   BaseTopicData,
 } from "@src/interface/topicInterface";
 
-const VALID_TYPES = ["string", "number", "boolean"];
+const validateFields = (
+  data: object,
+  fields: readonly string[],
+  type: "full" | "partial"
+) => {
+  const VALID_TYPES = ["string", "number", "boolean"];
+
+  if (type === "full") {
+    return fields.every(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  } else {
+    return fields.some(
+      (field) =>
+        field in data &&
+        data[field as keyof object] &&
+        VALID_TYPES.includes(typeof data[field as keyof object])
+    );
+  }
+};
 
 export const isBaseUserData = (
   data: unknown,
@@ -48,21 +74,7 @@ export const isBaseUserData = (
     "username",
   ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isBaseProblemData = (
@@ -79,21 +91,7 @@ export const isBaseProblemData = (
     "description",
   ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isAdditionalProblemData = (
@@ -111,21 +109,7 @@ export const isAdditionalProblemData = (
     "output_format",
   ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isBaseTopicData = (
@@ -136,27 +120,13 @@ export const isBaseTopicData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof BaseTopicData)[] = [
+  const REQUIRED_FIELDS: readonly (keyof BaseTopicData)[] = [
     "name",
     "slug",
     "description",
   ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isAdditionalTopicData = (
@@ -167,23 +137,9 @@ export const isAdditionalTopicData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof AdditionalTopicData)[] = ["icon"];
+  const REQUIRED_FIELDS: readonly (keyof AdditionalTopicData)[] = ["icon"];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isBaseTestCaseData = (
@@ -194,7 +150,7 @@ export const isBaseTestCaseData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof BaseTestCaseData)[] = [
+  const REQUIRED_FIELDS: readonly (keyof BaseTestCaseData)[] = [
     "input",
     "expected_output",
     "memory_limit_mb",
@@ -202,21 +158,7 @@ export const isBaseTestCaseData = (
     "time_limit_ms",
   ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isAdditionalTestCaseData = (
@@ -227,23 +169,11 @@ export const isAdditionalTestCaseData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof AdditionalTestCaseData)[] = ["order_index"];
+  const REQUIRED_FIELDS: readonly (keyof AdditionalTestCaseData)[] = [
+    "order_index",
+  ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isBaseHintData = (
@@ -254,27 +184,13 @@ export const isBaseHintData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof BaseHintData)[] = [
+  const REQUIRED_FIELDS: readonly (keyof BaseHintData)[] = [
     "hint_level",
     "hint_text",
     "problem_id",
   ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isAdditionalHintData = (
@@ -285,23 +201,11 @@ export const isAdditionalHintData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof AdditionalHintData)[] = ["order_index"];
+  const REQUIRED_FIELDS: readonly (keyof AdditionalHintData)[] = [
+    "order_index",
+  ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isBaseSubmissionData = (
@@ -312,7 +216,7 @@ export const isBaseSubmissionData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof BaseSubmissionData)[] = [
+  const REQUIRED_FIELDS: readonly (keyof BaseSubmissionData)[] = [
     "code",
     "language",
     "problem_id",
@@ -320,21 +224,7 @@ export const isBaseSubmissionData = (
     "user_id",
   ] as const;
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isAdditionalSubmissionData = (
@@ -345,28 +235,14 @@ export const isAdditionalSubmissionData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof AdditionalSubmissionData)[] = [
+  const REQUIRED_FIELDS: readonly (keyof AdditionalSubmissionData)[] = [
     "error_message",
     "execution_time_ms",
     "memory_used_kb",
     "test_results",
   ] as const;
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isBaseAttemptData = (
@@ -377,7 +253,7 @@ export const isBaseAttemptData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof BaseAttemptData)[] = [
+  const REQUIRED_FIELDS: readonly (keyof BaseAttemptData)[] = [
     "attempt_count",
     "hints_used",
     "problem_id",
@@ -385,21 +261,7 @@ export const isBaseAttemptData = (
     "user_id",
   ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isAdditionalAttemptData = (
@@ -410,23 +272,11 @@ export const isAdditionalAttemptData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof AdditionalAttemptData)[] = ["is_solved"];
+  const REQUIRED_FIELDS: readonly (keyof AdditionalAttemptData)[] = [
+    "is_solved",
+  ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isBaseSessionData = (
@@ -437,7 +287,7 @@ export const isBaseSessionData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof BaseSessionData)[] = [
+  const REQUIRED_FIELDS: readonly (keyof BaseSessionData)[] = [
     "code",
     "host_id",
     "language",
@@ -448,21 +298,7 @@ export const isBaseSessionData = (
     "type",
   ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isAdditionalSessionData = (
@@ -473,27 +309,13 @@ export const isAdditionalSessionData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof AdditionalSessionData)[] = [
+  const REQUIRED_FIELDS: readonly (keyof AdditionalSessionData)[] = [
     "ended_at",
     "password",
     "started_at",
   ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isBaseSessionParticipantData = (
@@ -504,27 +326,13 @@ export const isBaseSessionParticipantData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof BaseSessionParticipantData)[] = [
+  const REQUIRED_FIELDS: readonly (keyof BaseSessionParticipantData)[] = [
     "role",
     "session_id",
     "user_id",
   ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  }
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
 
 export const isAdditionalSessionParticipantData = (
@@ -535,26 +343,45 @@ export const isAdditionalSessionParticipantData = (
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof AdditionalSessionParticipantData)[] = [
+  const REQUIRED_FIELDS: readonly (keyof AdditionalSessionParticipantData)[] = [
     "is_active",
     "left_at",
     "lines_added",
     "lines_deleted",
   ];
 
-  if (type === "full") {
-    return REQUIRED_FIELDS.every(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
-  } else {
-    return REQUIRED_FIELDS.some(
-      (field) =>
-        field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object])
-    );
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isBaseCodeSnapshotData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseCodeSnapshotData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
   }
+
+  const REQUIRED_FIELDS: (keyof BaseCodeSnapshotData)[] = [
+    "change_type",
+    "code_content",
+    "cursor_pointer",
+    "line_number",
+    "session_id",
+    "user_id",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isAdditionalCodeSnapshotData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalCodeSnapshotData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalCodeSnapshotData)[] = [];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
 };
