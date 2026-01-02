@@ -4,6 +4,10 @@ import type {
   BaseAttemptData,
 } from "@src/interface/attemptsInterface";
 import type {
+  AdditionalChatMessageData,
+  BaseChatMessageData,
+} from "@src/interface/chatMessage";
+import type {
   AdditionalCodeSnapshotData,
   BaseCodeSnapshotData,
 } from "@src/interface/codeSnapshot";
@@ -56,6 +60,39 @@ const validateFields = (
         VALID_TYPES.includes(typeof data[field as keyof object])
     );
   }
+};
+
+export const isValidLookupParam = (
+  data: unknown
+): data is object & Record<"param", string> => {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "param" in data &&
+    typeof data.param === "string"
+  );
+};
+
+export const isValidLookupBody = (
+  data: unknown
+): data is object & Record<"lookup", string> => {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "lookup" in data &&
+    typeof data.lookup === "string"
+  );
+};
+
+export const isValidUpdateParam = (
+  data: unknown
+): data is Object & Record<"id", string> => {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "id" in data &&
+    typeof data.id === "string"
+  );
 };
 
 export const isBaseUserData = (
@@ -382,6 +419,37 @@ export const isAdditionalCodeSnapshotData = (
   }
 
   const REQUIRED_FIELDS: (keyof AdditionalCodeSnapshotData)[] = [];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isBaseChatMessageData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseChatMessageData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseChatMessageData)[] = [
+    "message",
+    "message_type",
+    "sender_id",
+    "session_id",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isAdditionalChatMessageData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalChatMessageData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalChatMessageData)[] = ["deleted_at"];
 
   return validateFields(data, REQUIRED_FIELDS, type);
 };
