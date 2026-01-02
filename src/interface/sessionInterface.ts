@@ -3,8 +3,8 @@ export interface BaseSessionData {
   title: string;
   problem_id: string;
   host_id: string;
-  type: keyof typeof SESSION_TYPES;
-  status: keyof typeof STATUS;
+  type: SESSION_TYPES;
+  status: STATUSES;
   language: string;
   max_participants: number;
 }
@@ -17,24 +17,14 @@ export interface AdditionalSessionData {
 
 export type FullSessionData = BaseSessionData & AdditionalSessionData;
 
-const SESSION_TYPES = {
-  practice: "practice",
-  interview: "interview",
-  competition: "competition",
-  learning: "learning",
-} as const;
+type SESSION_TYPES = "practice" | "interview" | "competition" | "learning";
 
-const STATUS = {
-  waiting: "waiting",
-  active: "active",
-  completed: "completed",
-  cancelled: "cancelled",
-} as const;
+type STATUSES = "waiting" | "active" | "completed" | "cancelled";
 
 export interface BaseSessionParticipantData {
   session_id: number;
   user_id: number;
-  role: keyof typeof PARTICIPANT_ROLES;
+  role: PARTICIPANT_ROLES;
   joined_at: string;
 }
 
@@ -48,8 +38,4 @@ export interface AdditionalSessionParticipantData {
 export type FullSessionParticipantData = BaseSessionParticipantData &
   AdditionalSessionParticipantData;
 
-const PARTICIPANT_ROLES = {
-  host: "host",
-  collaborator: "collaborator",
-  observer: "observer",
-} as const;
+type PARTICIPANT_ROLES = "host" | "collaborator" | "observer";

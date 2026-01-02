@@ -3,7 +3,7 @@ export interface BaseCodeSnapshotData {
   user_id: number;
   code_content: string;
   cursor_pointer: string;
-  change_type: keyof typeof CHANGE_TYPES;
+  change_type: CHANGE_TYPES;
   line_number: number;
 }
 
@@ -12,8 +12,4 @@ export interface AdditionalCodeSnapshotData {}
 export type FullCodeSnapshotData = BaseCodeSnapshotData &
   AdditionalCodeSnapshotData;
 
-const CHANGE_TYPES = {
-  insert: "insert",
-  delete: "delete",
-  replace: "replace",
-} as const;
+type CHANGE_TYPES = "insert" | "delete" | "replace";
