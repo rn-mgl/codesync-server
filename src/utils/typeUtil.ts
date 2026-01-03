@@ -20,6 +20,10 @@ import type {
   BaseProblemData,
 } from "@src/interface/problemInterface";
 import type {
+  AdditionalProgressData,
+  BaseProgressData,
+} from "@src/interface/progressInterface";
+import type {
   AdditionalSessionData,
   AdditionalSessionParticipantData,
   BaseSessionData,
@@ -450,6 +454,40 @@ export const isAdditionalChatMessageData = (
   }
 
   const REQUIRED_FIELDS: (keyof AdditionalChatMessageData)[] = ["deleted_at"];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isBaseProgressData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseProgressData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseProgressData)[] = [
+    "progress_data",
+    "user_id",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isAdditionalProgressData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalProgressData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalProgressData)[] = [
+    "problems_solved_today",
+    "streak_days",
+    "submissions_made",
+    "time_spent_seconds",
+  ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
 };
