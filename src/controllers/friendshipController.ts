@@ -14,7 +14,7 @@ import type {
   BaseFriendshipData,
   FRIENDSHIP_STATUS,
   FullFriendshipData,
-} from "@src/interface/friendshipsInterface";
+} from "@src/interface/friendshipInterface";
 import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
@@ -101,7 +101,7 @@ export const update = async (req: Request, res: Response) => {
 
     for (const field of FIELDS) {
       if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+        body[field as keyof object];
       }
     }
   }

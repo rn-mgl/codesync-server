@@ -2,7 +2,7 @@ import AppError from "@src/errors/AppError";
 import type {
   AdditionalAttemptData,
   BaseAttemptData,
-} from "@src/interface/attemptsInterface";
+} from "@src/interface/attemptInterface";
 import Attempt from "@src/models/Attempt";
 import {
   isAdditionalAttemptData,
@@ -32,7 +32,7 @@ export const create = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalAttemptData)[] = ["is_solved"];
 
     for (const field of FIELDS) {
-      if (field in body && body[field as keyof object]) {
+      if (field in body && typeof body[field as keyof object] !== "undefined") {
         createData[field as keyof object] = body[field as keyof object];
       }
     }

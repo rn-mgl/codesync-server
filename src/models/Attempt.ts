@@ -3,7 +3,7 @@ import type {
   AdditionalAttemptData,
   BaseAttemptData,
   FullAttemptData,
-} from "@src/interface/attemptsInterface";
+} from "@src/interface/attemptInterface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Attempt implements FullAttemptData {

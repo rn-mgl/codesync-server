@@ -117,7 +117,7 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && body[field as keyof object]) {
+      if (field in body && typeof body[field as keyof object] !== "undefined") {
         updateData[field as keyof object] = body[field as keyof object];
       }
     }
@@ -131,7 +131,7 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && body[field as keyof object]) {
+      if (field in body && typeof body[field as keyof object] !== "undefined") {
         updateData[field as keyof object] = body[field as keyof object];
       }
     }

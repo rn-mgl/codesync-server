@@ -1,13 +1,13 @@
 import AppError from "@src/errors/AppError";
 import type {
-  AdditionalUserProgressData,
-  BaseUserProgressData,
-  FullUserProgressData,
-} from "@src/interface/userInterface";
-import UserProgress from "@src/models/UserProgress";
+  AdditionalStudyGroupData,
+  BaseStudyGroupData,
+  FullStudyGroupData,
+} from "@src/interface/studyGroupInterface";
+import StudyGroup from "@src/models/StudyGroup";
 import {
-  isAdditionalUserProgressData,
-  isBaseUserProgressData,
+  isAdditionalStudyGroupData,
+  isBaseStudyGroupData,
   isValidLookupBody,
   isValidLookupParam,
   isValidUpdateParam,
@@ -19,22 +19,21 @@ import type { RowDataPacket } from "mysql2";
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!isBaseUserProgressData(body)) {
-    throw new AppError(`Invalid progress data.`, StatusCodes.BAD_REQUEST);
+  if (!isBaseStudyGroupData(body)) {
+    throw new AppError(`Invalid study group data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseUserProgressData & Partial<AdditionalUserProgressData> = {
-    progress_data: body.progress_data,
-    user_id: body.user_id,
+  let createData: BaseStudyGroupData & Partial<AdditionalStudyGroupData> = {
+    invite_code: body.invite_code,
+    name: body.name,
+    owner_id: body.owner_id,
   };
 
-  if (isAdditionalUserProgressData(body, "partial")) {
-    const FIELDS: (keyof AdditionalUserProgressData)[] = [
-      "problems_solved_today",
-      "streak_days",
-      "submissions_made",
-      "time_spent_seconds",
-    ] as const;
+  if (isAdditionalStudyGroupData(body, "partial")) {
+    const FIELDS: (keyof AdditionalStudyGroupData)[] = [
+      "description",
+      "is_public",
+    ];
 
     for (const field of FIELDS) {
       if (field in body && typeof body[field as keyof object] !== "undefined") {
@@ -43,12 +42,12 @@ export const create = async (req: Request, res: Response) => {
     }
   }
 
-  const created = await UserProgress.create(createData);
+  const created = await StudyGroup.create(createData);
 
   if (!created) {
     throw new AppError(
       `An error occurred during creation.`,
-      StatusCodes.BAD_REQUEST
+      StatusCodes.INTERNAL_SERVER_ERROR
     );
   }
 
@@ -56,60 +55,64 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const find = async (req: Request, res: Response) => {
-  const params = req.params;
   const body = req.body;
+  const params = req.params;
 
-  if (!isValidLookupParam(params) || !isValidLookupBody(body)) {
+  if (!isValidLookupBody(body) || !isValidLookupParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  let progress: RowDataPacket[] | null = null;
+  let studyGroup: RowDataPacket[] | null = null;
 
   switch (body.lookup) {
     case "id":
       const id = parseInt(params.param);
 
-      progress = await UserProgress.findById(id);
+      studyGroup = await StudyGroup.findById(id);
 
-      return res.json({ progress });
+      return res.json({ study_group: studyGroup });
 
-    case "user":
-      const user = parseInt(params.param);
+    case "owner":
+      const owner = parseInt(params.param);
 
-      progress = await UserProgress.findByUser(user);
+      studyGroup = await StudyGroup.findByOwner(owner);
 
-      return res.json({ progress });
+      return res.json({ study_group: studyGroup });
 
-    case "date":
-      const date = params.param;
+    case "code":
+      const code = params.param;
 
-      progress = await UserProgress.findByDate(date);
+      studyGroup = await StudyGroup.findByCode(code);
 
-      return res.json({ progress });
+      return res.json({ study_group: studyGroup });
     default:
       throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 };
 
 export const update = async (req: Request, res: Response) => {
-  const params = req.params;
   const body = req.body;
+  const params = req.params;
 
   if (!isValidUpdateParam(params)) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
   if (
-    !isBaseUserProgressData(body, "partial") &&
-    !isAdditionalUserProgressData(body, "partial")
+    !isBaseStudyGroupData(body, "partial") &&
+    !isAdditionalStudyGroupData(body, "partial")
   ) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<FullUserProgressData> = {};
+  let updateData: Partial<FullStudyGroupData> = {};
 
-  if (isBaseUserProgressData(body, "partial")) {
-    const FIELDS: (keyof BaseUserProgressData)[] = ["progress_data", "user_id"];
+  if (isBaseStudyGroupData(body, "partial")) {
+    const FIELDS: (keyof BaseStudyGroupData)[] = [
+      "invite_code",
+      "name",
+      "owner_id",
+    ];
 
     for (const field of FIELDS) {
       if (field in body && typeof body[field as keyof object] !== "undefined") {
@@ -118,12 +121,10 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  if (isAdditionalUserProgressData(body, "partial")) {
-    const FIELDS: (keyof AdditionalUserProgressData)[] = [
-      "problems_solved_today",
-      "streak_days",
-      "submissions_made",
-      "time_spent_seconds",
+  if (isAdditionalStudyGroupData(body, "partial")) {
+    const FIELDS: (keyof AdditionalStudyGroupData)[] = [
+      "description",
+      "is_public",
     ];
 
     for (const field of FIELDS) {
@@ -134,7 +135,7 @@ export const update = async (req: Request, res: Response) => {
   }
 
   const id = parseInt(params.id);
-  const updated = await UserProgress.update(id, updateData);
+  const updated = await StudyGroup.update(id, updateData);
 
   if (!updated) {
     throw new AppError(

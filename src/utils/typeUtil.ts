@@ -2,7 +2,7 @@ import { type BaseUserData } from "@interface/userInterface.ts";
 import type {
   AdditionalAttemptData,
   BaseAttemptData,
-} from "@src/interface/attemptsInterface";
+} from "@src/interface/attemptInterface";
 import type {
   AdditionalChatMessageData,
   BaseChatMessageData,
@@ -44,7 +44,11 @@ import type {
 import type {
   AdditionalFriendshipData,
   BaseFriendshipData,
-} from "@src/interface/friendshipsInterface";
+} from "@src/interface/friendshipInterface";
+import type {
+  AdditionalStudyGroupData,
+  BaseStudyGroupData,
+} from "@src/interface/studyGroupInterface";
 
 const validateFields = (
   data: object,
@@ -524,6 +528,39 @@ export const isAdditionalFriendshipData = (
   const REQUIRED_FIELDS: (keyof AdditionalFriendshipData)[] = [
     "accepted_at",
     "requested_at",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isBaseStudyGroupData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseStudyGroupData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseStudyGroupData)[] = [
+    "invite_code",
+    "name",
+    "owner_id",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isAdditionalStudyGroupData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalStudyGroupData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalStudyGroupData)[] = [
+    "description",
+    "is_public",
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);

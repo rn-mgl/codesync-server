@@ -28,10 +28,12 @@ export const create = async (req: Request, res: Response) => {
     for (const field of FIELDS) {
       if (
         field in body &&
-        body[field as keyof object] &&
-        typeof body[field as keyof object] === "string"
+        typeof body[field as keyof object] !== "undefined" &&
+        (typeof typeof body[field as keyof object] !== "undefined") === "string"
       ) {
-        createData[field as keyof object] === body[field as keyof object];
+        (createData[field as keyof object] ===
+          typeof body[field as keyof object]) !==
+          "undefined";
       }
     }
   }
@@ -110,10 +112,11 @@ export const update = async (req: Request, res: Response) => {
     for (const field of FIELDS) {
       if (
         field in body &&
-        body[field as keyof object] &&
-        typeof body[field as keyof object]
+        typeof body[field as keyof object] !== "undefined" &&
+        typeof typeof body[field as keyof object] !== "undefined"
       ) {
-        updateData[field as keyof object] = body[field as keyof object];
+        updateData[field as keyof object] =
+          typeof body[field as keyof object] !== "undefined";
       }
     }
   }
@@ -124,10 +127,11 @@ export const update = async (req: Request, res: Response) => {
     for (const field of FIELDS) {
       if (
         field in body &&
-        body[field as keyof object] &&
-        typeof body[field as keyof object]
+        typeof body[field as keyof object] !== "undefined" &&
+        typeof typeof body[field as keyof object] !== "undefined"
       ) {
-        updateData[field as keyof object] = body[field as keyof object];
+        updateData[field as keyof object] =
+          typeof body[field as keyof object] !== "undefined";
       }
     }
   }
