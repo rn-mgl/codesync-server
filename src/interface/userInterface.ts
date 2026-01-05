@@ -15,3 +15,18 @@ export interface AdditionalUserData {
 }
 
 export type FullUserData = BaseUserData & AdditionalUserData;
+
+export interface BaseUserProgressData {
+  user_id: number;
+  progress_data: string;
+}
+
+export interface AdditionalUserProgressData {
+  problems_solved_today: number;
+  time_spent_seconds: number;
+  submissions_made: number;
+  streak_days: number;
+}
+
+export type FullUserProgressData = BaseUserProgressData &
+  AdditionalUserProgressData;

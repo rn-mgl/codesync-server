@@ -20,9 +20,9 @@ import type {
   BaseProblemData,
 } from "@src/interface/problemInterface";
 import type {
-  AdditionalProgressData,
-  BaseProgressData,
-} from "@src/interface/progressInterface";
+  AdditionalUserProgressData,
+  BaseUserProgressData,
+} from "@src/interface/userInterface";
 import type {
   AdditionalSessionData,
   AdditionalSessionParticipantData,
@@ -458,15 +458,15 @@ export const isAdditionalChatMessageData = (
   return validateFields(data, REQUIRED_FIELDS, type);
 };
 
-export const isBaseProgressData = (
+export const isBaseUserProgressData = (
   data: unknown,
   type: "full" | "partial" = "full"
-): data is BaseProgressData => {
+): data is BaseUserProgressData => {
   if (typeof data !== "object" || data === null) {
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof BaseProgressData)[] = [
+  const REQUIRED_FIELDS: (keyof BaseUserProgressData)[] = [
     "progress_data",
     "user_id",
   ];
@@ -474,15 +474,15 @@ export const isBaseProgressData = (
   return validateFields(data, REQUIRED_FIELDS, type);
 };
 
-export const isAdditionalProgressData = (
+export const isAdditionalUserProgressData = (
   data: unknown,
   type: "full" | "partial" = "full"
-): data is AdditionalProgressData => {
+): data is AdditionalUserProgressData => {
   if (typeof data !== "object" || data === null) {
     return false;
   }
 
-  const REQUIRED_FIELDS: (keyof AdditionalProgressData)[] = [
+  const REQUIRED_FIELDS: (keyof AdditionalUserProgressData)[] = [
     "problems_solved_today",
     "streak_days",
     "submissions_made",

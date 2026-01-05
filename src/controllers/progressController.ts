@@ -1,14 +1,13 @@
 import AppError from "@src/errors/AppError";
 import type {
-  AdditionalProgressData,
-  BaseProgressData,
-  FullProgressData,
-} from "@src/interface/progressInterface";
-import Progress from "@src/models/Progress";
+  AdditionalUserProgressData,
+  BaseUserProgressData,
+  FullUserProgressData,
+} from "@src/interface/userInterface";
+import UserProgress from "@src/models/UserProgress";
 import {
-  isAdditionalProgressData,
-  isBaseProblemData,
-  isBaseProgressData,
+  isAdditionalUserProgressData,
+  isBaseUserProgressData,
   isValidLookupBody,
   isValidLookupParam,
   isValidUpdateParam,
@@ -20,17 +19,17 @@ import type { RowDataPacket } from "mysql2";
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!isBaseProgressData(body)) {
+  if (!isBaseUserProgressData(body)) {
     throw new AppError(`Invalid progress data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseProgressData & Partial<AdditionalProgressData> = {
+  let createData: BaseUserProgressData & Partial<AdditionalUserProgressData> = {
     progress_data: body.progress_data,
     user_id: body.user_id,
   };
 
-  if (isAdditionalProgressData(body, "partial")) {
-    const FIELDS: (keyof AdditionalProgressData)[] = [
+  if (isAdditionalUserProgressData(body, "partial")) {
+    const FIELDS: (keyof AdditionalUserProgressData)[] = [
       "problems_solved_today",
       "streak_days",
       "submissions_made",
@@ -44,7 +43,7 @@ export const create = async (req: Request, res: Response) => {
     }
   }
 
-  const created = await Progress.create(createData);
+  const created = await UserProgress.create(createData);
 
   if (!created) {
     throw new AppError(
@@ -70,21 +69,21 @@ export const find = async (req: Request, res: Response) => {
     case "id":
       const id = parseInt(params.param);
 
-      progress = await Progress.findById(id);
+      progress = await UserProgress.findById(id);
 
       return res.json({ progress });
 
     case "user":
       const user = parseInt(params.param);
 
-      progress = await Progress.findByUser(user);
+      progress = await UserProgress.findByUser(user);
 
       return res.json({ progress });
 
     case "date":
       const date = params.param;
 
-      progress = await Progress.findByDate(date);
+      progress = await UserProgress.findByDate(date);
 
       return res.json({ progress });
     default:
@@ -101,16 +100,16 @@ export const update = async (req: Request, res: Response) => {
   }
 
   if (
-    !isBaseProgressData(body, "partial") &&
-    !isAdditionalProgressData(body, "partial")
+    !isBaseUserProgressData(body, "partial") &&
+    !isAdditionalUserProgressData(body, "partial")
   ) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<FullProgressData> = {};
+  let updateData: Partial<FullUserProgressData> = {};
 
-  if (isBaseProgressData(body, "partial")) {
-    const FIELDS: (keyof BaseProgressData)[] = ["progress_data", "user_id"];
+  if (isBaseUserProgressData(body, "partial")) {
+    const FIELDS: (keyof BaseUserProgressData)[] = ["progress_data", "user_id"];
 
     for (const field of FIELDS) {
       if (field in body && typeof body[field as keyof object] !== "undefined") {
@@ -119,8 +118,8 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  if (isAdditionalProgressData(body, "partial")) {
-    const FIELDS: (keyof AdditionalProgressData)[] = [
+  if (isAdditionalUserProgressData(body, "partial")) {
+    const FIELDS: (keyof AdditionalUserProgressData)[] = [
       "problems_solved_today",
       "streak_days",
       "submissions_made",
@@ -135,7 +134,7 @@ export const update = async (req: Request, res: Response) => {
   }
 
   const id = parseInt(params.id);
-  const updated = await Progress.update(id, updateData);
+  const updated = await UserProgress.update(id, updateData);
 
   if (!updated) {
     throw new AppError(

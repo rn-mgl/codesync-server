@@ -1,12 +1,12 @@
 import { createConnection } from "@src/database/database";
 import type {
-  AdditionalProgressData,
-  BaseProgressData,
-  FullProgressData,
-} from "@src/interface/progressInterface";
+  AdditionalUserProgressData,
+  BaseUserProgressData,
+  FullUserProgressData,
+} from "@src/interface/userInterface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
-class Progress implements FullProgressData {
+class UserProgress implements FullUserProgressData {
   problems_solved_today: number;
   progress_data: string;
   streak_days: number;
@@ -14,7 +14,7 @@ class Progress implements FullProgressData {
   time_spent_seconds: number;
   user_id: number;
 
-  constructor(data: FullProgressData) {
+  constructor(data: FullUserProgressData) {
     this.problems_solved_today = data.problems_solved_today;
     this.progress_data = data.progress_data;
     this.streak_days = data.streak_days;
@@ -24,7 +24,7 @@ class Progress implements FullProgressData {
   }
 
   static async create(
-    data: BaseProgressData & Partial<AdditionalProgressData>
+    data: BaseUserProgressData & Partial<AdditionalUserProgressData>
   ) {
     try {
       const db = createConnection();
@@ -35,7 +35,7 @@ class Progress implements FullProgressData {
       const values = Object.values(data);
       const preparedValues = values.map((value) => "?").join(", ");
 
-      const query = `INSERT INTO progress (${columns}) VALUES (${preparedValues});`;
+      const query = `INSERT INTO user_progress (${columns}) VALUES (${preparedValues});`;
 
       const [result, fields] = await db.execute<ResultSetHeader>(query, values);
 
@@ -50,7 +50,7 @@ class Progress implements FullProgressData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM progress WHERE id = ?;`;
+      const query = `SELECT * FROM user_progress WHERE id = ?;`;
 
       const values = [id];
 
@@ -67,7 +67,7 @@ class Progress implements FullProgressData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM progress WHERE user_id = ?;`;
+      const query = `SELECT * FROM user_progress WHERE user_id = ?;`;
 
       const values = [userId];
 
@@ -84,7 +84,7 @@ class Progress implements FullProgressData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM progress WHERE progress_date = ?;`;
+      const query = `SELECT * FROM user_progress WHERE progress_date = ?;`;
 
       const values = [date];
 
@@ -97,7 +97,7 @@ class Progress implements FullProgressData {
     }
   }
 
-  static async update(id: number, updates: Partial<FullProgressData>) {
+  static async update(id: number, updates: Partial<FullUserProgressData>) {
     try {
       const db = createConnection();
 
@@ -106,7 +106,7 @@ class Progress implements FullProgressData {
         .join(", ");
       const values = Object.values(updates);
 
-      const query = `UPDATE progress SET ${update} WHERE id = ?;`;
+      const query = `UPDATE user_progress SET ${update} WHERE id = ?;`;
 
       const [result, fields] = await db.execute<ResultSetHeader>(query, values);
 
@@ -118,4 +118,4 @@ class Progress implements FullProgressData {
   }
 }
 
-export default Progress;
+export default UserProgress;
