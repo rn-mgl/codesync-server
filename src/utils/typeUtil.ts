@@ -41,6 +41,10 @@ import type {
   AdditionalTopicData,
   BaseTopicData,
 } from "@src/interface/topicInterface";
+import type {
+  AdditionalFriendshipData,
+  BaseFriendshipData,
+} from "@src/interface/friendshipsInterface";
 
 const validateFields = (
   data: object,
@@ -487,6 +491,39 @@ export const isAdditionalUserProgressData = (
     "streak_days",
     "submissions_made",
     "time_spent_seconds",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isBaseFriendshipData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseFriendshipData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseFriendshipData)[] = [
+    "friend_id",
+    "user_id",
+    "status",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isAdditionalFriendshipData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalFriendshipData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalFriendshipData)[] = [
+    "accepted_at",
+    "requested_at",
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);

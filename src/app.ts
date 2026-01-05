@@ -16,6 +16,7 @@ import sessionParticipantRouter from "@routers/sessionParticipantRouter.ts";
 import codeSnapshotRouter from "@routers/codeSnapshotRouter.ts";
 import chatMessageRouter from "@routers/chatMessageRouter.ts";
 import progressRouter from "@routers/progressRouter.ts";
+import friendshipRouter from "@routers/friendshipRouter.ts";
 
 import errorMiddleware from "@middlewares/errorMiddleware.ts";
 
@@ -38,6 +39,7 @@ app.use("/session-participant", sessionParticipantRouter);
 app.use("/code-snapshot", codeSnapshotRouter);
 app.use("/chat-message", chatMessageRouter);
 app.use("/progress", progressRouter);
+app.use("/friendship", friendshipRouter);
 
 app.use(errorMiddleware);
 
