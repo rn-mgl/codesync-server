@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { create, find, update } from "@controllers/progressController.ts";
+import { create, find, update } from "@controllers/userProgressController.ts";
 
 const router = Router();
 

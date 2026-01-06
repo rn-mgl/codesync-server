@@ -30,3 +30,15 @@ export interface AdditionalUserProgressData {
 
 export type FullUserProgressData = BaseUserProgressData &
   AdditionalUserProgressData;
+
+export interface BaseUserAchievementData {
+  user_id: number;
+  achievement_id: number;
+}
+
+export interface AdditionalUserAchievementData {
+  earned_at: string;
+}
+
+export type FullUserAchievementData = BaseUserAchievementData &
+  AdditionalUserAchievementData;

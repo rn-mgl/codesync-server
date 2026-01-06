@@ -129,7 +129,7 @@ class User implements FullUserData {
     }
   }
 
-  static async deleteById(id: number) {
+  static async delete(id: number) {
     try {
       const db = createConnection();
 

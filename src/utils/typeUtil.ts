@@ -20,7 +20,9 @@ import type {
   BaseProblemData,
 } from "@src/interface/problemInterface";
 import type {
+  AdditionalUserAchievementData,
   AdditionalUserProgressData,
+  BaseUserAchievementData,
   BaseUserProgressData,
 } from "@src/interface/userInterface";
 import type {
@@ -103,6 +105,17 @@ export const isValidLookupBody = (
 };
 
 export const isValidUpdateParam = (
+  data: unknown
+): data is Object & Record<"id", string> => {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "id" in data &&
+    typeof data.id === "string"
+  );
+};
+
+export const isValidDestroyParam = (
   data: unknown
 ): data is Object & Record<"id", string> => {
   return (
@@ -635,6 +648,37 @@ export const isAdditionalAchievementData = (
   }
 
   const REQUIRED_FIELDS: (keyof AdditionalAchievementData)[] = ["deleted_at"];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isBaseUserAchievementData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseUserAchievementData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseUserAchievementData)[] = [
+    "achievement_id",
+    "user_id",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isAdditionalUserAchievementData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalUserAchievementData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalUserAchievementData)[] = [
+    "earned_at",
+  ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
 };

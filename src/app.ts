@@ -15,11 +15,12 @@ import sessionRouter from "@routers/sessionRouter.ts";
 import sessionParticipantRouter from "@routers/sessionParticipantRouter.ts";
 import codeSnapshotRouter from "@routers/codeSnapshotRouter.ts";
 import chatMessageRouter from "@routers/chatMessageRouter.ts";
-import progressRouter from "@routers/progressRouter.ts";
+import userProgressRouter from "@routers/userProgressRouter.ts";
 import friendshipRouter from "@routers/friendshipRouter.ts";
 import studyGroupRouter from "@routers/studyGroupRouter.ts";
 import studyGroupMemberRouter from "@routers/studyGroupMemberRouter.ts";
 import achievementRouter from "@routers/achievementRouter.ts";
+import userAchievementRouter from "@routers/userAchievementRouter.ts";
 
 import errorMiddleware from "@middlewares/errorMiddleware.ts";
 
@@ -41,11 +42,12 @@ app.use("/session", sessionRouter);
 app.use("/session-participant", sessionParticipantRouter);
 app.use("/code-snapshot", codeSnapshotRouter);
 app.use("/chat-message", chatMessageRouter);
-app.use("/progress", progressRouter);
+app.use("/user-progress", userProgressRouter);
 app.use("/friendship", friendshipRouter);
 app.use("/study-group", studyGroupRouter);
 app.use("/study-group-member", studyGroupMemberRouter);
 app.use("/achievement", achievementRouter);
+app.use("/user-achievement", userAchievementRouter);
 
 app.use(errorMiddleware);
 
