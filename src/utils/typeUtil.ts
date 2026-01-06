@@ -47,7 +47,9 @@ import type {
 } from "@src/interface/friendshipInterface";
 import type {
   AdditionalStudyGroupData,
+  AdditionalStudyGroupMemberData,
   BaseStudyGroupData,
+  BaseStudyGroupMemberData,
 } from "@src/interface/studyGroupInterface";
 
 const validateFields = (
@@ -561,6 +563,38 @@ export const isAdditionalStudyGroupData = (
   const REQUIRED_FIELDS: (keyof AdditionalStudyGroupData)[] = [
     "description",
     "is_public",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isBaseStudyGroupMemberData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseStudyGroupMemberData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseStudyGroupMemberData)[] = [
+    "group_id",
+    "role",
+    "user_id",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isAdditionalStudyGroupMemberData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalStudyGroupMemberData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalStudyGroupMemberData)[] = [
+    "joined_at",
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);

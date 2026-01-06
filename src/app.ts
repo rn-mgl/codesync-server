@@ -18,6 +18,7 @@ import chatMessageRouter from "@routers/chatMessageRouter.ts";
 import progressRouter from "@routers/progressRouter.ts";
 import friendshipRouter from "@routers/friendshipRouter.ts";
 import studyGroupRouter from "@routers/studyGroupRouter.ts";
+import studyGroupMemberRouter from "@routers/studyGroupMemberRouter.ts";
 
 import errorMiddleware from "@middlewares/errorMiddleware.ts";
 
@@ -42,6 +43,7 @@ app.use("/chat-message", chatMessageRouter);
 app.use("/progress", progressRouter);
 app.use("/friendship", friendshipRouter);
 app.use("/study-group", studyGroupRouter);
+app.use("/study-group-member", studyGroupMemberRouter);
 
 app.use(errorMiddleware);
 
