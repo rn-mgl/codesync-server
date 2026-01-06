@@ -51,6 +51,10 @@ import type {
   BaseStudyGroupData,
   BaseStudyGroupMemberData,
 } from "@src/interface/studyGroupInterface";
+import type {
+  AdditionalAchievementData,
+  BaseAchievementData,
+} from "@src/interface/achievementInterface";
 
 const validateFields = (
   data: object,
@@ -596,6 +600,41 @@ export const isAdditionalStudyGroupMemberData = (
   const REQUIRED_FIELDS: (keyof AdditionalStudyGroupMemberData)[] = [
     "joined_at",
   ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isBaseAchievementData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is BaseAchievementData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof BaseAchievementData)[] = [
+    "badge_color",
+    "category",
+    "description",
+    "icon",
+    "name",
+    "points",
+    "slug",
+    "unlock_criteria",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const isAdditionalAchievementData = (
+  data: unknown,
+  type: "full" | "partial" = "full"
+): data is AdditionalAchievementData => {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const REQUIRED_FIELDS: (keyof AdditionalAchievementData)[] = ["deleted_at"];
 
   return validateFields(data, REQUIRED_FIELDS, type);
 };
