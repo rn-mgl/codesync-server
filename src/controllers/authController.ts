@@ -8,12 +8,33 @@ import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 
 export const login = async (req: Request, res: Response) => {
-  const { candidateEmail, candidatePassword } = req.body;
+  const body = req.body;
+
+  if (!("credentials" in body)) {
+    throw new AppError(
+      "Please fill out email and password.",
+      StatusCodes.BAD_GATEWAY,
+    );
+  }
+
+  const { credentials } = body;
+
+  if (
+    !("candidateEmail" in credentials) ||
+    !("candidatePassword" in credentials)
+  ) {
+    throw new AppError(
+      "Please fill out email and password.",
+      StatusCodes.BAD_GATEWAY,
+    );
+  }
+
+  const { candidateEmail, candidatePassword } = credentials;
 
   if (!candidateEmail || !candidatePassword) {
     throw new AppError(
       "Please fill out email and password.",
-      StatusCodes.BAD_GATEWAY
+      StatusCodes.BAD_GATEWAY,
     );
   }
 
@@ -22,7 +43,7 @@ export const login = async (req: Request, res: Response) => {
   if (!user || !user[0]) {
     throw new AppError(
       `The email you entered is invalid.`,
-      StatusCodes.NOT_FOUND
+      StatusCodes.NOT_FOUND,
     );
   }
 
@@ -34,7 +55,7 @@ export const login = async (req: Request, res: Response) => {
   if (!isCorrectPassword) {
     throw new AppError(
       `The email and password does not match.`,
-      StatusCodes.UNAUTHORIZED
+      StatusCodes.UNAUTHORIZED,
     );
   }
 
@@ -43,7 +64,7 @@ export const login = async (req: Request, res: Response) => {
   if (!process.env.JWT_AUTH_ALGO) {
     throw new AppError(
       `No Auth Algorithm applied.`,
-      StatusCodes.FAILED_DEPENDENCY
+      StatusCodes.FAILED_DEPENDENCY,
     );
   }
 
@@ -51,14 +72,14 @@ export const login = async (req: Request, res: Response) => {
     if (!process.env.JWT_REGISTER_TOKEN) {
       throw new AppError(
         `No Register Token applied.`,
-        StatusCodes.FAILED_DEPENDENCY
+        StatusCodes.FAILED_DEPENDENCY,
       );
     }
 
     if (!process.env.JWT_REGISTER_TTL) {
       throw new AppError(
         `No Expiration applied.`,
-        StatusCodes.FAILED_DEPENDENCY
+        StatusCodes.FAILED_DEPENDENCY,
       );
     }
 
@@ -71,7 +92,7 @@ export const login = async (req: Request, res: Response) => {
     token = jwt.sign(
       { first_name, last_name, email, username },
       secret,
-      options
+      options,
     );
 
     const sendVerification = await accountVerificationEmail(email, token);
@@ -79,14 +100,14 @@ export const login = async (req: Request, res: Response) => {
     if (!process.env.JWT_LOGIN_TOKEN) {
       throw new AppError(
         `No Auth Token applied.`,
-        StatusCodes.FAILED_DEPENDENCY
+        StatusCodes.FAILED_DEPENDENCY,
       );
     }
 
     if (!process.env.JWT_LOGIN_TTL) {
       throw new AppError(
         `No Expiration applied.`,
-        StatusCodes.FAILED_DEPENDENCY
+        StatusCodes.FAILED_DEPENDENCY,
       );
     }
 
@@ -108,7 +129,7 @@ export const register = async (req: Request, res: Response) => {
   if (!data || !isBaseUserData(data)) {
     throw new AppError(
       "Please fill out the required fields.",
-      StatusCodes.BAD_REQUEST
+      StatusCodes.BAD_REQUEST,
     );
   }
 
@@ -129,21 +150,21 @@ export const register = async (req: Request, res: Response) => {
   if (!user) {
     throw new AppError(
       `An error occurred when creating your account.`,
-      StatusCodes.BAD_REQUEST
+      StatusCodes.BAD_REQUEST,
     );
   }
 
   if (!process.env.JWT_REGISTER_TOKEN) {
     throw new AppError(
       `No register token applied`,
-      StatusCodes.FAILED_DEPENDENCY
+      StatusCodes.FAILED_DEPENDENCY,
     );
   }
 
   if (!process.env.JWT_AUTH_ALGO) {
     throw new AppError(
       `No Auth Algorithm applied`,
-      StatusCodes.FAILED_DEPENDENCY
+      StatusCodes.FAILED_DEPENDENCY,
     );
   }
 
@@ -160,7 +181,7 @@ export const register = async (req: Request, res: Response) => {
   const token = jwt.sign(
     { first_name, last_name, username, email },
     secret,
-    options
+    options,
   );
 
   const sendVerification = await accountVerificationEmail(email, token);
@@ -174,14 +195,14 @@ export const verify = async (req: Request, res: Response) => {
   if (!token) {
     throw new AppError(
       `No authentication token passed.`,
-      StatusCodes.BAD_REQUEST
+      StatusCodes.BAD_REQUEST,
     );
   }
 
   if (!process.env.JWT_REGISTER_TOKEN) {
     throw new AppError(
       `No register token applied.`,
-      StatusCodes.FAILED_DEPENDENCY
+      StatusCodes.FAILED_DEPENDENCY,
     );
   }
 
@@ -206,7 +227,7 @@ export const verify = async (req: Request, res: Response) => {
   if (!verified) {
     throw new AppError(
       `An error occurred during verification.`,
-      StatusCodes.INTERNAL_SERVER_ERROR
+      StatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
 
