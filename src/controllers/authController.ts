@@ -199,7 +199,7 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const verify = async (req: Request, res: Response) => {
-  const { token } = req.params;
+  const { token } = req.body;
 
   if (!token) {
     throw new AppError(
@@ -236,7 +236,7 @@ export const verify = async (req: Request, res: Response) => {
   if (!verified) {
     throw new AppError(
       `An error occurred during verification.`,
-      StatusCodes.INTERNAL_SERVER_ERROR,
+      StatusCodes.FORBIDDEN,
     );
   }
 

@@ -9,8 +9,10 @@ const errorMiddleware = (
   err: ErrorRequestHandler,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
+  console.log(err);
+
   let message = "An error in the server occurred. Please try again.";
   let statusCode = 500;
 
