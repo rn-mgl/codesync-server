@@ -124,16 +124,25 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const register = async (req: Request, res: Response) => {
-  const data = req.body;
+  const body = req.body;
 
-  if (!data || !isBaseUserData(data)) {
+  if (!("credentials" in body)) {
     throw new AppError(
       "Please fill out the required fields.",
       StatusCodes.BAD_REQUEST,
     );
   }
 
-  const { email, first_name, last_name, password, username } = data;
+  const { credentials } = body;
+
+  if (!credentials || !isBaseUserData(credentials)) {
+    throw new AppError(
+      "Please fill out the required fields.",
+      StatusCodes.BAD_REQUEST,
+    );
+  }
+
+  const { email, first_name, last_name, password, username } = credentials;
 
   const hashedString = await hashString(password);
 
