@@ -103,9 +103,28 @@ class User implements FullUserData {
     }
   }
 
+  static async find(data: Record<string, string | number>) {
+    try {
+      const db = createConnection();
+
+      const mappedWhere = Object.keys(data)
+        .map((column) => `${column} = ?`)
+        .join(" AND ");
+      const values = Object.values(data);
+
+      const query = `SELECT * FROM users WHERE ${mappedWhere};`;
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  }
+
   static async update(
     id: number,
-    updates: Partial<BaseUserData & AdditionalUserData>
+    updates: Partial<BaseUserData & AdditionalUserData>,
   ) {
     try {
       const db = createConnection();
