@@ -3,26 +3,26 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 
-import authRouter from "@routers/authRouter.ts";
-import userRouter from "@routers/userRouter.ts";
-import problemRouter from "@routers/problemRouter.ts";
-import topicRouter from "@routers/topicRouter.ts";
-import testCaseRouter from "@routers/testCaseRouter.ts";
-import hintRouter from "@routers/hintRouter.ts";
-import submissionRouter from "@routers/submissionRouter.ts";
-import attemptRouter from "@routers/attemptRouter.ts";
-import sessionRouter from "@routers/sessionRouter.ts";
-import sessionParticipantRouter from "@routers/sessionParticipantRouter.ts";
-import codeSnapshotRouter from "@routers/codeSnapshotRouter.ts";
-import chatMessageRouter from "@routers/chatMessageRouter.ts";
-import userProgressRouter from "@routers/userProgressRouter.ts";
-import friendshipRouter from "@routers/friendshipRouter.ts";
-import studyGroupRouter from "@routers/studyGroupRouter.ts";
-import studyGroupMemberRouter from "@routers/studyGroupMemberRouter.ts";
-import achievementRouter from "@routers/achievementRouter.ts";
-import userAchievementRouter from "@routers/userAchievementRouter.ts";
+import authRouter from "@routers/auth.router";
+import userRouter from "@routers/user.router";
+import problemRouter from "@routers/problem.router";
+import topicRouter from "@routers/topic.router";
+import testCaseRouter from "@routers/test-case.router";
+import hintRouter from "@routers/hint.router";
+import submissionRouter from "@routers/submission.router";
+import attemptRouter from "@routers/attempt.router";
+import sessionRouter from "@routers/session.router";
+import sessionParticipantRouter from "@routers/session-participant.router";
+import codeSnapshotRouter from "@routers/code-snapshot.router";
+import chatMessageRouter from "@routers/chat-message.router";
+import userProgressRouter from "@routers/user-progress.router";
+import friendshipRouter from "@routers/friendship.router";
+import studyGroupRouter from "@routers/study-group.router";
+import studyGroupMemberRouter from "@routers/study-group-member.router";
+import achievementRouter from "@routers/achievement.router";
+import userAchievementRouter from "@routers/user-achievement.router";
 
-import errorMiddleware from "@middlewares/errorMiddleware.ts";
+import errorMiddleware from "@middlewares/error.middleware";
 
 const app = express();
 
