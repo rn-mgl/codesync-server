@@ -22,17 +22,14 @@ export const login = async (req: Request, res: Response) => {
 
   const { credentials } = body;
 
-  if (
-    !("candidateEmail" in credentials) ||
-    !("candidatePassword" in credentials)
-  ) {
+  if (!("email" in credentials) || !("password" in credentials)) {
     throw new AppError(
       "Please fill out email and password.",
       StatusCodes.BAD_GATEWAY,
     );
   }
 
-  const { candidateEmail, candidatePassword } = credentials;
+  const { email: candidateEmail, password: candidatePassword } = credentials;
 
   if (!candidateEmail || !candidatePassword) {
     throw new AppError(
