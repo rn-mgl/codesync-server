@@ -120,7 +120,10 @@ export const login = async (req: Request, res: Response) => {
     token = jwt.sign({ id, email, password }, secret, options);
   }
 
-  return res.json({ success: true, token, user: { id, is_verified } });
+  return res.json({
+    success: true,
+    data: { token, user: { id, is_verified } },
+  });
 };
 
 export const register = async (req: Request, res: Response) => {
@@ -195,7 +198,7 @@ export const register = async (req: Request, res: Response) => {
 
   const sendVerification = await accountVerificationEmail(email, token);
 
-  return res.json({ success: true, token });
+  return res.json({ success: true, data: { token } });
 };
 
 export const verify = async (req: Request, res: Response) => {
@@ -242,7 +245,7 @@ export const verify = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ success: !!verified, verified: !!verified });
+  return res.json({ success: !!verified, data: { verified: !!verified } });
 };
 
 export const forgot = async (req: Request, res: Response) => {
@@ -321,7 +324,12 @@ export const forgot = async (req: Request, res: Response) => {
 
   const sendPasswordReset = await passwordResetMail(email, token);
 
-  return res.status(StatusCodes.OK).json({ success: !!sendPasswordReset });
+  return res
+    .status(StatusCodes.OK)
+    .json({
+      success: !!sendPasswordReset,
+      data: { message: "Password reset link sent." },
+    });
 };
 
 export const reset = async (req: Request, res: Response) => {
@@ -405,5 +413,10 @@ export const reset = async (req: Request, res: Response) => {
     );
   }
 
-  return res.status(StatusCodes.OK).json({ success: !!updated });
+  return res
+    .status(StatusCodes.OK)
+    .json({
+      success: !!updated,
+      data: { message: "Password reset successfully." },
+    });
 };
