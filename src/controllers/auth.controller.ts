@@ -31,13 +31,6 @@ export const login = async (req: Request, res: Response) => {
 
   const { email: candidateEmail, password: candidatePassword } = credentials;
 
-  if (!candidateEmail || !candidatePassword) {
-    throw new AppError(
-      "Please fill out email and password.",
-      StatusCodes.BAD_GATEWAY,
-    );
-  }
-
   const user = await User.findByEmail(candidateEmail);
 
   if (!user || !user[0]) {
@@ -122,7 +115,7 @@ export const login = async (req: Request, res: Response) => {
 
   return res.json({
     success: true,
-    data: { token, user: { id, is_verified } },
+    data: { token: is_verified ? token : null, user: { id, is_verified } },
   });
 };
 
@@ -324,12 +317,10 @@ export const forgot = async (req: Request, res: Response) => {
 
   const sendPasswordReset = await passwordResetMail(email, token);
 
-  return res
-    .status(StatusCodes.OK)
-    .json({
-      success: !!sendPasswordReset,
-      data: { message: "Password reset link sent." },
-    });
+  return res.status(StatusCodes.OK).json({
+    success: !!sendPasswordReset,
+    data: { message: "Password reset link sent." },
+  });
 };
 
 export const reset = async (req: Request, res: Response) => {
@@ -413,10 +404,8 @@ export const reset = async (req: Request, res: Response) => {
     );
   }
 
-  return res
-    .status(StatusCodes.OK)
-    .json({
-      success: !!updated,
-      data: { message: "Password reset successfully." },
-    });
+  return res.status(StatusCodes.OK).json({
+    success: !!updated,
+    data: { message: "Password reset successfully." },
+  });
 };
