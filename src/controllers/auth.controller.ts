@@ -120,7 +120,7 @@ export const login = async (req: Request, res: Response) => {
     token = jwt.sign({ id, email, password }, secret, options);
   }
 
-  return res.json({ token, user: { id, is_verified } });
+  return res.json({ success: true, token, user: { id, is_verified } });
 };
 
 export const register = async (req: Request, res: Response) => {
@@ -242,7 +242,7 @@ export const verify = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ verified: !!verified });
+  return res.json({ success: !!verified, verified: !!verified });
 };
 
 export const forgot = async (req: Request, res: Response) => {
