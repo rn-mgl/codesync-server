@@ -23,6 +23,7 @@ import achievementRouter from "@routers/achievement.router";
 import userAchievementRouter from "@routers/user-achievement.router";
 
 import errorMiddleware from "@middlewares/error.middleware";
+import { authMiddleware } from "./middlewares/auth.middleware";
 
 const app = express();
 
@@ -32,22 +33,22 @@ app.use(express.json());
 
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
-app.use("/problem", problemRouter);
-app.use("/topic", topicRouter);
-app.use("/test-case", testCaseRouter);
-app.use("/hint", hintRouter);
-app.use("/submission", submissionRouter);
-app.use("/attempt", attemptRouter);
-app.use("/session", sessionRouter);
-app.use("/session-participant", sessionParticipantRouter);
-app.use("/code-snapshot", codeSnapshotRouter);
-app.use("/chat-message", chatMessageRouter);
-app.use("/user-progress", userProgressRouter);
-app.use("/friendship", friendshipRouter);
-app.use("/study-group", studyGroupRouter);
-app.use("/study-group-member", studyGroupMemberRouter);
-app.use("/achievement", achievementRouter);
-app.use("/user-achievement", userAchievementRouter);
+app.use("/problem", authMiddleware, problemRouter);
+app.use("/topic", authMiddleware, topicRouter);
+app.use("/test-case", authMiddleware, testCaseRouter);
+app.use("/hint", authMiddleware, hintRouter);
+app.use("/submission", authMiddleware, submissionRouter);
+app.use("/attempt", authMiddleware, attemptRouter);
+app.use("/session", authMiddleware, sessionRouter);
+app.use("/session-participant", authMiddleware, sessionParticipantRouter);
+app.use("/code-snapshot", authMiddleware, codeSnapshotRouter);
+app.use("/chat-message", authMiddleware, chatMessageRouter);
+app.use("/user-progress", authMiddleware, userProgressRouter);
+app.use("/friendship", authMiddleware, friendshipRouter);
+app.use("/study-group", authMiddleware, studyGroupRouter);
+app.use("/study-group-member", authMiddleware, studyGroupMemberRouter);
+app.use("/achievement", authMiddleware, achievementRouter);
+app.use("/user-achievement", authMiddleware, userAchievementRouter);
 
 app.use(errorMiddleware);
 
