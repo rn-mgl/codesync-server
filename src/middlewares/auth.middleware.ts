@@ -21,6 +21,20 @@ export const authMiddleware = (
     );
   }
 
+  if (!process.env.APP_URL) {
+    throw new AppError(
+      `Missing dependency: App URL`,
+      StatusCodes.FAILED_DEPENDENCY,
+    );
+  }
+
+  if (!header.origin || header.origin !== process.env.APP_URL) {
+    throw new AppError(
+      `You are not authorized to proceed with this request.`,
+      StatusCodes.UNAUTHORIZED,
+    );
+  }
+
   const [_, token] = header.authorization.split(" ");
 
   if (!token) {
