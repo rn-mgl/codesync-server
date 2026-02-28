@@ -62,7 +62,7 @@ class Problem implements FullProblemData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM problems;`;
+      const query = `SELECT id, title, slug, difficulty, acceptance_rate FROM problems;`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query);
 

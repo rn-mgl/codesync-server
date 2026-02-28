@@ -69,7 +69,7 @@ export const create = async (req: Request, res: Response) => {
 export const all = async (req: Request, res: Response) => {
   const problems = await Problem.all();
 
-  return res.json({ problems });
+  return res.status(StatusCodes.OK).json({ success: true, data: { problems } });
 };
 
 export const find = async (req: Request, res: Response) => {
