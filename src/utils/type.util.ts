@@ -157,6 +157,7 @@ export const isBaseProblemData = (
     "title",
     "slug",
     "description",
+    "difficulty",
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);

@@ -15,22 +15,32 @@ import type { RowDataPacket } from "mysql2";
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!isBaseProblemData(body)) {
+  if (!("problem" in body)) {
     throw new AppError(
       `Invalid Problem data. Missing values.`,
       StatusCodes.BAD_REQUEST,
     );
   }
 
-  const { title, slug, description } = body;
+  const { problem } = body;
+
+  if (!isBaseProblemData(problem)) {
+    throw new AppError(
+      `Invalid Problem data. Missing values.`,
+      StatusCodes.BAD_REQUEST,
+    );
+  }
+
+  const { title, slug, description, difficulty } = problem;
 
   let createData: BaseProblemData & Partial<AdditionalProblemData> = {
     title,
     slug,
+    difficulty,
     description,
   };
 
-  if (isAdditionalProblemData(body, "partial")) {
+  if (isAdditionalProblemData(problem, "partial")) {
     const FIELDS: (keyof AdditionalProblemData)[] = [
       "constraints",
       "editorial",
@@ -39,15 +49,21 @@ export const create = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        createData[field as keyof object] = body[field as keyof object];
+      if (
+        field in problem &&
+        typeof problem[field as keyof object] !== "undefined"
+      ) {
+        createData[field as keyof object] = problem[field as keyof object];
       }
     }
   }
 
   const created = await Problem.create(createData);
 
-  return res.json({ success: !!created });
+  return res.status(StatusCodes.CREATED).json({
+    success: !!created,
+    data: { message: "Problem created." },
+  });
 };
 
 export const all = async (req: Request, res: Response) => {

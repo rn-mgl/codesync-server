@@ -2,6 +2,7 @@ export interface BaseProblemData {
   title: string;
   slug: string;
   description: string;
+  difficulty: "easy" | "medium" | "hard";
 }
 
 export interface AdditionalProblemData {

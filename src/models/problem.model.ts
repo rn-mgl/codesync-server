@@ -10,6 +10,7 @@ class Problem implements FullProblemData {
   title: string;
   slug: string;
   description: string;
+  difficulty: "easy" | "medium" | "hard";
   input_format: string;
   output_format: string;
   constraints: string;
@@ -23,6 +24,7 @@ class Problem implements FullProblemData {
     this.title = data.title;
     this.slug = data.slug;
     this.description = data.description;
+    this.difficulty = data.difficulty;
     this.input_format = data.input_format;
     this.output_format = data.output_format;
     this.constraints = data.constraints;
