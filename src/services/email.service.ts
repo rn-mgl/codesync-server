@@ -1,12 +1,13 @@
 import AppError from "@src/errors/app.error";
 import axios from "axios";
 import { StatusCodes } from "http-status-codes";
+import { env } from "@src/configs/env.config";
 
 export const accountVerificationEmail = async (
   email: string,
   token: string,
 ) => {
-  const url = process.env.APP_URL;
+  const url = env.APP_URL;
 
   const body = `<!DOCTYPE html>
                 <html lang="en">
@@ -142,10 +143,10 @@ export const accountVerificationEmail = async (
     to: email,
     subject: "Account Verification",
     html: body,
-    source: process.env.EMAIL_SOURCE,
+    source: env.EMAIL_SOURCE,
   };
 
-  const data = await axios.post(`${process.env.EMAIL_CONNECTOR}`, {
+  const data = await axios.post(`${env.EMAIL_CONNECTOR}`, {
     envelope,
   });
 
@@ -160,7 +161,7 @@ export const accountVerificationEmail = async (
 };
 
 export const passwordResetMail = async (email: string, token: string) => {
-  const url = process.env.APP_URL;
+  const url = env.APP_URL;
 
   const body = `<!DOCTYPE html>
                 <html lang="en">
@@ -293,10 +294,10 @@ export const passwordResetMail = async (email: string, token: string) => {
     to: email,
     subject: `Password Reset`,
     html: body,
-    source: process.env.EMAIL_SOURCE,
+    source: env.EMAIL_SOURCE,
   };
 
-  const data = await axios.post(`${process.env.EMAIL_CONNECTOR}`, {
+  const data = await axios.post(`${env.EMAIL_CONNECTOR}`, {
     envelope,
   });
 

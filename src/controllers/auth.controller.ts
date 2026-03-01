@@ -9,6 +9,7 @@ import { hashString, verifyHash } from "@utils/crypt.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
+import { env } from "@src/configs/env.config";
 
 export const login = async (req: Request, res: Response) => {
   const body = req.body;
@@ -54,31 +55,10 @@ export const login = async (req: Request, res: Response) => {
 
   let token: string | null = null;
 
-  if (!process.env.JWT_AUTH_ALGO) {
-    throw new AppError(
-      `No Auth Algorithm applied.`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
   if (!is_verified) {
-    if (!process.env.JWT_REGISTER_TOKEN) {
-      throw new AppError(
-        `No Register Token applied.`,
-        StatusCodes.FAILED_DEPENDENCY,
-      );
-    }
-
-    if (!process.env.JWT_REGISTER_TTL) {
-      throw new AppError(
-        `No Expiration applied.`,
-        StatusCodes.FAILED_DEPENDENCY,
-      );
-    }
-
-    const secret = process.env.JWT_REGISTER_TOKEN;
-    const algorithm = process.env.JWT_AUTH_ALGO as jwt.Algorithm;
-    const expiresIn = process.env.JWT_REGISTER_TTL as string;
+    const secret = env.JWT_REGISTER_TOKEN;
+    const algorithm = env.JWT_AUTH_ALGO as jwt.Algorithm;
+    const expiresIn = env.JWT_REGISTER_TTL as string;
 
     const options = { algorithm, expiresIn } as jwt.SignOptions;
 
@@ -90,23 +70,9 @@ export const login = async (req: Request, res: Response) => {
 
     const sendVerification = await accountVerificationEmail(email, token);
   } else {
-    if (!process.env.JWT_LOGIN_TOKEN) {
-      throw new AppError(
-        `No Auth Token applied.`,
-        StatusCodes.FAILED_DEPENDENCY,
-      );
-    }
-
-    if (!process.env.JWT_LOGIN_TTL) {
-      throw new AppError(
-        `No Expiration applied.`,
-        StatusCodes.FAILED_DEPENDENCY,
-      );
-    }
-
-    const secret = process.env.JWT_LOGIN_TOKEN;
-    const algorithm = process.env.JWT_AUTH_ALGO as jwt.Algorithm;
-    const expiresIn = process.env.JWT_LOGIN_TTL as string;
+    const secret = env.JWT_LOGIN_TOKEN;
+    const algorithm = env.JWT_AUTH_ALGO as jwt.Algorithm;
+    const expiresIn = env.JWT_LOGIN_TTL as string;
 
     const options = { algorithm, expiresIn } as jwt.SignOptions;
 
@@ -159,27 +125,9 @@ export const register = async (req: Request, res: Response) => {
     );
   }
 
-  if (!process.env.JWT_REGISTER_TOKEN) {
-    throw new AppError(
-      `No register token applied`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
-  if (!process.env.JWT_AUTH_ALGO) {
-    throw new AppError(
-      `No Auth Algorithm applied`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
-  if (!process.env.JWT_REGISTER_TTL) {
-    throw new AppError(`No Expiration applied.`, StatusCodes.FAILED_DEPENDENCY);
-  }
-
-  const secret = process.env.JWT_REGISTER_TOKEN;
-  const algorithm = process.env.JWT_AUTH_ALGO as jwt.Algorithm;
-  const expiresIn = process.env.JWT_REGISTER_TTL as string;
+  const secret = env.JWT_REGISTER_TOKEN;
+  const algorithm = env.JWT_AUTH_ALGO as jwt.Algorithm;
+  const expiresIn = env.JWT_REGISTER_TTL as string;
 
   const options = { algorithm, expiresIn } as jwt.SignOptions;
 
@@ -206,14 +154,7 @@ export const verify = async (req: Request, res: Response) => {
 
   const { token } = body;
 
-  if (!process.env.JWT_REGISTER_TOKEN) {
-    throw new AppError(
-      `No register token applied.`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
-  const decoded = jwt.verify(token, process.env.JWT_REGISTER_TOKEN);
+  const decoded = jwt.verify(token, env.JWT_REGISTER_TOKEN);
 
   if (typeof decoded !== "object" || !("email" in decoded)) {
     throw new AppError(`Invalid token provided`, StatusCodes.FORBIDDEN);
@@ -283,35 +224,14 @@ export const forgot = async (req: Request, res: Response) => {
 
   const { email, first_name, last_name, username } = user[0];
 
-  if (!process.env.JWT_RESET_TOKEN) {
-    throw new AppError(
-      `No reset token applied.`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
-  if (!process.env.JWT_RESET_TTL) {
-    throw new AppError(
-      `No reset token expiration applied.`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
-  if (!process.env.JWT_AUTH_ALGO) {
-    throw new AppError(
-      `No token algorithm applied.`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
   const options = {
-    algorithm: process.env.JWT_AUTH_ALGO,
-    expiresIn: process.env.JWT_RESET_TTL,
+    algorithm: env.JWT_AUTH_ALGO,
+    expiresIn: env.JWT_RESET_TTL,
   } as jwt.SignOptions;
 
   const token = jwt.sign(
     { email, first_name, last_name, username },
-    process.env.JWT_RESET_TOKEN,
+    env.JWT_RESET_TOKEN,
     options,
   );
 
@@ -351,32 +271,11 @@ export const reset = async (req: Request, res: Response) => {
     );
   }
 
-  if (!process.env.JWT_RESET_TOKEN) {
-    throw new AppError(
-      `There is no reset token applied.`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
-  if (!process.env.JWT_AUTH_ALGO) {
-    throw new AppError(
-      `There is no token algorithm applied.`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
-  if (!process.env.JWT_RESET_TTL) {
-    throw new AppError(
-      `There is no reset token expiration applied.`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
   const options = {
-    algorithm: process.env.JWT_AUTH_ALGO,
+    algorithm: env.JWT_AUTH_ALGO,
   } as jwt.VerifyOptions;
 
-  const decoded = jwt.verify(token, process.env.JWT_RESET_TOKEN, options);
+  const decoded = jwt.verify(token, env.JWT_RESET_TOKEN, options);
 
   if (typeof decoded !== "object" || !("email" in decoded)) {
     throw new AppError(`Invalid token provided.`, StatusCodes.FORBIDDEN);

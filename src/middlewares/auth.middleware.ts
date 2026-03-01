@@ -2,6 +2,7 @@ import AppError from "@src/errors/app.error";
 import { type NextFunction, type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
+import { env } from "@src/configs/env.config";
 
 export const authMiddleware = (
   req: Request,
@@ -21,14 +22,7 @@ export const authMiddleware = (
     );
   }
 
-  if (!process.env.APP_URL) {
-    throw new AppError(
-      `Missing dependency: App URL`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
-  if (!header.origin || header.origin !== process.env.APP_URL) {
+  if (!header.origin || header.origin !== env.APP_URL) {
     throw new AppError(
       `You are not authorized to proceed with this request.`,
       StatusCodes.UNAUTHORIZED,
@@ -44,14 +38,7 @@ export const authMiddleware = (
     );
   }
 
-  if (!process.env.JWT_LOGIN_TOKEN) {
-    throw new AppError(
-      `Missing dependency: Login Token`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
-  const verified = jwt.verify(token, process.env.JWT_LOGIN_TOKEN);
+  const verified = jwt.verify(token, env.JWT_LOGIN_TOKEN);
 
   if (!verified) {
     throw new AppError(
