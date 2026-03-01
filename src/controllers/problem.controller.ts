@@ -7,6 +7,9 @@ import Problem from "@src/models/problem.model";
 import {
   isAdditionalProblemData,
   isBaseProblemData,
+  isValidLookupBody,
+  isValidLookupParam,
+  isValidUpdateParam,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -76,12 +79,8 @@ export const find = async (req: Request, res: Response) => {
   const params = req.params;
   const body = req.body;
 
-  if (typeof params !== "object" || params === null || !("param" in params)) {
+  if (!isValidLookupParam(params) || !isValidLookupBody(body)) {
     throw new AppError(`Invalid parameter`, StatusCodes.BAD_REQUEST);
-  }
-
-  if (typeof body !== "object" || body === null || !("lookup" in body)) {
-    throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
 
   const lookup = body.lookup;
@@ -108,7 +107,7 @@ export const update = async (req: Request, res: Response) => {
   const body = req.body;
   const params = req.params;
 
-  if (typeof params !== "object" || params === null || !("id" in params)) {
+  if (!isValidUpdateParam(params)) {
     throw new AppError(`Invalid request`, StatusCodes.BAD_REQUEST);
   }
 
@@ -122,7 +121,12 @@ export const update = async (req: Request, res: Response) => {
   let updateData: Partial<BaseProblemData & AdditionalProblemData> = {};
 
   if (isBaseProblemData(body, "partial")) {
-    const FIELDS: (keyof BaseProblemData)[] = ["slug", "title", "description"];
+    const FIELDS: (keyof BaseProblemData)[] = [
+      "slug",
+      "title",
+      "description",
+      "difficulty",
+    ];
 
     for (const field of FIELDS) {
       if (field in body && typeof body[field as keyof object] !== "undefined") {
@@ -137,7 +141,7 @@ export const update = async (req: Request, res: Response) => {
       "editorial",
       "input_format",
       "output_format",
-    ];
+    ] as const;
 
     for (const field of FIELDS) {
       if (field in body && typeof body[field as keyof object] !== "undefined") {
