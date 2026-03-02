@@ -126,10 +126,22 @@ export const isValidDestroyParam = (
   );
 };
 
-export const isBaseUserData = (
+type validationType = "full" | "partial";
+
+export function isBaseUserData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseUserData => {
+  type?: "full",
+): data is BaseUserData;
+
+export function isBaseUserData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseUserData>;
+
+export function isBaseUserData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -143,12 +155,22 @@ export const isBaseUserData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseProblemData = (
+export function isBaseProblemData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseProblemData => {
+  type?: "full",
+): data is BaseProblemData;
+
+export function isBaseProblemData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseProblemData>;
+
+export function isBaseProblemData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -161,12 +183,22 @@ export const isBaseProblemData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalProblemData = (
+export function isAdditionalProblemData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalProblemData => {
+  type?: "full",
+): data is AdditionalProblemData;
+
+export function isAdditionalProblemData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalProblemData>;
+
+export function isAdditionalProblemData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -179,12 +211,22 @@ export const isAdditionalProblemData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseTopicData = (
+export function isBaseTopicData(
   data: unknown,
-  type: "partial" | "full" = "full",
-): data is BaseTopicData => {
+  type?: "full",
+): data is BaseTopicData;
+
+export function isBaseTopicData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseTopicData>;
+
+export function isBaseTopicData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -196,12 +238,22 @@ export const isBaseTopicData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalTopicData = (
+export function isAdditionalTopicData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalTopicData => {
+  type?: "full",
+): data is AdditionalTopicData;
+
+export function isAdditionalTopicData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalTopicData>;
+
+export function isAdditionalTopicData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -209,12 +261,22 @@ export const isAdditionalTopicData = (
   const REQUIRED_FIELDS: readonly (keyof AdditionalTopicData)[] = ["icon"];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseTestCaseData = (
+export function isBaseTestCaseData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseTestCaseData => {
+  type?: "full",
+): data is BaseTestCaseData;
+
+export function isBaseTestCaseData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseTestCaseData>;
+
+export function isBaseTestCaseData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -228,12 +290,22 @@ export const isBaseTestCaseData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalTestCaseData = (
+export function isAdditionalTestCaseData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalTestCaseData => {
+  type?: "full",
+): data is AdditionalTestCaseData;
+
+export function isAdditionalTestCaseData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalTestCaseData>;
+
+export function isAdditionalTestCaseData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -243,12 +315,22 @@ export const isAdditionalTestCaseData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseHintData = (
+export function isBaseHintData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseHintData => {
+  type?: "full",
+): data is BaseHintData;
+
+export function isBaseHintData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseHintData>;
+
+export function isBaseHintData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -260,12 +342,22 @@ export const isBaseHintData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalHintData = (
+export function isAdditionalHintData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalHintData => {
+  type?: "full",
+): data is AdditionalHintData;
+
+export function isAdditionalHintData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalHintData>;
+
+export function isAdditionalHintData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -275,12 +367,22 @@ export const isAdditionalHintData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseSubmissionData = (
+export function isBaseSubmissionData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseSubmissionData => {
+  type?: "full",
+): data is BaseSubmissionData;
+
+export function isBaseSubmissionData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseSubmissionData>;
+
+export function isBaseSubmissionData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -294,12 +396,22 @@ export const isBaseSubmissionData = (
   ] as const;
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalSubmissionData = (
+export function isAdditionalSubmissionData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalSubmissionData => {
+  type?: "full",
+): data is AdditionalSubmissionData;
+
+export function isAdditionalSubmissionData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalSubmissionData>;
+
+export function isAdditionalSubmissionData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -312,12 +424,22 @@ export const isAdditionalSubmissionData = (
   ] as const;
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseAttemptData = (
+export function isBaseAttemptData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseAttemptData => {
+  type?: "full",
+): data is BaseAttemptData;
+
+export function isBaseAttemptData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseAttemptData>;
+
+export function isBaseAttemptData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -331,12 +453,22 @@ export const isBaseAttemptData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalAttemptData = (
+export function isAdditionalAttemptData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalAttemptData => {
+  type?: "full",
+): data is AdditionalAttemptData;
+
+export function isAdditionalAttemptData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalAttemptData>;
+
+export function isAdditionalAttemptData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -346,12 +478,22 @@ export const isAdditionalAttemptData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseSessionData = (
+export function isBaseSessionData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseSessionData => {
+  type?: "full",
+): data is BaseSessionData;
+
+export function isBaseSessionData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseSessionData>;
+
+export function isBaseSessionData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -368,12 +510,22 @@ export const isBaseSessionData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalSessionData = (
+export function isAdditionalSessionData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalSessionData => {
+  type?: "full",
+): data is AdditionalSessionData;
+
+export function isAdditionalSessionData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalSessionData>;
+
+export function isAdditionalSessionData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -385,12 +537,22 @@ export const isAdditionalSessionData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseSessionParticipantData = (
+export function isBaseSessionParticipantData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseSessionParticipantData => {
+  type?: "full",
+): data is BaseSessionParticipantData;
+
+export function isBaseSessionParticipantData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseSessionParticipantData>;
+
+export function isBaseSessionParticipantData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -402,12 +564,22 @@ export const isBaseSessionParticipantData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalSessionParticipantData = (
+export function isAdditionalSessionParticipantData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalSessionParticipantData => {
+  type?: "full",
+): data is AdditionalSessionParticipantData;
+
+export function isAdditionalSessionParticipantData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalSessionParticipantData>;
+
+export function isAdditionalSessionParticipantData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -420,12 +592,22 @@ export const isAdditionalSessionParticipantData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseCodeSnapshotData = (
+export function isBaseCodeSnapshotData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseCodeSnapshotData => {
+  type?: "full",
+): data is BaseCodeSnapshotData;
+
+export function isBaseCodeSnapshotData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseCodeSnapshotData>;
+
+export function isBaseCodeSnapshotData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -440,12 +622,22 @@ export const isBaseCodeSnapshotData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalCodeSnapshotData = (
+export function isAdditionalCodeSnapshotData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalCodeSnapshotData => {
+  type?: "full",
+): data is AdditionalCodeSnapshotData;
+
+export function isAdditionalCodeSnapshotData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalCodeSnapshotData>;
+
+export function isAdditionalCodeSnapshotData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -453,12 +645,22 @@ export const isAdditionalCodeSnapshotData = (
   const REQUIRED_FIELDS: (keyof AdditionalCodeSnapshotData)[] = [];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseChatMessageData = (
+export function isBaseChatMessageData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseChatMessageData => {
+  type?: "full",
+): data is BaseChatMessageData;
+
+export function isBaseChatMessageData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseChatMessageData>;
+
+export function isBaseChatMessageData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -471,12 +673,22 @@ export const isBaseChatMessageData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalChatMessageData = (
+export function isAdditionalChatMessageData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalChatMessageData => {
+  type?: "full",
+): data is AdditionalChatMessageData;
+
+export function isAdditionalChatMessageData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalChatMessageData>;
+
+export function isAdditionalChatMessageData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -484,12 +696,22 @@ export const isAdditionalChatMessageData = (
   const REQUIRED_FIELDS: (keyof AdditionalChatMessageData)[] = ["deleted_at"];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseUserProgressData = (
+export function isBaseUserProgressData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseUserProgressData => {
+  type?: "full",
+): data is BaseUserProgressData;
+
+export function isBaseUserProgressData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseUserProgressData>;
+
+export function isBaseUserProgressData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -500,12 +722,22 @@ export const isBaseUserProgressData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalUserProgressData = (
+export function isAdditionalUserProgressData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalUserProgressData => {
+  type?: "full",
+): data is AdditionalUserProgressData;
+
+export function isAdditionalUserProgressData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalUserProgressData>;
+
+export function isAdditionalUserProgressData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -518,12 +750,22 @@ export const isAdditionalUserProgressData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseFriendshipData = (
+export function isBaseFriendshipData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseFriendshipData => {
+  type?: "full",
+): data is BaseFriendshipData;
+
+export function isBaseFriendshipData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseFriendshipData>;
+
+export function isBaseFriendshipData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -535,12 +777,22 @@ export const isBaseFriendshipData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalFriendshipData = (
+export function isAdditionalFriendshipData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalFriendshipData => {
+  type?: "full",
+): data is AdditionalFriendshipData;
+
+export function isAdditionalFriendshipData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalFriendshipData>;
+
+export function isAdditionalFriendshipData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -551,12 +803,22 @@ export const isAdditionalFriendshipData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseStudyGroupData = (
+export function isBaseStudyGroupData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseStudyGroupData => {
+  type?: "full",
+): data is BaseStudyGroupData;
+
+export function isBaseStudyGroupData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseStudyGroupData>;
+
+export function isBaseStudyGroupData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -568,12 +830,22 @@ export const isBaseStudyGroupData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalStudyGroupData = (
+export function isAdditionalStudyGroupData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalStudyGroupData => {
+  type?: "full",
+): data is AdditionalStudyGroupData;
+
+export function isAdditionalStudyGroupData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalStudyGroupData>;
+
+export function isAdditionalStudyGroupData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -584,12 +856,22 @@ export const isAdditionalStudyGroupData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseStudyGroupMemberData = (
+export function isBaseStudyGroupMemberData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseStudyGroupMemberData => {
+  type?: "full",
+): data is BaseStudyGroupMemberData;
+
+export function isBaseStudyGroupMemberData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseStudyGroupMemberData>;
+
+export function isBaseStudyGroupMemberData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -601,12 +883,22 @@ export const isBaseStudyGroupMemberData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalStudyGroupMemberData = (
+export function isAdditionalStudyGroupMemberData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalStudyGroupMemberData => {
+  type?: "full",
+): data is AdditionalStudyGroupMemberData;
+
+export function isAdditionalStudyGroupMemberData(
+  data: unknown,
+  type?: "full",
+): data is Partial<AdditionalStudyGroupMemberData>;
+
+export function isAdditionalStudyGroupMemberData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -616,12 +908,22 @@ export const isAdditionalStudyGroupMemberData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseAchievementData = (
+export function isBaseAchievementData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseAchievementData => {
+  type?: "full",
+): data is BaseAchievementData;
+
+export function isBaseAchievementData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseAchievementData>;
+
+export function isBaseAchievementData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -638,12 +940,22 @@ export const isBaseAchievementData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalAchievementData = (
+export function isAdditionalAchievementData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalAchievementData => {
+  type?: "full",
+): data is AdditionalAchievementData;
+
+export function isAdditionalAchievementData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalAchievementData>;
+
+export function isAdditionalAchievementData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -651,12 +963,22 @@ export const isAdditionalAchievementData = (
   const REQUIRED_FIELDS: (keyof AdditionalAchievementData)[] = ["deleted_at"];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isBaseUserAchievementData = (
+export function isBaseUserAchievementData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is BaseUserAchievementData => {
+  type?: "full",
+): data is BaseUserAchievementData;
+
+export function isBaseUserAchievementData(
+  data: unknown,
+  type: "partial",
+): data is Partial<BaseUserAchievementData>;
+
+export function isBaseUserAchievementData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -667,12 +989,22 @@ export const isBaseUserAchievementData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
-export const isAdditionalUserAchievementData = (
+export function isAdditionalUserAchievementData(
   data: unknown,
-  type: "full" | "partial" = "full",
-): data is AdditionalUserAchievementData => {
+  type?: "full",
+): data is AdditionalUserAchievementData;
+
+export function isAdditionalUserAchievementData(
+  data: unknown,
+  type: "partial",
+): data is Partial<AdditionalUserAchievementData>;
+
+export function isAdditionalUserAchievementData(
+  data: unknown,
+  type: validationType = "full",
+): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
   }
@@ -682,7 +1014,7 @@ export const isAdditionalUserAchievementData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-};
+}
 
 export const assignField = <T, K extends keyof T>(
   key: K,
