@@ -1016,7 +1016,7 @@ export function isAdditionalUserAchievementData(
   return validateFields(data, REQUIRED_FIELDS, type);
 }
 
-export const assignField = <T, K extends keyof T>(
+export const assignField = <T extends object, K extends keyof T>(
   key: K,
   value: T[K],
   fields: T,
