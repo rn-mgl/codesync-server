@@ -5,6 +5,7 @@ import type {
 } from "@src/interface/attempt.interface";
 import Attempt from "@src/models/attempt.model";
 import {
+  assignField,
   isAdditionalAttemptData,
   isBaseAttemptData,
 } from "@src/utils/type.util";
@@ -32,8 +33,9 @@ export const create = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalAttemptData)[] = ["is_solved"];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        createData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalAttemptData];
+      if (value !== undefined) {
+        assignField(field, value, createData);
       }
     }
   }

@@ -6,6 +6,7 @@ import type {
 } from "@src/interface/achievement.interface";
 import Achievement from "@src/models/achievement.model";
 import {
+  assignField,
   isAdditionalAchievementData,
   isBaseAchievementData,
   isValidLookupBody,
@@ -102,8 +103,10 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof BaseAchievementData];
+
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }
@@ -112,8 +115,10 @@ export const update = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalAchievementData)[] = ["deleted_at"];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalAchievementData];
+
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }

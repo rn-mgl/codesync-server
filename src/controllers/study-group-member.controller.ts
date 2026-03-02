@@ -2,6 +2,7 @@ import AppError from "@src/errors/app.error";
 import type { BaseStudyGroupMemberData } from "@src/interface/study-group.interface";
 import StudyGroupMember from "@src/models/study-group-member.model";
 import {
+  assignField,
   isBaseStudyGroupMemberData,
   isValidLookupBody,
   isValidLookupParam,
@@ -97,8 +98,9 @@ export const update = async (req: Request, res: Response) => {
     const FIELDS: (keyof BaseStudyGroupMemberData)[] = ["role"];
 
     for (const field of FIELDS) {
-      if (field in body && body[field as keyof object]) {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof BaseStudyGroupMemberData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }

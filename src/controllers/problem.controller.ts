@@ -5,6 +5,7 @@ import type {
 } from "@src/interface/problem.interface";
 import Problem from "@src/models/problem.model";
 import {
+  assignField,
   isAdditionalProblemData,
   isBaseProblemData,
   isValidLookupBody,
@@ -52,11 +53,9 @@ export const create = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (
-        field in problem &&
-        typeof problem[field as keyof object] !== "undefined"
-      ) {
-        createData[field as keyof object] = problem[field as keyof object];
+      const value = body[field as keyof AdditionalProblemData];
+      if (value !== undefined) {
+        assignField(field, value, createData);
       }
     }
   }
@@ -129,8 +128,9 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof BaseProblemData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }
@@ -144,8 +144,9 @@ export const update = async (req: Request, res: Response) => {
     ] as const;
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalProblemData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }

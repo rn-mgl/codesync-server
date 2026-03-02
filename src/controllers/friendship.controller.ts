@@ -2,6 +2,7 @@ import Friendship from "@src/models/friendship.model";
 import { StatusCodes } from "http-status-codes";
 import { type Request, type Response } from "express";
 import {
+  assignField,
   isAdditionalFriendshipData,
   isBaseFriendshipData,
   isValidLookupBody,
@@ -100,8 +101,9 @@ export const update = async (req: Request, res: Response) => {
     const FIELDS: (keyof BaseFriendshipData)[] = ["status"];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        body[field as keyof object];
+      const value = body[field as keyof BaseFriendshipData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }
@@ -110,8 +112,9 @@ export const update = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalFriendshipData)[] = ["accepted_at"];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalFriendshipData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }

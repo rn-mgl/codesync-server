@@ -6,6 +6,7 @@ import type {
 } from "@src/interface/user.interface";
 import UserProgress from "@src/models/user-progress.model";
 import {
+  assignField,
   isAdditionalUserProgressData,
   isBaseUserProgressData,
   isValidLookupBody,
@@ -37,8 +38,9 @@ export const create = async (req: Request, res: Response) => {
     ] as const;
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        createData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalUserProgressData];
+      if (value !== undefined) {
+        assignField(field, value, createData);
       }
     }
   }
@@ -112,8 +114,9 @@ export const update = async (req: Request, res: Response) => {
     const FIELDS: (keyof BaseUserProgressData)[] = ["progress_data", "user_id"];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof BaseUserProgressData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }
@@ -127,8 +130,10 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalUserProgressData];
+
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }

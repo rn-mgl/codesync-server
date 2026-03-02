@@ -58,8 +58,8 @@ import type {
   BaseAchievementData,
 } from "@src/interface/achievement.interface";
 
-const validateFields = (
-  data: object,
+const validateFields = <T extends object>(
+  data: T,
   fields: readonly string[],
   type: "full" | "partial",
 ) => {
@@ -69,15 +69,15 @@ const validateFields = (
     return fields.every(
       (field) =>
         field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object]),
+        data[field as keyof T] &&
+        VALID_TYPES.includes(typeof data[field as keyof T]),
     );
   } else {
     return fields.some(
       (field) =>
         field in data &&
-        data[field as keyof object] &&
-        VALID_TYPES.includes(typeof data[field as keyof object]),
+        data[field as keyof T] &&
+        VALID_TYPES.includes(typeof data[field as keyof T]),
     );
   }
 };
@@ -682,4 +682,12 @@ export const isAdditionalUserAchievementData = (
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
+};
+
+export const assignField = <T, K extends keyof T>(
+  key: K,
+  value: T[K],
+  fields: T,
+) => {
+  fields[key] = value;
 };

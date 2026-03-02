@@ -1,7 +1,11 @@
 import Hint from "@src/models/hint.model";
 import { StatusCodes } from "http-status-codes";
 import { type Request, type Response } from "express";
-import { isAdditionalHintData, isBaseHintData } from "@src/utils/type.util";
+import {
+  assignField,
+  isAdditionalHintData,
+  isBaseHintData,
+} from "@src/utils/type.util";
 import AppError from "@src/errors/app.error";
 import type {
   AdditionalHintData,
@@ -27,8 +31,9 @@ export const create = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalHintData)[] = ["order_index"];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        createData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalHintData];
+      if (value !== undefined) {
+        assignField(field, value, createData);
       }
     }
   }
@@ -105,8 +110,9 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof BaseHintData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }
@@ -115,8 +121,9 @@ export const update = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalHintData)[] = ["order_index"];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalHintData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }

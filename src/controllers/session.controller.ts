@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import AppError from "@src/errors/app.error";
 import { type Request, type Response } from "express";
 import {
+  assignField,
   isAdditionalSessionData,
   isBaseSessionData,
 } from "@src/utils/type.util";
@@ -117,8 +118,9 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof BaseSessionData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }
@@ -131,8 +133,10 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalSessionData];
+
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }

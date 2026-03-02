@@ -6,6 +6,7 @@ import type {
 } from "@src/interface/study-group.interface";
 import StudyGroup from "@src/models/study-group.model";
 import {
+  assignField,
   isAdditionalStudyGroupData,
   isBaseStudyGroupData,
   isValidLookupBody,
@@ -36,8 +37,9 @@ export const create = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        createData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalStudyGroupData];
+      if (value !== undefined) {
+        assignField(field, value, createData);
       }
     }
   }
@@ -115,8 +117,9 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof BaseStudyGroupData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }
@@ -128,8 +131,9 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalStudyGroupData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }

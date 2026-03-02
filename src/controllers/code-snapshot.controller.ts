@@ -5,6 +5,7 @@ import type {
 } from "@src/interface/code-snapshot.interface";
 import CodeSnapshot from "@src/models/code-snapshot.model";
 import {
+  assignField,
   isAdditionalCodeSnapshotData,
   isBaseCodeSnapshotData,
 } from "@src/utils/type.util";
@@ -32,8 +33,9 @@ export const create = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalCodeSnapshotData)[] = [];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        createData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalCodeSnapshotData];
+      if (value !== undefined) {
+        assignField(field, value, createData);
       }
     }
   }

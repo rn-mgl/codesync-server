@@ -6,6 +6,7 @@ import type {
 } from "@src/interface/submission.interface";
 import Submission from "@src/models/submission.model";
 import {
+  assignField,
   isAdditionalSubmissionData,
   isBaseSubmissionData,
 } from "@src/utils/type.util";
@@ -37,8 +38,9 @@ export const create = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        createData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalSubmissionData];
+      if (value !== undefined) {
+        assignField(field, value, createData);
       }
     }
   }

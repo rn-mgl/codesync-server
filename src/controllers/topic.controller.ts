@@ -4,7 +4,11 @@ import type {
   BaseTopicData,
 } from "@src/interface/topic.interface";
 import Topic from "@src/models/topic.model";
-import { isAdditionalTopicData, isBaseTopicData } from "@src/utils/type.util";
+import {
+  assignField,
+  isAdditionalTopicData,
+  isBaseTopicData,
+} from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
@@ -26,8 +30,9 @@ export const create = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalTopicData)[] = ["icon"];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] === "string") {
-        createData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalTopicData];
+      if (value !== undefined) {
+        assignField(field, value, createData);
       }
     }
   }
@@ -104,12 +109,9 @@ export const update = async (req: Request, res: Response) => {
     const FIELDS: (keyof BaseTopicData)[] = ["name", "slug", "description"];
 
     for (const field of FIELDS) {
-      if (
-        field in body &&
-        typeof body[field as keyof object] !== "undefined" &&
-        typeof body[field as keyof object] === "string"
-      ) {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof BaseTopicData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }
@@ -118,12 +120,10 @@ export const update = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalTopicData)[] = ["icon"];
 
     for (const field of FIELDS) {
-      if (
-        field in body &&
-        typeof body[field as keyof object] !== "undefined" &&
-        typeof body[field as keyof object] === "string"
-      ) {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalTopicData];
+
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }

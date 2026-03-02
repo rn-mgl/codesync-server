@@ -2,6 +2,7 @@ import ChatMessages from "@src/models/chat-message.model";
 import { StatusCodes } from "http-status-codes";
 import { type Request, type Response } from "express";
 import {
+  assignField,
   isAdditionalChatMessageData,
   isBaseChatMessageData,
   isValidLookupBody,
@@ -23,7 +24,7 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid chat message data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseChatMessageData = {
+  let createData: BaseChatMessageData & Partial<AdditionalChatMessageData> = {
     message: body.message,
     message_type: body.message_type,
     sender_id: body.sender_id,
@@ -34,8 +35,9 @@ export const create = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalChatMessageData)[] = ["deleted_at"];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        createData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalChatMessageData];
+      if (value !== undefined) {
+        assignField(field, value, createData);
       }
     }
   }
@@ -111,8 +113,9 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof BaseChatMessageData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }
@@ -121,8 +124,9 @@ export const update = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalChatMessageData)[] = ["deleted_at"];
 
     for (const field of FIELDS) {
-      if (field in body && typeof body[field as keyof object] !== "undefined") {
-        updateData[field as keyof object] = body[field as keyof object];
+      const value = body[field as keyof AdditionalChatMessageData];
+      if (value !== undefined) {
+        assignField(field, value, updateData);
       }
     }
   }
