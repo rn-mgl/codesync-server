@@ -39,12 +39,25 @@ export const create = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      if (field in body && body[field as keyof AdditionalSessionData]) {
-        createData[field as keyof AdditionalSessionData] =
-          body[field as keyof AdditionalSessionData];
+      const value = body[field as keyof AdditionalSessionData];
+      if (value !== undefined) {
+        assignField(field, value, createData);
       }
     }
   }
+
+  const created = await Session.create(createData);
+
+  if (!created) {
+    throw new AppError(
+      `An error occurred during creation.`,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: !!created, data: { message: "Session created." } });
 };
 
 export const find = async (req: Request, res: Response) => {
