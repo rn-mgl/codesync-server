@@ -93,7 +93,7 @@ export const isValidLookupParam = (
   );
 };
 
-export const isValidLookupBody = (
+export const isValidLookupQuery = (
   data: unknown,
 ): data is object & Record<"lookup", string> => {
   return (

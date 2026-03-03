@@ -4,7 +4,7 @@ import StudyGroupMember from "@src/models/study-group-member.model";
 import {
   assignField,
   isBaseStudyGroupMemberData,
-  isValidLookupBody,
+  isValidLookupQuery,
   isValidLookupParam,
   isValidUpdateParam,
 } from "@src/utils/type.util";
@@ -39,15 +39,15 @@ export const create = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
   const params = req.params;
-  const body = req.body;
+  const query = req.query;
 
-  if (!isValidLookupBody(body) || !isValidLookupParam(params)) {
+  if (!isValidLookupQuery(query) || !isValidLookupParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
   let studyGroupMember: RowDataPacket[] | null = null;
 
-  switch (body.lookup) {
+  switch (query.lookup) {
     case "id":
       const id = parseInt(params.param);
 

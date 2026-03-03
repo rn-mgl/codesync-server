@@ -5,7 +5,7 @@ import {
   assignField,
   isAdditionalFriendshipData,
   isBaseFriendshipData,
-  isValidLookupBody,
+  isValidLookupQuery,
   isValidLookupParam,
   isValidUpdateParam,
 } from "@src/utils/type.util";
@@ -44,16 +44,16 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const find = async (req: Request, res: Response) => {
-  const body = req.body;
+  const query = req.query;
   const params = req.params;
 
-  if (!isValidLookupBody(body) || !isValidLookupParam(params)) {
+  if (!isValidLookupQuery(query) || !isValidLookupParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
   let friendship: RowDataPacket[] | null = null;
 
-  switch (body.lookup) {
+  switch (query.lookup) {
     case "id":
       const id = parseInt(params.param);
 

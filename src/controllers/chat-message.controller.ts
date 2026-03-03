@@ -5,7 +5,7 @@ import {
   assignField,
   isAdditionalChatMessageData,
   isBaseChatMessageData,
-  isValidLookupBody,
+  isValidLookupQuery,
   isValidLookupParam,
   isValidUpdateParam,
 } from "@src/utils/type.util";
@@ -56,19 +56,19 @@ export const create = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
   const params = req.params;
-  const body = req.body;
+  const query = req.query;
 
   if (!isValidLookupParam(params)) {
     throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!isValidLookupBody(body)) {
+  if (!isValidLookupQuery(query)) {
     throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
 
   let chatMessage: RowDataPacket[] | null = null;
 
-  switch (body.lookup) {
+  switch (query.lookup) {
     case "id":
       const id = parseInt(params.param);
 

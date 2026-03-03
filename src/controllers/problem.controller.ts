@@ -8,7 +8,7 @@ import {
   assignField,
   isAdditionalProblemData,
   isBaseProblemData,
-  isValidLookupBody,
+  isValidLookupQuery,
   isValidLookupParam,
   isValidUpdateParam,
 } from "@src/utils/type.util";
@@ -76,13 +76,13 @@ export const all = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
   const params = req.params;
-  const body = req.body;
+  const query = req.query;
 
-  if (!isValidLookupParam(params) || !isValidLookupBody(body)) {
+  if (!isValidLookupParam(params) || !isValidLookupQuery(query)) {
     throw new AppError(`Invalid parameter`, StatusCodes.BAD_REQUEST);
   }
 
-  const lookup = body.lookup;
+  const lookup = query.lookup;
   const param = params.param;
   let problem: null | RowDataPacket[] = null;
 
@@ -92,11 +92,19 @@ export const find = async (req: Request, res: Response) => {
 
       problem = await Problem.findById(id);
 
-      return res.json({ problem });
+      if (!problem || !problem.length) {
+        throw new AppError(`Problem not found.`, StatusCodes.NOT_FOUND);
+      }
+
+      return res.json({ success: !!problem, data: { problem: problem[0] } });
     case "slug":
       problem = await Problem.findBySlug(param);
 
-      return res.json({ problem });
+      if (!problem || !problem.length) {
+        throw new AppError(`Problem not found.`, StatusCodes.NOT_FOUND);
+      }
+
+      return res.json({ success: !!problem, data: { problem: problem[0] } });
     default:
       throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
