@@ -1,0 +1,4 @@
+services:
+  codesync-app:
+    container_name: codesync-server-app
+    build: .

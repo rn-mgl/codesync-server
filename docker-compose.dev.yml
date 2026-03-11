@@ -1,0 +1,7 @@
+services:
+  codesync-app:
+    volumes:
+      - ./:/app:ro
+      - /app/node_modules
+    ports:
+      - "8000:8000"
