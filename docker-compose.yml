@@ -2,3 +2,12 @@ services:
   codesync-app:
     container_name: codesync-server-app
     build: .
+
+  database:
+    container_name: codesync-database
+    image: mysql:9
+    volumes:
+      - codesync-db:/var/lib/mysql
+
+volumes:
+  codesync-db:

@@ -1,7 +1,15 @@
 services:
   codesync-app:
+    env_file:
+      - .env
     volumes:
       - ./:/app:ro
       - /app/node_modules
     ports:
       - "8000:8000"
+
+  database:
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
