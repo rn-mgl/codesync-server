@@ -9,5 +9,13 @@ services:
     volumes:
       - codesync-db:/var/lib/mysql
 
+  javascript-sandbox:
+    image: node:25
+    container_name: codesync-javascript-sandbox
+    network_mode: none
+    working_dir: /usr/src/app
+    volumes:
+      - ./sandbox:/usr/src/app
+
 volumes:
   codesync-db:
