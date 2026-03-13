@@ -16,6 +16,8 @@ services:
     working_dir: /usr/src/app
     volumes:
       - ./sandbox:/usr/src/app
+    profiles:
+      - sandbox
 
 volumes:
   codesync-db:
