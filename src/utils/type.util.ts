@@ -34,6 +34,7 @@ import type {
 import type {
   AdditionalSubmissionData,
   BaseSubmissionData,
+  SubmissionType,
 } from "@src/interface/submission.interface";
 import type {
   AdditionalTestCaseData,
@@ -424,6 +425,19 @@ export function isAdditionalSubmissionData(
   ] as const;
 
   return validateFields(data, REQUIRED_FIELDS, type);
+}
+
+export function isValidSubmissionType(data: unknown): data is SubmissionType {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  return (
+    "type" in data &&
+    typeof data.type === "string" &&
+    data.type !== undefined &&
+    ["run", "test"].includes(data.type)
+  );
 }
 
 export function isBaseAttemptData(

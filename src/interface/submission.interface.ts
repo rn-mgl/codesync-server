@@ -13,4 +13,8 @@ export interface AdditionalSubmissionData {
   error_message: string;
 }
 
+export interface SubmissionType {
+  type: "test" | "run";
+}
+
 export type FullSubmissionData = BaseSubmissionData & AdditionalSubmissionData;

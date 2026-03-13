@@ -2,59 +2,73 @@ import AppError from "@src/errors/app.error";
 import type {
   AdditionalSubmissionData,
   BaseSubmissionData,
-  FullSubmissionData,
 } from "@src/interface/submission.interface";
 import Submission from "@src/models/submission.model";
 import {
   assignField,
   isAdditionalSubmissionData,
   isBaseSubmissionData,
+  isValidSubmissionType,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
+import { exec } from "node:child_process";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!isBaseSubmissionData(body)) {
-    throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
+  if (!isValidSubmissionType(body)) {
+    throw new AppError(`Invalid submission type.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseSubmissionData & Partial<AdditionalSubmissionData> = {
-    code: body.code,
-    language: body.language,
-    problem_id: body.problem_id,
-    status: body.status,
-    user_id: body.user_id,
-  };
+  const type = body.type;
 
-  if (isAdditionalSubmissionData(body, "partial")) {
-    const FIELDS: (keyof AdditionalSubmissionData)[] = [
-      "error_message",
-      "execution_time_ms",
-      "memory_used_kb",
-      "test_results",
-    ];
-
-    for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalSubmissionData];
-      if (value !== undefined) {
-        assignField(field, value, createData);
+  switch (type) {
+    case "run":
+      if (!isBaseSubmissionData(body)) {
+        throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
       }
-    }
+
+      let createData: BaseSubmissionData & Partial<AdditionalSubmissionData> = {
+        code: body.code,
+        language: body.language,
+        problem_id: body.problem_id,
+        status: body.status,
+        user_id: body.user_id,
+      };
+
+      if (isAdditionalSubmissionData(body, "partial")) {
+        const FIELDS: (keyof AdditionalSubmissionData)[] = [
+          "error_message",
+          "execution_time_ms",
+          "memory_used_kb",
+          "test_results",
+        ];
+
+        for (const field of FIELDS) {
+          const value = body[field as keyof AdditionalSubmissionData];
+          if (value !== undefined) {
+            assignField(field, value, createData);
+          }
+        }
+      }
+
+      const created = await Submission.create(createData);
+
+      if (!created) {
+        throw new AppError(
+          `An error occurred during submission.`,
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      return res.json({ success: !!created });
+    case "test":
+      console.log("test");
+    default:
+      throw new AppError(`Invalid submission type.`, StatusCodes.BAD_REQUEST);
   }
-
-  const created = await Submission.create(createData);
-
-  if (!created) {
-    throw new AppError(
-      `An error occurred during submission.`,
-      StatusCodes.BAD_REQUEST,
-    );
-  }
-
-  return res.json({ success: !!created });
 };
 
 export const all = async (req: Request, res: Response) => {
