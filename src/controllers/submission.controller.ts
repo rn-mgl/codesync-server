@@ -15,6 +15,7 @@ import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
+import fs from "fs/promises";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
@@ -33,6 +34,10 @@ export const create = async (req: Request, res: Response) => {
   }
 
   const type = submission.type;
+
+  const file = await fs.writeFile("./sandbox/javascript.js", submission.code);
+
+  console.log(file);
 
   switch (type) {
     case "run":
@@ -77,7 +82,7 @@ export const create = async (req: Request, res: Response) => {
         .status(!!created ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ success: !!created });
     case "test":
-      const command = `docker run --rm node:25 -e "console.log(123)"`;
+      const command = ``;
 
       let data:
         | { success: true; data: string }
