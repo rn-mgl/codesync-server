@@ -1,5 +1,5 @@
 services:
-  codesync-app:
+  backend:
     env_file:
       - .env
     volumes:

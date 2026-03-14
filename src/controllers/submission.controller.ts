@@ -15,7 +15,8 @@ import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
-import fs from "fs/promises";
+import fs from "fs";
+import type { ServerResponse } from "@src/interface/server.interface";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
@@ -35,16 +36,14 @@ export const create = async (req: Request, res: Response) => {
 
   const type = submission.type;
 
-  const file = await fs.writeFile("./sandbox/javascript.js", submission.code);
+  if (!isBaseSubmissionData(submission)) {
+    throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
+  }
 
-  console.log(file);
+  fs.writeFileSync("./sandbox/javascript.js", submission.code);
 
   switch (type) {
     case "run":
-      if (!isBaseSubmissionData(submission)) {
-        throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
-      }
-
       let createData: BaseSubmissionData & Partial<AdditionalSubmissionData> = {
         code: submission.code,
         language: submission.language,
@@ -82,12 +81,9 @@ export const create = async (req: Request, res: Response) => {
         .status(!!created ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ success: !!created });
     case "test":
-      const command = ``;
+      const command = `docker run --rm -v codesync_sandbox-data:/usr/src/app/sandbox --name javascript-sandbox javascript-sandbox-image node sandbox/javascript.js`;
 
-      let data:
-        | { success: true; data: string }
-        | { success: false; message: string }
-        | null = null;
+      let data: ServerResponse | null = null;
 
       const execAsync = promisify(exec);
 
@@ -100,6 +96,7 @@ export const create = async (req: Request, res: Response) => {
         data = { success: true, data: stdout };
       } catch (error) {
         console.log(error);
+
         data = {
           success: false,
           message: "An error occurred during code execution.",

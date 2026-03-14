@@ -1,26 +1,25 @@
+name: codesync
+
 services:
-  codesync-app:
-    container_name: codesync-server-app
+  backend:
+    container_name: codesync-backend
     build: .
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - sandbox-data:/app/sandbox
 
   database:
     container_name: codesync-database
     image: mysql:9
     volumes:
-      - codesync-db:/var/lib/mysql
+      - database:/var/lib/mysql
 
   javascript-sandbox:
     build: ./sandbox
     image: javascript-sandbox-image
-    container_name: codesync-javascript-sandbox
-    network_mode: none
-    volumes:
-      - ./sandbox:/usr/src/app/sandbox
     profiles:
       - sandbox
-    command: tail -f /dev/null
 
 volumes:
-  codesync-db:
+  sandbox-data:
+  database:
