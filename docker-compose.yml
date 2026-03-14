@@ -2,6 +2,8 @@ services:
   codesync-app:
     container_name: codesync-server-app
     build: .
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   database:
     container_name: codesync-database

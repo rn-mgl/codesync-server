@@ -14,31 +14,41 @@ import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
 import { exec } from "node:child_process";
+import { promisify } from "node:util";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!isValidSubmissionType(body)) {
+  if (!("submission" in body)) {
+    throw new AppError(
+      `Invalid Problem data. Missing values.`,
+      StatusCodes.BAD_REQUEST,
+    );
+  }
+
+  const { submission } = body;
+
+  if (!isValidSubmissionType(submission)) {
     throw new AppError(`Invalid submission type.`, StatusCodes.BAD_REQUEST);
   }
 
-  const type = body.type;
+  const type = submission.type;
 
   switch (type) {
     case "run":
-      if (!isBaseSubmissionData(body)) {
+      if (!isBaseSubmissionData(submission)) {
         throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
       }
 
       let createData: BaseSubmissionData & Partial<AdditionalSubmissionData> = {
-        code: body.code,
-        language: body.language,
-        problem_id: body.problem_id,
-        status: body.status,
-        user_id: body.user_id,
+        code: submission.code,
+        language: submission.language,
+        problem_id: submission.problem_id,
+        status: submission.status,
+        user_id: submission.user_id,
       };
 
-      if (isAdditionalSubmissionData(body, "partial")) {
+      if (isAdditionalSubmissionData(submission, "partial")) {
         const FIELDS: (keyof AdditionalSubmissionData)[] = [
           "error_message",
           "execution_time_ms",
@@ -47,7 +57,7 @@ export const create = async (req: Request, res: Response) => {
         ];
 
         for (const field of FIELDS) {
-          const value = body[field as keyof AdditionalSubmissionData];
+          const value = submission[field as keyof AdditionalSubmissionData];
           if (value !== undefined) {
             assignField(field, value, createData);
           }
@@ -63,9 +73,40 @@ export const create = async (req: Request, res: Response) => {
         );
       }
 
-      return res.json({ success: !!created });
+      return res
+        .status(!!created ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ success: !!created });
     case "test":
-      console.log("test");
+      const command = `docker run --rm node:25 -e "console.log(123)"`;
+
+      let data:
+        | { success: true; data: string }
+        | { success: false; message: string }
+        | null = null;
+
+      const execAsync = promisify(exec);
+
+      try {
+        const { stdout, stderr } = await execAsync(command, {
+          timeout: 5000,
+          env: { DOCKER_API_VERSION: "1.44" },
+        });
+
+        data = { success: true, data: stdout };
+      } catch (error) {
+        console.log(error);
+        data = {
+          success: false,
+          message: "An error occurred during code execution.",
+        };
+      }
+
+      return res
+        .status(
+          data.success ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR,
+        )
+        .json(data);
+
     default:
       throw new AppError(`Invalid submission type.`, StatusCodes.BAD_REQUEST);
   }

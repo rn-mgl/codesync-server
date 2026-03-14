@@ -53,7 +53,7 @@ export const create = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalProblemData];
+      const value = problem[field as keyof AdditionalProblemData];
       if (value !== undefined) {
         assignField(field, value, createData);
       }
