@@ -2,7 +2,7 @@ export interface BaseSubmissionData {
   user_id: number;
   problem_id: number;
   code: string;
-  language: string;
+  language: SUPPORTED_LANGUAGES;
   status: SUBMISSION_STATUS;
 }
 
@@ -17,12 +17,22 @@ export interface SubmissionType {
   type: "test" | "run";
 }
 
+export type SUPPORTED_LANGUAGES = "javascript" | "php";
+
 type SUBMISSION_STATUS =
+  | "processing"
   | "accepted"
   | "wrong_answer"
   | "runtime_error"
   | "time_limit_exceeded"
   | "memory_limit_exceeded"
   | "compilation_error";
+
+export interface PostSubmissionData extends Pick<
+  BaseSubmissionData,
+  "code" | "language"
+> {
+  problem: string;
+}
 
 export type FullSubmissionData = BaseSubmissionData & AdditionalSubmissionData;

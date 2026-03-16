@@ -1,27 +1,28 @@
 import AppError from "@src/errors/app.error";
+import type { ServerResponse } from "@src/interface/server.interface";
 import type {
   AdditionalSubmissionData,
   BaseSubmissionData,
 } from "@src/interface/submission.interface";
+import Problem from "@src/models/problem.model";
 import Submission from "@src/models/submission.model";
+import { createSandboxFile, processCode } from "@src/services/sandbox.service";
 import {
   assignField,
   isAdditionalSubmissionData,
   isBaseSubmissionData,
+  isValidPostSubmissionData,
   isValidSubmissionType,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
-import fs from "fs";
-import type { ServerResponse } from "@src/interface/server.interface";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
+  const user = req.app.get("user");
 
-  if (!("submission" in body)) {
+  if (!("submission" in body) || typeof body.submission !== "object") {
     throw new AppError(
       `Invalid Problem data. Missing values.`,
       StatusCodes.BAD_REQUEST,
@@ -36,23 +37,64 @@ export const create = async (req: Request, res: Response) => {
 
   const type = submission.type;
 
-  if (!isBaseSubmissionData(submission)) {
-    throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
+  if (!isValidPostSubmissionData(submission)) {
+    throw new AppError(`Invalid submission type.`, StatusCodes.BAD_REQUEST);
   }
 
-  fs.writeFileSync("./sandbox/javascript.js", submission.code);
+  let fileName: string | null = null;
+
+  try {
+    fileName = createSandboxFile(submission.language, submission.code);
+  } catch (error) {
+    throw new AppError(
+      "An error occurred during code processing.",
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  let processedCode: { stderr: string; stdout: string } | null = null;
+
+  try {
+    processedCode = await processCode(submission.language, fileName);
+  } catch (error) {
+    throw new AppError(
+      "An error occurred during code execution.",
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
 
   switch (type) {
     case "run":
-      let createData: BaseSubmissionData & Partial<AdditionalSubmissionData> = {
+      const problem = await Problem.findBySlug(submission.problem);
+
+      if (!problem.length || !problem[0]) {
+        throw new AppError(
+          `The problem ${submission.problem} does not exist.`,
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
+      const createSubmission = {
+        user_id: user.id,
+        problem_id: problem[0].id,
         code: submission.code,
         language: submission.language,
-        problem_id: submission.problem_id,
-        status: submission.status,
-        user_id: submission.user_id,
+        status: "processing",
       };
 
-      if (isAdditionalSubmissionData(submission, "partial")) {
+      if (!isBaseSubmissionData(createSubmission)) {
+        throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
+      }
+
+      let createData: BaseSubmissionData & Partial<AdditionalSubmissionData> = {
+        code: createSubmission.code,
+        language: createSubmission.language,
+        problem_id: createSubmission.problem_id,
+        status: createSubmission.status,
+        user_id: createSubmission.user_id,
+      };
+
+      if (isAdditionalSubmissionData(createSubmission, "partial")) {
         const FIELDS: (keyof AdditionalSubmissionData)[] = [
           "error_message",
           "execution_time_ms",
@@ -61,7 +103,8 @@ export const create = async (req: Request, res: Response) => {
         ];
 
         for (const field of FIELDS) {
-          const value = submission[field as keyof AdditionalSubmissionData];
+          const value =
+            createSubmission[field as keyof AdditionalSubmissionData];
           if (value !== undefined) {
             assignField(field, value, createData);
           }
@@ -81,25 +124,17 @@ export const create = async (req: Request, res: Response) => {
         .status(!!created ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ success: !!created });
     case "test":
-      const command = `docker run --rm -v codesync_sandbox-data:/usr/src/app/sandbox --name javascript-sandbox javascript-sandbox-image node sandbox/javascript.js`;
-
       let data: ServerResponse | null = null;
 
-      const execAsync = promisify(exec);
-
-      try {
-        const { stdout, stderr } = await execAsync(command, {
-          timeout: 5000,
-          env: { DOCKER_API_VERSION: "1.44" },
-        });
-
-        data = { success: true, data: stdout };
-      } catch (error) {
-        console.log(error);
-
+      if (processedCode.stderr) {
         data = {
           success: false,
-          message: "An error occurred during code execution.",
+          message: `Code did not run successfully. ${processedCode.stderr}`,
+        };
+      } else {
+        data = {
+          success: true,
+          data: processedCode.stdout,
         };
       }
 
