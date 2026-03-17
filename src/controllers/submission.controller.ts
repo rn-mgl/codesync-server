@@ -52,16 +52,7 @@ export const create = async (req: Request, res: Response) => {
     );
   }
 
-  let processedCode: { stderr: string; stdout: string } | null = null;
-
-  try {
-    processedCode = await processCode(submission.language, fileName);
-  } catch (error) {
-    throw new AppError(
-      "An error occurred during code execution.",
-      StatusCodes.INTERNAL_SERVER_ERROR,
-    );
-  }
+  const processedCode = await processCode(submission.language, fileName);
 
   switch (type) {
     case "run":

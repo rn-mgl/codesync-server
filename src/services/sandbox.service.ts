@@ -1,4 +1,4 @@
-import { exec } from "node:child_process";
+import { exec, type ExecException } from "node:child_process";
 import { promisify } from "node:util";
 import fs from "fs";
 import { randomUUID } from "node:crypto";
@@ -27,26 +27,44 @@ const SANDBOXES: Record<SUPPORTED_LANGUAGES, SANDBOX_DATA> = {
 export const processCode = async (
   language: SUPPORTED_LANGUAGES,
   file: string,
-) => {
+): Promise<{
+  stderr: string;
+  stdout: string;
+}> => {
   const sandbox = SANDBOXES[language];
   const sandboxVolume = "codesync_sandbox-data";
 
-  const runCommand = `docker run --rm -v ${sandboxVolume}:/usr/src/app/sandbox ${sandbox.image} ${sandbox.command} sandbox/${file}`;
+  let processedCode: { stderr: string; stdout: string } = {
+    stderr: "",
+    stdout: "",
+  };
 
   const execAsync = promisify(exec);
 
-  const { stderr, stdout } = await execAsync(runCommand, {
-    timeout: 5000,
-    env: { DOCKER_API_VERSION: env.DOCKER_API_VERSION },
-  });
+  try {
+    const runCommand = `docker run --rm -v ${sandboxVolume}:/usr/src/app/sandbox ${sandbox.image} ${sandbox.command} sandbox/${file}`;
 
-  const cleanupCommand = `docker run --rm -v ${sandboxVolume}:/data alpine rm data/${file}`;
+    processedCode = await execAsync(runCommand, {
+      timeout: 5000,
+      env: { DOCKER_API_VERSION: env.DOCKER_API_VERSION },
+    });
+  } catch (error: any) {
+    processedCode.stderr = error.stderr ?? "Execution error";
+  }
 
-  const cleanup = await execAsync(cleanupCommand, {
-    env: { DOCKER_API_VERSION: env.DOCKER_API_VERSION },
-  });
+  try {
+    const cleanupCommand = `docker run --rm -v ${sandboxVolume}:/data alpine rm data/${file}`;
 
-  return { stderr, stdout };
+    const cleanup = await execAsync(cleanupCommand, {
+      env: { DOCKER_API_VERSION: env.DOCKER_API_VERSION },
+    });
+
+    console.log(cleanup);
+  } catch (error) {
+    console.log(error);
+  }
+
+  return processedCode;
 };
 
 export const createSandboxFile = (
