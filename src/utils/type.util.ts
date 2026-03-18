@@ -108,12 +108,12 @@ export const isValidLookupQuery = (
 
 export const isValidUpdateParam = (
   data: unknown,
-): data is Object & Record<"id", string> => {
+): data is Object & Record<"slug", string> => {
   return (
     typeof data === "object" &&
     data !== null &&
-    "id" in data &&
-    typeof data.id === "string"
+    "slug" in data &&
+    typeof data.slug === "string"
   );
 };
 

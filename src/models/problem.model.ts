@@ -7,6 +7,7 @@ import type {
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Problem implements FullProblemData {
+  id: number;
   title: string;
   slug: string;
   description: string;
@@ -21,6 +22,7 @@ class Problem implements FullProblemData {
   updated_at: string;
 
   constructor(data: FullProblemData) {
+    this.id = data.id;
     this.title = data.title;
     this.slug = data.slug;
     this.description = data.description;
@@ -118,7 +120,7 @@ class Problem implements FullProblemData {
         .map((key) => `${key} = ?`)
         .join(", ");
 
-      const values = Object.values(update);
+      const values = Object.values(updates);
 
       const query = `UPDATE problems SET ${update} WHERE id = ?;`;
 

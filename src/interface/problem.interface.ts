@@ -16,4 +16,7 @@ export interface AdditionalProblemData {
   updated_at: string;
 }
 
-export type FullProblemData = BaseProblemData & AdditionalProblemData;
+export interface FullProblemData
+  extends BaseProblemData, AdditionalProblemData {
+  id: number;
+}

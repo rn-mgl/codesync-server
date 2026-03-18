@@ -6,6 +6,6 @@ const router = Router();
 router.post("/", create);
 router.get("/", all);
 router.get("/:param", find);
-router.patch("/:id", update);
+router.patch("/:slug", update);
 
 export default router;

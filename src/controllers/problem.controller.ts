@@ -2,6 +2,7 @@ import AppError from "@src/errors/app.error";
 import type {
   AdditionalProblemData,
   BaseProblemData,
+  FullProblemData,
 } from "@src/interface/problem.interface";
 import Problem from "@src/models/problem.model";
 import {
@@ -114,20 +115,26 @@ export const update = async (req: Request, res: Response) => {
   const body = req.body;
   const params = req.params;
 
+  if (!("problem" in body)) {
+    throw new AppError(`Invalid request`, StatusCodes.BAD_REQUEST);
+  }
+
+  const { problem } = body;
+
   if (!isValidUpdateParam(params)) {
     throw new AppError(`Invalid request`, StatusCodes.BAD_REQUEST);
   }
 
   if (
-    !isBaseProblemData(body, "partial") &&
-    !isAdditionalProblemData(body, "partial")
+    !isBaseProblemData(problem, "partial") &&
+    !isAdditionalProblemData(problem, "partial")
   ) {
     throw new AppError(`Invalid problem data.`, StatusCodes.BAD_REQUEST);
   }
 
   let updateData: Partial<BaseProblemData & AdditionalProblemData> = {};
 
-  if (isBaseProblemData(body, "partial")) {
+  if (isBaseProblemData(problem, "partial")) {
     const FIELDS: (keyof BaseProblemData)[] = [
       "slug",
       "title",
@@ -136,14 +143,14 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof BaseProblemData];
+      const value = problem[field as keyof BaseProblemData];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }
     }
   }
 
-  if (isAdditionalProblemData(body, "partial")) {
+  if (isAdditionalProblemData(problem, "partial")) {
     const FIELDS: (keyof AdditionalProblemData)[] = [
       "constraints",
       "editorial",
@@ -152,14 +159,26 @@ export const update = async (req: Request, res: Response) => {
     ] as const;
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalProblemData];
+      const value = problem[field as keyof AdditionalProblemData];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }
     }
   }
 
-  const id = parseInt(params.id);
+  const slug = params.slug;
+
+  const find = (await Problem.findBySlug(slug)) as FullProblemData[];
+
+  if (!find.length || !find[0]) {
+    throw new AppError(
+      `The problem you're trying to update does not exist.`,
+      StatusCodes.NOT_FOUND,
+    );
+  }
+
+  const id = find[0].id;
+
   const updated = await Problem.update(id, updateData);
 
   if (!updated) {
@@ -169,5 +188,8 @@ export const update = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ success: !!updated });
+  return res.json({
+    success: !!updated,
+    data: { message: `${updateData.title} has been updated.` },
+  });
 };
