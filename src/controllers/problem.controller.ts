@@ -14,6 +14,7 @@ import {
   isValidUpdateParam,
   isValidDestroyParam,
 } from "@src/utils/type.util";
+import { randomUUID } from "crypto";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
@@ -209,9 +210,10 @@ export const destroy = async (req: Request, res: Response) => {
   }
 
   let problemId: number;
+  let problem: FullProblemData[] | null;
 
   if (query.lookup === "slug") {
-    const problem = (await Problem.findBySlug(
+    problem = (await Problem.findBySlug(
       params.identifier,
     )) as FullProblemData[];
 
@@ -230,7 +232,7 @@ export const destroy = async (req: Request, res: Response) => {
       throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
     }
 
-    const problem = (await Problem.findById(problemId)) as FullProblemData[];
+    problem = (await Problem.findById(problemId)) as FullProblemData[];
 
     if (!problem || !problem[0]) {
       throw new AppError(
@@ -240,8 +242,9 @@ export const destroy = async (req: Request, res: Response) => {
     }
   }
 
-  const updateData = {
+  const updateData: Pick<FullProblemData, "slug" | "deleted_at"> = {
     deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
+    slug: problem[0].slug + "_" + randomUUID(),
   };
 
   const deleted = await Problem.update(problemId, updateData);
