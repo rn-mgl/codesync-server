@@ -7,6 +7,7 @@ import type {
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Friendship implements FullFriendshipData {
+  id: number;
   accepted_at: string;
   friend_id: number;
   requested_at: string;
@@ -14,6 +15,7 @@ class Friendship implements FullFriendshipData {
   user_id: number;
 
   constructor(data: FullFriendshipData) {
+    this.id = data.id;
     this.accepted_at = data.accepted_at;
     this.friend_id = data.friend_id;
     this.requested_at = data.requested_at;

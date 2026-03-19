@@ -13,8 +13,10 @@ export interface AdditionalAchievementData {
   deleted_at: string;
 }
 
-export type FullAchievementData = BaseAchievementData &
-  AdditionalAchievementData;
+export interface FullAchievementData
+  extends BaseAchievementData, AdditionalAchievementData {
+  id: number;
+}
 
 type BADGE_COLORS = "diamond" | "gold" | "silver" | "bronze";
 

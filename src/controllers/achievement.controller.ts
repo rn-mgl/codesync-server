@@ -80,6 +80,10 @@ export const update = async (req: Request, res: Response) => {
   const params = req.params;
   const body = req.body;
 
+  if (!isValidLookupQuery(body)) {
+    throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+  }
+
   if (!isValidUpdateParam(params)) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
@@ -123,8 +127,30 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  const id = parseInt(params.id);
-  const updated = await Achievement.update(id, updateData);
+  let achievementId: number;
+
+  if (body.lookup === "slug") {
+    const achievement = (await Achievement.findBySlug(
+      params.identifier,
+    )) as FullAchievementData[];
+
+    if (!achievement || !achievement[0]) {
+      throw new AppError(
+        `The record you are trying to update does not exist.`,
+        StatusCodes.NOT_FOUND,
+      );
+    }
+
+    achievementId = achievement[0].id;
+  } else {
+    achievementId = Number(params.identifier);
+
+    if (Number.isNaN(achievementId)) {
+      throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+    }
+  }
+
+  const updated = await Achievement.update(achievementId, updateData);
 
   if (!updated) {
     throw new AppError(

@@ -119,8 +119,24 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  const id = parseInt(params.id);
-  const updated = await Friendship.update(id, updateData);
+  const friendshipId = Number(params.identifier);
+
+  if (Number.isNaN(friendshipId)) {
+    throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const friendship = (await Friendship.findById(
+    friendshipId,
+  )) as FullFriendshipData[];
+
+  if (!friendship || !friendship[0]) {
+    throw new AppError(
+      `The record you are trying to update does not exist.`,
+      StatusCodes.NOT_FOUND,
+    );
+  }
+
+  const updated = await Friendship.update(friendshipId, updateData);
 
   if (!updated) {
     throw new AppError(

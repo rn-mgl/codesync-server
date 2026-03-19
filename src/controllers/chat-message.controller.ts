@@ -131,8 +131,22 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  const id = parseInt(params.id);
-  const updated = await ChatMessages.update(id, updateData);
+  const chatId = Number(params.identifier);
+
+  if (Number.isNaN(chatId)) {
+    throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const chat = (await ChatMessages.findById(chatId)) as FullChatMessageData[];
+
+  if (!chat || !chat[0]) {
+    throw new AppError(
+      `The chat you are trying to update does not exist.`,
+      StatusCodes.NOT_FOUND,
+    );
+  }
+
+  const updated = await ChatMessages.update(chatId, updateData);
 
   if (!updated) {
     throw new AppError(

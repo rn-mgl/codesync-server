@@ -1,5 +1,6 @@
 export interface BaseStudyGroupData {
   name: string;
+  slug: string;
   owner_id: number;
   invite_code: string;
 }
@@ -9,7 +10,10 @@ export interface AdditionalStudyGroupData {
   is_public: boolean;
 }
 
-export type FullStudyGroupData = BaseStudyGroupData & AdditionalStudyGroupData;
+export interface FullStudyGroupData
+  extends BaseStudyGroupData, AdditionalStudyGroupData {
+  id: number;
+}
 
 export interface BaseStudyGroupMemberData {
   group_id: number;
@@ -21,7 +25,9 @@ export interface AdditionalStudyGroupMemberData {
   joined_at: string;
 }
 
-export type FullStudyGroupMemberData = BaseStudyGroupMemberData &
-  AdditionalStudyGroupMemberData;
+export interface FullStudyGroupMemberData
+  extends BaseStudyGroupMemberData, AdditionalStudyGroupMemberData {
+  id: number;
+}
 
 type GROUP_MEMBER_ROLES = "owner" | "moderator" | "member";

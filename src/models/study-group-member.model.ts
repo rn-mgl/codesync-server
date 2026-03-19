@@ -7,12 +7,14 @@ import type {
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class StudyGroupMember implements FullStudyGroupMemberData {
+  id: number;
   group_id: number;
   joined_at: string;
   role: "owner" | "moderator" | "member";
   user_id: number;
 
   constructor(data: FullStudyGroupMemberData) {
+    this.id = data.id;
     this.group_id = data.group_id;
     this.joined_at = data.joined_at;
     this.role = data.role;

@@ -9,7 +9,9 @@ export interface AdditionalChatMessageData {
   deleted_at: string | null;
 }
 
-export type FullChatMessageData = BaseChatMessageData &
-  AdditionalChatMessageData;
+export interface FullChatMessageData
+  extends BaseChatMessageData, AdditionalChatMessageData {
+  id: number;
+}
 
 type MESSAGE_TYPES = "text" | "code" | "system";

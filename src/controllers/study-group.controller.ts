@@ -28,6 +28,7 @@ export const create = async (req: Request, res: Response) => {
     invite_code: body.invite_code,
     name: body.name,
     owner_id: body.owner_id,
+    slug: body.slug,
   };
 
   if (isAdditionalStudyGroupData(body, "partial")) {
@@ -96,6 +97,10 @@ export const update = async (req: Request, res: Response) => {
   const body = req.body;
   const params = req.params;
 
+  if (!isValidLookupQuery(body)) {
+    throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+  }
+
   if (!isValidUpdateParam(params)) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
@@ -138,8 +143,30 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  const id = parseInt(params.id);
-  const updated = await StudyGroup.update(id, updateData);
+  let studyGroupId: number;
+
+  if (body.lookup === "slug") {
+    const studyGroup = (await StudyGroup.findBySlug(
+      params.identifier,
+    )) as FullStudyGroupData[];
+
+    if (!studyGroup || !studyGroup[0]) {
+      throw new AppError(
+        `The study group you are trying to update does not exist.`,
+        StatusCodes.NOT_FOUND,
+      );
+    }
+
+    studyGroupId = studyGroup[0].id;
+  } else {
+    studyGroupId = Number(params.identifier);
+
+    if (Number.isNaN(studyGroupId)) {
+      throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+    }
+  }
+
+  const updated = await StudyGroup.update(studyGroupId, updateData);
 
   if (!updated) {
     throw new AppError(

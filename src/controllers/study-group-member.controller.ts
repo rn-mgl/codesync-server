@@ -1,5 +1,8 @@
 import AppError from "@src/errors/app.error";
-import type { BaseStudyGroupMemberData } from "@src/interface/study-group.interface";
+import type {
+  BaseStudyGroupMemberData,
+  FullStudyGroupMemberData,
+} from "@src/interface/study-group.interface";
 import StudyGroupMember from "@src/models/study-group-member.model";
 import {
   assignField,
@@ -105,8 +108,24 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  const id = parseInt(params.id);
-  const updated = await StudyGroupMember.update(id, updateData);
+  const studyGroupMemberId = Number(params.identifier);
+
+  if (Number.isNaN(studyGroupMemberId)) {
+    throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const studyGroupMember = (await StudyGroupMember.findById(
+    studyGroupMemberId,
+  )) as FullStudyGroupMemberData[];
+
+  if (!studyGroupMember || !studyGroupMember[0]) {
+    throw new AppError(
+      `The record you are trying to update does not exist.`,
+      StatusCodes.NOT_FOUND,
+    );
+  }
+
+  const updated = await StudyGroupMember.update(studyGroupMemberId, updateData);
 
   if (!updated) {
     throw new AppError(

@@ -82,9 +82,22 @@ export const destroy = async (req: Request, res: Response) => {
     throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
   }
 
-  const id = parseInt(params.id);
+  const userAchievementId = Number(params.identifier);
 
-  const deleted = await UserAchievement.delete(id);
+  if (Number.isNaN(userAchievementId)) {
+    throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const userAchievement = await UserAchievement.findById(userAchievementId);
+
+  if (!userAchievement || !userAchievement[0]) {
+    throw new AppError(
+      `The achievement you are trying to delete does not exist.`,
+      StatusCodes.BAD_REQUEST,
+    );
+  }
+
+  const deleted = await UserAchievement.delete(userAchievementId);
 
   if (!deleted) {
     throw new AppError(

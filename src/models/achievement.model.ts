@@ -6,6 +6,7 @@ import type {
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Achievement implements FullAchievementData {
+  id: number;
   badge_color: "diamond" | "gold" | "silver" | "bronze";
   category: "problems" | "streak" | "social" | "skill" | "special";
   description: string;
@@ -17,6 +18,7 @@ class Achievement implements FullAchievementData {
   deleted_at: string;
 
   constructor(data: FullAchievementData) {
+    this.id = data.id;
     this.badge_color = data.badge_color;
     this.category = data.category;
     this.description = data.description;

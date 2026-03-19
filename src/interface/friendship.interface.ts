@@ -9,6 +9,9 @@ export interface AdditionalFriendshipData {
   accepted_at: string;
 }
 
-export type FullFriendshipData = BaseFriendshipData & AdditionalFriendshipData;
+export interface FullFriendshipData
+  extends BaseFriendshipData, AdditionalFriendshipData {
+  id: number;
+}
 
 export type FRIENDSHIP_STATUS = "pending" | "accepted" | "declined" | "blocked";

@@ -7,6 +7,8 @@ import type {
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class StudyGroup implements FullStudyGroupData {
+  id: number;
+  slug: string;
   description: string;
   invite_code: string;
   is_public: boolean;
@@ -14,6 +16,8 @@ class StudyGroup implements FullStudyGroupData {
   owner_id: number;
 
   constructor(data: FullStudyGroupData) {
+    this.id = data.id;
+    this.slug = data.slug;
     this.description = data.description;
     this.invite_code = data.invite_code;
     this.is_public = data.is_public;
@@ -85,6 +89,23 @@ class StudyGroup implements FullStudyGroupData {
       const query = `SELECT * FROM study_groups WHERE code = ?;`;
 
       const values = [code];
+
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  }
+
+  static async findBySlug(slug: string) {
+    try {
+      const db = createConnection();
+
+      const query = `SELECT * FROM study_groups WHERE slug = ?`;
+
+      const values = [slug];
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 

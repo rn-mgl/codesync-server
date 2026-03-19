@@ -138,8 +138,24 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  const id = parseInt(params.id);
-  const updated = await UserProgress.update(id, updateData);
+  const userProgressId = Number(params.identifier);
+
+  if (Number.isNaN(userProgressId)) {
+    throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const userProgress = (await UserProgress.findById(
+    userProgressId,
+  )) as FullUserProgressData[];
+
+  if (!userProgress || !userProgress[0]) {
+    throw new AppError(
+      `The record you are trying to update does not exist.`,
+      StatusCodes.NOT_FOUND,
+    );
+  }
+
+  const updated = await UserProgress.update(userProgressId, updateData);
 
   if (!updated) {
     throw new AppError(

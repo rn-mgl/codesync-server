@@ -108,23 +108,23 @@ export const isValidLookupQuery = (
 
 export const isValidUpdateParam = (
   data: unknown,
-): data is Object & Record<"slug", string> => {
+): data is Object & Record<"identifier", string> => {
   return (
     typeof data === "object" &&
     data !== null &&
-    "slug" in data &&
-    typeof data.slug === "string"
+    "identifier" in data &&
+    typeof data.identifier === "string"
   );
 };
 
 export const isValidDestroyParam = (
   data: unknown,
-): data is Object & Record<"id", string> => {
+): data is Object & Record<"identifier", string> => {
   return (
     typeof data === "object" &&
     data !== null &&
-    "id" in data &&
-    typeof data.id === "string"
+    "identifier" in data &&
+    typeof data.identifier === "string"
   );
 };
 
@@ -858,6 +858,7 @@ export function isBaseStudyGroupData(
     "invite_code",
     "name",
     "owner_id",
+    "slug",
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);

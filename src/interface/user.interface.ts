@@ -14,7 +14,9 @@ export interface AdditionalUserData {
   is_verified: boolean;
 }
 
-export type FullUserData = BaseUserData & AdditionalUserData;
+export interface FullUserData extends BaseUserData, AdditionalUserData {
+  id: number;
+}
 
 export interface BaseUserProgressData {
   user_id: number;
@@ -40,5 +42,7 @@ export interface AdditionalUserAchievementData {
   earned_at: string;
 }
 
-export type FullUserAchievementData = BaseUserAchievementData &
-  AdditionalUserAchievementData;
+export interface FullUserAchievementData
+  extends BaseUserAchievementData, AdditionalUserAchievementData {
+  id: number;
+}
