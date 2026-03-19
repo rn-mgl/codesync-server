@@ -12,6 +12,7 @@ export interface AdditionalUserData {
   created_at: string;
   updated_at: string;
   is_verified: boolean;
+  deleted_at: string | null;
 }
 
 export interface FullUserData extends BaseUserData, AdditionalUserData {
@@ -28,6 +29,7 @@ export interface AdditionalUserProgressData {
   time_spent_seconds: number;
   submissions_made: number;
   streak_days: number;
+  deleted_at: string | null;
 }
 
 export type FullUserProgressData = BaseUserProgressData &
@@ -40,6 +42,7 @@ export interface BaseUserAchievementData {
 
 export interface AdditionalUserAchievementData {
   earned_at: string;
+  deleted_at: string | null;
 }
 
 export interface FullUserAchievementData

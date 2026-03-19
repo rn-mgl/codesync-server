@@ -11,6 +11,7 @@ export interface AdditionalSubmissionData {
   memory_used_kb: number;
   test_results: string;
   error_message: string;
+  deleted_at: string | null;
 }
 
 export interface SubmissionType {

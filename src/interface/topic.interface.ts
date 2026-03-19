@@ -6,6 +6,7 @@ export interface BaseTopicData {
 
 export interface AdditionalTopicData {
   icon: string;
+  deleted_at: string | null;
 }
 
 export type FullTopicData = BaseTopicData & AdditionalTopicData;

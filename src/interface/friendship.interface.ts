@@ -7,6 +7,7 @@ export interface BaseFriendshipData {
 export interface AdditionalFriendshipData {
   requested_at: string;
   accepted_at: string;
+  deleted_at: string | null;
 }
 
 export interface FullFriendshipData

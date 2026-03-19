@@ -13,6 +13,7 @@ export interface AdditionalSessionData {
   password: string | null;
   started_at: string | null;
   ended_at: string | null;
+  deleted_at: string | null;
 }
 
 export type FullSessionData = BaseSessionData & AdditionalSessionData;
@@ -33,6 +34,7 @@ export interface AdditionalSessionParticipantData {
   lines_added: number;
   lines_deleted: number;
   is_active: boolean;
+  deleted_at: string | null;
 }
 
 export type FullSessionParticipantData = BaseSessionParticipantData &

@@ -8,6 +8,7 @@ export interface BaseAttemptData {
 
 export interface AdditionalAttemptData {
   is_solved: boolean;
+  deleted_at: string | null;
 }
 
 export type FullAttemptData = BaseAttemptData & AdditionalAttemptData;

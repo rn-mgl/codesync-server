@@ -8,6 +8,7 @@ export interface BaseTestCaseData {
 
 export interface AdditionalTestCaseData {
   order_index: number;
+  deleted_at: string | null;
 }
 
 export type FullTestCaseData = BaseTestCaseData & AdditionalTestCaseData;

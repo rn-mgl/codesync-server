@@ -10,7 +10,7 @@ export interface BaseAchievementData {
 }
 
 export interface AdditionalAchievementData {
-  deleted_at: string;
+  deleted_at: string | null;
 }
 
 export interface FullAchievementData

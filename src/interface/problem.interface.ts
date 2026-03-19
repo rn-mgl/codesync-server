@@ -14,6 +14,7 @@ export interface AdditionalProblemData {
   total_submissions: number;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
 }
 
 export interface FullProblemData

@@ -6,6 +6,7 @@ export interface BaseHintData {
 
 export interface AdditionalHintData {
   order_index: number;
+  deleted_at: string | null;
 }
 
 export type FullHintData = BaseHintData & AdditionalHintData;
