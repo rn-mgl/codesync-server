@@ -66,7 +66,8 @@ class Problem implements FullProblemData {
     try {
       const db = createConnection();
 
-      const query = `SELECT id, title, slug, difficulty, acceptance_rate FROM problems;`;
+      const query = `SELECT id, title, slug, difficulty, acceptance_rate FROM problems 
+                    WHERE deleted_at IS NULL;`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query);
 
@@ -81,7 +82,7 @@ class Problem implements FullProblemData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM problems WHERE id = ?;`;
+      const query = `SELECT * FROM problems WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -98,7 +99,7 @@ class Problem implements FullProblemData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM problems WHERE slug = ?;`;
+      const query = `SELECT * FROM problems WHERE slug = ? AND deleted_at IS NULL;`;
 
       const values = [slug];
 

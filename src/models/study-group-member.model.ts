@@ -49,7 +49,7 @@ class StudyGroupMember implements FullStudyGroupMemberData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_group_members WHERE id = ?;`;
+      const query = `SELECT * FROM study_group_members WHERE id = ? AND deleted_at IS NULL;`;
       const values = [id];
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
@@ -65,7 +65,7 @@ class StudyGroupMember implements FullStudyGroupMemberData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_group_members WHERE group_id = ?;`;
+      const query = `SELECT * FROM study_group_members WHERE group_id = ? AND deleted_at IS NULL;`;
       const values = [groupId];
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
@@ -81,7 +81,7 @@ class StudyGroupMember implements FullStudyGroupMemberData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_group_members WHERE user_id = ?;`;
+      const query = `SELECT * FROM study_group_members WHERE user_id = ? AND deleted_at IS NULL;`;
       const values = [userId];
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
@@ -97,7 +97,7 @@ class StudyGroupMember implements FullStudyGroupMemberData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_group_members WHERE role = ?;`;
+      const query = `SELECT * FROM study_group_members WHERE role = ? AND deleted_at IS NULL;`;
       const values = [role];
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);

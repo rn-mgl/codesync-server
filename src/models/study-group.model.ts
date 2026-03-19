@@ -54,7 +54,7 @@ class StudyGroup implements FullStudyGroupData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_groups WHERE id = ?;`;
+      const query = `SELECT * FROM study_groups WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -71,7 +71,7 @@ class StudyGroup implements FullStudyGroupData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_groups WHERE owner_id = ?;`;
+      const query = `SELECT * FROM study_groups WHERE owner_id = ? AND deleted_at IS NULL;`;
 
       const values = [ownerId];
 
@@ -88,7 +88,7 @@ class StudyGroup implements FullStudyGroupData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_groups WHERE code = ?;`;
+      const query = `SELECT * FROM study_groups WHERE code = ? AND deleted_at IS NULL;`;
 
       const values = [code];
 
@@ -105,7 +105,7 @@ class StudyGroup implements FullStudyGroupData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_groups WHERE slug = ?`;
+      const query = `SELECT * FROM study_groups WHERE slug = ? AND deleted_at IS NULL`;
 
       const values = [slug];
 

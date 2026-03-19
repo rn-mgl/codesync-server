@@ -78,7 +78,7 @@ class Session implements FullSessionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM sessions WHERE id = ?;`;
+      const query = `SELECT * FROM sessions WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -95,7 +95,7 @@ class Session implements FullSessionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM sessions WHERE code = ?;`;
+      const query = `SELECT * FROM sessions WHERE code = ? AND deleted_at IS NULL;`;
 
       const values = [code];
 
@@ -112,7 +112,7 @@ class Session implements FullSessionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM sessions WHERE status = ?;`;
+      const query = `SELECT * FROM sessions WHERE status = ? AND deleted_at IS NULL;`;
 
       const values = [status];
 

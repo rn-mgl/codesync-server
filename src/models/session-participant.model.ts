@@ -59,7 +59,7 @@ class SessionParticipant implements FullSessionParticipantData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM sessions_participants;`;
+      const query = `SELECT * FROM sessions_participants WHERE deleted_at IS NULL;`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query);
 
@@ -74,7 +74,7 @@ class SessionParticipant implements FullSessionParticipantData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM session_participants WHERE id = ?;`;
+      const query = `SELECT * FROM session_participants WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -91,7 +91,7 @@ class SessionParticipant implements FullSessionParticipantData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM session_participants WHERE session_id = ?;`;
+      const query = `SELECT * FROM session_participants WHERE session_id = ? AND deleted_at IS NULL;`;
 
       const values = [sessionId];
 

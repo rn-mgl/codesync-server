@@ -50,7 +50,7 @@ class Attempt implements FullAttemptData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM attempts;`;
+      const query = `SELECT * FROM attempts WHERE deleted_at IS NULL;`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query);
 
@@ -65,7 +65,7 @@ class Attempt implements FullAttemptData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM attempts WHERE id = ?;`;
+      const query = `SELECT * FROM attempts WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -82,7 +82,7 @@ class Attempt implements FullAttemptData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM attempts WHERE user_id = ?;`;
+      const query = `SELECT * FROM attempts WHERE user_id = ? AND deleted_at IS NULL;`;
 
       const values = [userId];
 
@@ -99,7 +99,7 @@ class Attempt implements FullAttemptData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM attempts WHERE problem_id = ?;`;
+      const query = `SELECT * FROM attempts WHERE problem_id = ? AND deleted_at IS NULL;`;
 
       const values = [problemId];
 

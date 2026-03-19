@@ -62,7 +62,7 @@ class Submission implements FullSubmissionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM submissions;`;
+      const query = `SELECT * FROM submissions WHERE deleted_at IS NULL;`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query);
 
@@ -77,7 +77,7 @@ class Submission implements FullSubmissionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM submissions WHERE id = ?;`;
+      const query = `SELECT * FROM submissions WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -94,7 +94,7 @@ class Submission implements FullSubmissionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM submissions WHERE user_id = ?;`;
+      const query = `SELECT * FROM submissions WHERE user_id = ? AND deleted_at IS NULL;`;
 
       const values = [userId];
 
@@ -111,7 +111,7 @@ class Submission implements FullSubmissionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM submissions WHERE problem_id = ?;`;
+      const query = `SELECT * FROM submissions WHERE problem_id = ? AND deleted_at IS NULL;`;
 
       const values = [problemId];
 
@@ -128,7 +128,7 @@ class Submission implements FullSubmissionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM submissions WHERE status = ?;`;
+      const query = `SELECT * FROM submissions WHERE status = ? AND deleted_at IS NULL;`;
 
       const values = [status];
 

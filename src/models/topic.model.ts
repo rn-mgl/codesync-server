@@ -48,7 +48,7 @@ class Topic implements FullTopicData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM topics WHERE id = ?;`;
+      const query = `SELECT * FROM topics WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -65,7 +65,7 @@ class Topic implements FullTopicData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM topics WHERE slug = ?;`;
+      const query = `SELECT * FROM topics WHERE slug = ? AND deleted_at IS NULL;`;
 
       const values = [slug];
 
@@ -82,7 +82,7 @@ class Topic implements FullTopicData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM topics;`;
+      const query = `SELECT * FROM topics WHERE deleted_at IS NULL;`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query);
 

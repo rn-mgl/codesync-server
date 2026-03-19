@@ -52,7 +52,7 @@ class CodeSnapshot implements FullCodeSnapshotData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM code_snapshots WHERE id = ?;`;
+      const query = `SELECT * FROM code_snapshots WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -69,7 +69,7 @@ class CodeSnapshot implements FullCodeSnapshotData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM code_snapshots WHERE session_id = ?;`;
+      const query = `SELECT * FROM code_snapshots WHERE session_id = ? AND deleted_at IS NULL;`;
 
       const values = [sessionId];
 
@@ -86,7 +86,7 @@ class CodeSnapshot implements FullCodeSnapshotData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM code_snapshots WHERE user_id = ?;`;
+      const query = `SELECT * FROM code_snapshots WHERE user_id = ? AND deleted_at IS NULL;`;
 
       const values = [userId];
 

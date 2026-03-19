@@ -54,7 +54,7 @@ class TestCase implements FullTestCaseData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM test_cases;`;
+      const query = `SELECT * FROM test_cases WHERE deleted_at IS NULL;`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query);
 
@@ -69,7 +69,7 @@ class TestCase implements FullTestCaseData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM test_cases WHERE id = ?;`;
+      const query = `SELECT * FROM test_cases WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -86,7 +86,7 @@ class TestCase implements FullTestCaseData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM test_cases WHERE problem_id = ?;`;
+      const query = `SELECT * FROM test_cases WHERE problem_id = ? AND deleted_at IS NULL;`;
 
       const values = [problemId];
 

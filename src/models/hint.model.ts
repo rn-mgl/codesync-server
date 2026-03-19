@@ -46,7 +46,7 @@ class Hint implements FullHintData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM hints;`;
+      const query = `SELECT * FROM hints WHERE deleted_at IS NULL;`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query);
 
@@ -61,7 +61,7 @@ class Hint implements FullHintData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM hints WHERE id = ?;`;
+      const query = `SELECT * FROM hints WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -78,7 +78,7 @@ class Hint implements FullHintData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM hints WHERE problem_id = ?;`;
+      const query = `SELECT * FROM hints WHERE problem_id = ? AND deleted_at IS NULL;`;
 
       const values = [problemId];
 

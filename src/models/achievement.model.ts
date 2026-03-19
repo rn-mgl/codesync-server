@@ -54,7 +54,7 @@ class Achievement implements FullAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM achievements WHERE id = ?;`;
+      const query = `SELECT * FROM achievements WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -71,7 +71,7 @@ class Achievement implements FullAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM achievements WHERE slug = ?;`;
+      const query = `SELECT * FROM achievements WHERE slug = ? AND deleted_at IS NULL;`;
 
       const values = [slug];
 

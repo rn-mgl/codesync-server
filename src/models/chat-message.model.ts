@@ -50,7 +50,7 @@ class ChatMessages implements FullChatMessageData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM chat_messages WHERE id = ?;`;
+      const query = `SELECT * FROM chat_messages WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -67,7 +67,7 @@ class ChatMessages implements FullChatMessageData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM chat_messages WHERE session_id = ?;`;
+      const query = `SELECT * FROM chat_messages WHERE session_id = ? AND deleted_at IS NULL;`;
 
       const values = [sessionId];
 

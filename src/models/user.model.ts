@@ -62,7 +62,7 @@ class User implements FullUserData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM users;`;
+      const query = `SELECT * FROM users WHERE deleted_at IS NULL;`;
 
       const [result, fields] = await db.execute(query);
 
@@ -77,7 +77,7 @@ class User implements FullUserData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM users WHERE id = ?;`;
+      const query = `SELECT * FROM users WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -94,7 +94,7 @@ class User implements FullUserData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM users WHERE email = ?;`;
+      const query = `SELECT * FROM users WHERE email = ? AND deleted_at IS NULL;`;
 
       const values = [email];
 
@@ -116,7 +116,7 @@ class User implements FullUserData {
         .join(" AND ");
       const values = Object.values(data);
 
-      const query = `SELECT * FROM users WHERE ${mappedWhere};`;
+      const query = `SELECT * FROM users WHERE ${mappedWhere} AND deleted_at IS NULL;`;
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 
       return result;

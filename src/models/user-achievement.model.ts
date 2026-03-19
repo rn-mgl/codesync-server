@@ -45,7 +45,7 @@ class UserAchievement implements FullUserAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_achievements WHERE id = ?;`;
+      const query = `SELECT * FROM user_achievements WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -62,7 +62,7 @@ class UserAchievement implements FullUserAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_achievements WHERE user_id = ?;`;
+      const query = `SELECT * FROM user_achievements WHERE user_id = ? AND deleted_at IS NULL;`;
 
       const values = [userId];
 
@@ -79,7 +79,7 @@ class UserAchievement implements FullUserAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_achievements WHERE achievement_id = ?;`;
+      const query = `SELECT * FROM user_achievements WHERE achievement_id = ? AND deleted_at IS NULL;`;
 
       const values = [achievementId];
 

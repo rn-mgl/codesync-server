@@ -49,7 +49,7 @@ class Friendship implements FullFriendshipData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM friendships WHERE id = ?;`;
+      const query = `SELECT * FROM friendships WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -66,7 +66,7 @@ class Friendship implements FullFriendshipData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM friendships WHERE user_id = ?;`;
+      const query = `SELECT * FROM friendships WHERE user_id = ? AND deleted_at IS NULL;`;
 
       const values = [userId];
 
@@ -83,7 +83,7 @@ class Friendship implements FullFriendshipData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM friendships WHERE status = ?;`;
+      const query = `SELECT * FROM friendships WHERE status = ? AND deleted_at IS NULL;`;
 
       const values = [status];
 

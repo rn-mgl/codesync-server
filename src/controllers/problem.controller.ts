@@ -12,9 +12,11 @@ import {
   isValidLookupQuery,
   isValidLookupParam,
   isValidUpdateParam,
+  isValidDestroyParam,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import { DateTime } from "luxon";
 import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
@@ -166,7 +168,7 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  const slug = params.slug;
+  const slug = params.identifier;
 
   const find = (await Problem.findBySlug(slug)) as FullProblemData[];
 
@@ -192,4 +194,62 @@ export const update = async (req: Request, res: Response) => {
     success: !!updated,
     data: { message: `${updateData.title} has been updated.` },
   });
+};
+
+export const destroy = async (req: Request, res: Response) => {
+  const params = req.params;
+  const query = req.query;
+
+  if (!isValidLookupQuery(query)) {
+    throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!isValidDestroyParam(params)) {
+    throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  let problemId: number;
+
+  if (query.lookup === "slug") {
+    const problem = (await Problem.findBySlug(
+      params.identifier,
+    )) as FullProblemData[];
+
+    if (!problem || !problem[0]) {
+      throw new AppError(
+        `The problem you are trying to delete does not exist.`,
+        StatusCodes.BAD_REQUEST,
+      );
+    }
+
+    problemId = problem[0].id;
+  } else {
+    problemId = Number(params.identifier);
+
+    if (Number.isNaN(problemId)) {
+      throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
+    }
+
+    const problem = (await Problem.findById(problemId)) as FullProblemData[];
+
+    if (!problem || !problem[0]) {
+      throw new AppError(
+        `The problem you are trying to delete does not exist.`,
+        StatusCodes.BAD_REQUEST,
+      );
+    }
+  }
+
+  const updateData = {
+    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
+  };
+
+  const deleted = await Problem.update(problemId, updateData);
+
+  return res
+    .status(!!deleted ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
+    .json({
+      success: !!deleted,
+      data: { message: "Problem deleted successfully." },
+    });
 };

@@ -54,7 +54,7 @@ class UserProgress implements FullUserProgressData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_progress WHERE id = ?;`;
+      const query = `SELECT * FROM user_progress WHERE id = ? AND deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -71,7 +71,7 @@ class UserProgress implements FullUserProgressData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_progress WHERE user_id = ?;`;
+      const query = `SELECT * FROM user_progress WHERE user_id = ? AND deleted_at IS NULL;`;
 
       const values = [userId];
 
@@ -88,7 +88,7 @@ class UserProgress implements FullUserProgressData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_progress WHERE progress_date = ?;`;
+      const query = `SELECT * FROM user_progress WHERE progress_date = ? AND deleted_at IS NULL;`;
 
       const values = [date];
 
