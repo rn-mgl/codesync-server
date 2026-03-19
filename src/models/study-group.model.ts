@@ -14,6 +14,7 @@ class StudyGroup implements FullStudyGroupData {
   is_public: boolean;
   name: string;
   owner_id: number;
+  deleted_at: string | null;
 
   constructor(data: FullStudyGroupData) {
     this.id = data.id;
@@ -23,6 +24,7 @@ class StudyGroup implements FullStudyGroupData {
     this.is_public = data.is_public;
     this.name = data.name;
     this.owner_id = data.owner_id;
+    this.deleted_at = data.deleted_at;
   }
 
   static async create(

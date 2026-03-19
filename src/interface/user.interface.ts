@@ -32,8 +32,10 @@ export interface AdditionalUserProgressData {
   deleted_at: string | null;
 }
 
-export type FullUserProgressData = BaseUserProgressData &
-  AdditionalUserProgressData;
+export interface FullUserProgressData
+  extends BaseUserProgressData, AdditionalUserProgressData {
+  id: number;
+}
 
 export interface BaseUserAchievementData {
   user_id: number;

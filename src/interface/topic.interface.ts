@@ -9,4 +9,6 @@ export interface AdditionalTopicData {
   deleted_at: string | null;
 }
 
-export type FullTopicData = BaseTopicData & AdditionalTopicData;
+export interface FullTopicData extends BaseTopicData, AdditionalTopicData {
+  id: number;
+}

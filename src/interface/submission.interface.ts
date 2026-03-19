@@ -20,7 +20,7 @@ export interface SubmissionType {
 
 export type SUPPORTED_LANGUAGES = "javascript" | "php";
 
-type SUBMISSION_STATUS =
+export type SUBMISSION_STATUS =
   | "processing"
   | "accepted"
   | "wrong_answer"
@@ -36,4 +36,7 @@ export interface PostSubmissionData extends Pick<
   problem: string;
 }
 
-export type FullSubmissionData = BaseSubmissionData & AdditionalSubmissionData;
+export interface FullSubmissionData
+  extends BaseSubmissionData, AdditionalSubmissionData {
+  id: number;
+}

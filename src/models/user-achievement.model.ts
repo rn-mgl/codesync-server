@@ -6,13 +6,18 @@ import type {
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class UserAchievement implements FullUserAchievementData {
+  id: number;
   achievement_id: number;
   earned_at: string;
   user_id: number;
+  deleted_at: string | null;
 
   constructor(data: FullUserAchievementData) {
+    this.id = data.id;
     this.achievement_id = data.achievement_id;
-    ((this.earned_at = data.earned_at), (this.user_id = data.user_id));
+    this.earned_at = data.earned_at;
+    this.user_id = data.user_id;
+    this.deleted_at = data.deleted_at;
   }
 
   static async create(data: BaseUserAchievementData) {

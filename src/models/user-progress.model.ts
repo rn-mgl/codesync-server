@@ -7,20 +7,24 @@ import type {
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class UserProgress implements FullUserProgressData {
+  id: number;
   problems_solved_today: number;
   progress_data: string;
   streak_days: number;
   submissions_made: number;
   time_spent_seconds: number;
   user_id: number;
+  deleted_at: string | null;
 
   constructor(data: FullUserProgressData) {
+    this.id = data.id;
     this.problems_solved_today = data.problems_solved_today;
     this.progress_data = data.progress_data;
     this.streak_days = data.streak_days;
     this.submissions_made = data.submissions_made;
     this.time_spent_seconds = data.time_spent_seconds;
     this.user_id = data.user_id;
+    this.deleted_at = data.deleted_at;
   }
 
   static async create(

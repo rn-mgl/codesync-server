@@ -11,4 +11,7 @@ export interface AdditionalTestCaseData {
   deleted_at: string | null;
 }
 
-export type FullTestCaseData = BaseTestCaseData & AdditionalTestCaseData;
+export interface FullTestCaseData
+  extends BaseTestCaseData, AdditionalTestCaseData {
+  id: number;
+}

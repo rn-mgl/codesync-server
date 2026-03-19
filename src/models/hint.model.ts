@@ -11,12 +11,14 @@ class Hint implements FullHintData {
   hint_text: string;
   problem_id: number;
   order_index: number;
+  deleted_at: string | null;
 
   constructor(data: FullHintData) {
     this.hint_level = data.hint_level;
     this.hint_text = data.hint_text;
     this.problem_id = data.problem_id;
     this.order_index = data.order_index;
+    this.deleted_at = data.deleted_at;
   }
 
   static async create(data: BaseHintData & Partial<AdditionalHintData>) {

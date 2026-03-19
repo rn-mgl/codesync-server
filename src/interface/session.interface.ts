@@ -16,7 +16,10 @@ export interface AdditionalSessionData {
   deleted_at: string | null;
 }
 
-export type FullSessionData = BaseSessionData & AdditionalSessionData;
+export interface FullSessionData
+  extends BaseSessionData, AdditionalSessionData {
+  id: number;
+}
 
 type SESSION_TYPES = "practice" | "interview" | "competition" | "learning";
 
@@ -37,7 +40,9 @@ export interface AdditionalSessionParticipantData {
   deleted_at: string | null;
 }
 
-export type FullSessionParticipantData = BaseSessionParticipantData &
-  AdditionalSessionParticipantData;
+export interface FullSessionParticipantData
+  extends BaseSessionParticipantData, AdditionalSessionParticipantData {
+  id: number;
+}
 
 type PARTICIPANT_ROLES = "host" | "collaborator" | "observer";

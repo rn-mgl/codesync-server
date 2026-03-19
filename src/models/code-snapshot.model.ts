@@ -7,6 +7,7 @@ import type {
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class CodeSnapshot implements FullCodeSnapshotData {
+  deleted_at: string | null;
   change_type: "replace" | "insert" | "delete";
   code_content: string;
   cursor_pointer: string;
@@ -21,6 +22,7 @@ class CodeSnapshot implements FullCodeSnapshotData {
     this.line_number = data.line_number;
     this.session_id = data.session_id;
     this.user_id = data.user_id;
+    this.deleted_at = data.deleted_at;
   }
 
   static async create(

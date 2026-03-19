@@ -7,16 +7,20 @@ import type {
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Topic implements FullTopicData {
+  id: number;
   name: string;
   description: string;
   slug: string;
   icon: string;
+  deleted_at: string | null;
 
   constructor(data: FullTopicData) {
+    this.id = data.id;
     this.name = data.name;
     this.description = data.description;
     this.slug = data.slug;
     this.icon = data.icon;
+    this.deleted_at = data.deleted_at;
   }
 
   static async create(data: BaseTopicData & Partial<AdditionalTopicData>) {

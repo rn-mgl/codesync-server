@@ -3,21 +3,26 @@ import type {
   AdditionalSubmissionData,
   BaseSubmissionData,
   FullSubmissionData,
+  SUBMISSION_STATUS,
+  SUPPORTED_LANGUAGES,
 } from "@src/interface/submission.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Submission implements FullSubmissionData {
+  id: number;
   code: string;
   error_message: string;
   execution_time_ms: number;
-  language: string;
+  language: SUPPORTED_LANGUAGES;
   memory_used_kb: number;
   problem_id: number;
-  status: string;
+  status: SUBMISSION_STATUS;
   test_results: string;
   user_id: number;
+  deleted_at: string | null;
 
   constructor(data: FullSubmissionData) {
+    this.id = data.id;
     this.code = data.code;
     this.error_message = data.error_message;
     this.execution_time_ms = data.execution_time_ms;
@@ -27,6 +32,7 @@ class Submission implements FullSubmissionData {
     this.status = data.status;
     this.test_results = data.test_results;
     this.user_id = data.user_id;
+    this.deleted_at = data.deleted_at;
   }
 
   static async create(

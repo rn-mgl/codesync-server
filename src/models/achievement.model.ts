@@ -15,7 +15,7 @@ class Achievement implements FullAchievementData {
   points: number;
   slug: string;
   unlock_criteria: string;
-  deleted_at: string;
+  deleted_at: string | null;
 
   constructor(data: FullAchievementData) {
     this.id = data.id;

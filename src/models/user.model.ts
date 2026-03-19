@@ -7,6 +7,7 @@ import { createConnection } from "@database/database.ts";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class User implements FullUserData {
+  id: number;
   first_name: string;
   last_name: string;
   email: string;
@@ -17,8 +18,10 @@ class User implements FullUserData {
   created_at: string;
   updated_at: string;
   is_verified: boolean;
+  deleted_at: string | null;
 
   constructor(data: FullUserData) {
+    this.id = data.id;
     this.first_name = data.first_name;
     this.last_name = data.last_name;
     this.email = data.email;
@@ -29,6 +32,7 @@ class User implements FullUserData {
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
     this.is_verified = data.is_verified;
+    this.deleted_at = data.deleted_at;
   }
 
   static async create(data: BaseUserData) {

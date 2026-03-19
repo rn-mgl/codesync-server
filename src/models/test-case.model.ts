@@ -7,20 +7,24 @@ import type {
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class TestCase implements FullTestCaseData {
+  id: number;
   expected_output: string;
   input: string;
   memory_limit_mb: number;
   order_index: number;
   problem_id: number;
   time_limit_ms: number;
+  deleted_at: string | null;
 
   constructor(data: FullTestCaseData) {
+    this.id = data.id;
     this.problem_id = data.problem_id;
     this.expected_output = data.expected_output;
     this.input = data.input;
     this.memory_limit_mb = data.memory_limit_mb;
     this.time_limit_ms = data.time_limit_ms;
     this.order_index = data.order_index;
+    this.deleted_at = data.deleted_at;
   }
 
   static async create(

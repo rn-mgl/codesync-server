@@ -7,6 +7,7 @@ import type {
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class ChatMessages implements FullChatMessageData {
+  id: number;
   deleted_at: string | null;
   message: string;
   message_type: "text" | "code" | "system";
@@ -14,6 +15,7 @@ class ChatMessages implements FullChatMessageData {
   session_id: number;
 
   constructor(data: FullChatMessageData) {
+    this.id = data.id;
     this.deleted_at = data.deleted_at;
     this.message = data.message;
     this.message_type = data.message_type;

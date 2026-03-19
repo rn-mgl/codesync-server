@@ -12,6 +12,7 @@ class StudyGroupMember implements FullStudyGroupMemberData {
   joined_at: string;
   role: "owner" | "moderator" | "member";
   user_id: number;
+  deleted_at: string | null;
 
   constructor(data: FullStudyGroupMemberData) {
     this.id = data.id;
@@ -19,6 +20,7 @@ class StudyGroupMember implements FullStudyGroupMemberData {
     this.joined_at = data.joined_at;
     this.role = data.role;
     this.user_id = data.user_id;
+    this.deleted_at = data.deleted_at;
   }
 
   static async create(

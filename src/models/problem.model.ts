@@ -20,6 +20,7 @@ class Problem implements FullProblemData {
   total_submissions: number;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
 
   constructor(data: FullProblemData) {
     this.id = data.id;
@@ -35,6 +36,7 @@ class Problem implements FullProblemData {
     this.total_submissions = data.total_submissions;
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
+    this.deleted_at = data.deleted_at;
   }
 
   static async create(data: BaseProblemData & Partial<AdditionalProblemData>) {
