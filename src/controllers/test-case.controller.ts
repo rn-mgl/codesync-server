@@ -1,8 +1,10 @@
 import AppError from "@src/errors/app.error";
+import type { FullProblemData } from "@src/interface/problem.interface";
 import type {
   AdditionalTestCaseData,
   BaseTestCaseData,
 } from "@src/interface/test-case.interface";
+import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
 import {
   assignField,
@@ -16,23 +18,46 @@ import type { RowDataPacket } from "mysql2";
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!isBaseTestCaseData(body)) {
+  if (!("testCase" in body)) {
+    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const { testCase } = body;
+
+  if (!("problem" in testCase)) {
+    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const problem = (await Problem.findBySlug(
+    testCase.problem,
+  )) as FullProblemData[];
+
+  if (!problem || !problem[0]) {
+    throw new AppError(
+      `The problem you are connecting to does not exist.`,
+      StatusCodes.BAD_REQUEST,
+    );
+  }
+
+  testCase.problem_id = problem[0].id;
+
+  if (!isBaseTestCaseData(testCase)) {
     throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
 
   let createData: BaseTestCaseData & Partial<AdditionalTestCaseData> = {
-    input: body.input,
-    expected_output: body.expected_output,
-    memory_limit_mb: body.memory_limit_mb,
-    problem_id: body.problem_id,
-    time_limit_ms: body.time_limit_ms,
+    input: testCase.input,
+    expected_output: testCase.expected_output,
+    memory_limit_mb: testCase.memory_limit_mb,
+    problem_id: testCase.problem_id,
+    time_limit_ms: testCase.time_limit_ms,
   };
 
-  if (isAdditionalTestCaseData(body, "partial")) {
+  if (isAdditionalTestCaseData(testCase, "partial")) {
     const FIELDS: (keyof AdditionalTestCaseData)[] = ["order_index"];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalTestCaseData];
+      const value = testCase[field as keyof AdditionalTestCaseData];
       if (value !== undefined) {
         assignField(field, value, createData);
       }
@@ -48,7 +73,10 @@ export const create = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ success: !!created });
+  return res.json({
+    success: !!created,
+    data: { message: `Test Case for ${problem[0].title} created.` },
+  });
 };
 
 export const all = async (req: Request, res: Response) => {
