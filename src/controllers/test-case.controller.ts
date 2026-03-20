@@ -80,9 +80,15 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const all = async (req: Request, res: Response) => {
-  const testCases = await TestCase.all();
+  const query = req.query;
 
-  return res.json({ test_cases: testCases });
+  let slug = typeof query.problem === "string" ? query.problem : "";
+
+  const testCases = await TestCase.all(slug);
+
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { test_cases: testCases } });
 };
 
 export const find = async (req: Request, res: Response) => {

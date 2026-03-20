@@ -50,13 +50,29 @@ class TestCase implements FullTestCaseData {
     }
   }
 
-  static async all() {
+  static async all(problemSlug?: string) {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM test_cases WHERE deleted_at IS NULL;`;
+      let values: Array<string> = [];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query);
+      let query = `SELECT tc.id, p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
+                      INNER JOIN problems AS p ON
+                      tc.problem_id = p.id
+                      AND p.deleted_at IS NULL
+                     WHERE tc.deleted_at IS NULL`;
+
+      if (problemSlug) {
+        values.push(problemSlug);
+        query += " AND p.slug = ?";
+      }
+
+      query += ";";
+
+      console.log(query);
+      console.log(values);
+
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 
       return result;
     } catch (error) {
