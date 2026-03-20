@@ -69,9 +69,6 @@ class TestCase implements FullTestCaseData {
 
       query += ";";
 
-      console.log(query);
-      console.log(values);
-
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 
       return result;
