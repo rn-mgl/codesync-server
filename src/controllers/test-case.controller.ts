@@ -20,7 +20,7 @@ import {
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import type { RowDataPacket } from "mysql2";
+import { DateTime } from "luxon";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
@@ -261,4 +261,40 @@ export const update = async (req: Request, res: Response) => {
     success: !!updated,
     data: { message: `Test case ${id} updated.` },
   });
+};
+
+export const destroy = async (req: Request, res: Response) => {
+  const params = req.params;
+
+  if (!isValidIdParam(params)) {
+    throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const id = Number(params.id);
+
+  if (Number.isNaN(id)) {
+    throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const testCase = (await TestCase.findById(id)) as FullTestCaseData[];
+
+  if (!testCase || !testCase[0]) {
+    throw new AppError(
+      `The test case you are trying to delete does not exist.`,
+      StatusCodes.NOT_FOUND,
+    );
+  }
+
+  const updateData = {
+    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
+  };
+
+  const deleted = await TestCase.update(testCase[0].id, updateData);
+
+  return res
+    .status(!!deleted ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
+    .json({
+      success: !!deleted,
+      data: { message: `Test case ${testCase[0].id} deleted.` },
+    });
 };
