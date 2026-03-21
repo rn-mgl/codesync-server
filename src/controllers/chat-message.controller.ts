@@ -6,7 +6,7 @@ import {
   isAdditionalChatMessageData,
   isBaseChatMessageData,
   isValidLookupQuery,
-  isValidLookupParam,
+  isValidIdentifierParam,
   isValidUpdateParam,
 } from "@src/utils/type.util";
 import AppError from "@src/errors/app.error";
@@ -58,7 +58,7 @@ export const find = async (req: Request, res: Response) => {
   const params = req.params;
   const query = req.query;
 
-  if (!isValidLookupParam(params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
 
@@ -70,14 +70,14 @@ export const find = async (req: Request, res: Response) => {
 
   switch (query.lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
 
       chatMessage = await ChatMessages.findById(id);
 
       return res.json({ chat_message: chatMessage });
 
     case "session":
-      const session = parseInt(params.param);
+      const session = parseInt(params.identifier);
 
       chatMessage = await ChatMessages.findBySession(session);
 

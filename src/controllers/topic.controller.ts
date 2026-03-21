@@ -8,6 +8,9 @@ import {
   assignField,
   isAdditionalTopicData,
   isBaseTopicData,
+  isValidIdentifierParam,
+  isValidIdParam,
+  isValidLookupQuery,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -57,28 +60,28 @@ export const all = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
   const params = req.params;
-  const body = req.body;
+  const query = req.query;
 
-  if (typeof params !== "object" || params === null || !("param" in params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (typeof body !== "object" || body === null || !("lookup" in body)) {
+  if (!isValidLookupQuery(query)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  const lookup = body.lookup;
+  const lookup = query.lookup;
   let topic: RowDataPacket[] | null = null;
 
   switch (lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
       topic = await Topic.findById(id);
 
       return res.json({ topic });
 
     case "slug":
-      const slug = params.param;
+      const slug = params.identifier;
       topic = await Topic.findBySlug(slug);
 
       return res.json({ topic });

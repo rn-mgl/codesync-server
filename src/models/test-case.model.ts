@@ -54,7 +54,7 @@ class TestCase implements FullTestCaseData {
     try {
       const db = createConnection();
 
-      const query = `SELECT tc.id, tc.input, tc.expected_output, tc.memory_limit_mb, tc.time_limit_ms, 
+      const query = `SELECT tc.*, 
                       p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
                       INNER JOIN problems AS p ON tc.problem_id = p.id
                      WHERE tc.deleted_at IS NULL AND p.deleted_at IS NULL;`;
@@ -72,7 +72,7 @@ class TestCase implements FullTestCaseData {
     try {
       const db = createConnection();
 
-      const query = `SELECT tc.id, tc.input, tc.expected_output, tc.memory_limit_mb, tc.time_limit_ms, 
+      const query = `SELECT tc.*, 
                       p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
                       INNER JOIN problems AS p ON tc.problem_id = p.id
                      WHERE tc.deleted_at IS NULL AND p.deleted_at IS NULL AND tc.id = ?;`;
@@ -92,7 +92,7 @@ class TestCase implements FullTestCaseData {
     try {
       const db = createConnection();
 
-      const query = `SELECT tc.id, tc.input, tc.expected_output, tc.memory_limit_mb, tc.time_limit_ms, 
+      const query = `SELECT tc.*, 
                       p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
                       INNER JOIN problems AS p ON tc.problem_id = p.id
                      WHERE tc.deleted_at IS NULL AND p.deleted_at IS NULL AND p.id = ?;`;

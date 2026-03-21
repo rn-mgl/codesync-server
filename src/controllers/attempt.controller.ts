@@ -8,6 +8,8 @@ import {
   assignField,
   isAdditionalAttemptData,
   isBaseAttemptData,
+  isValidIdentifierParam,
+  isValidLookupQuery,
 } from "@src/utils/type.util";
 
 import { Router, type Request, type Response } from "express";
@@ -60,34 +62,34 @@ export const all = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
   const params = req.params;
-  const body = req.body;
+  const query = req.query;
 
-  if (typeof params !== "object" || params === null || !("param" in params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
 
-  if (typeof body !== "object" || body === null || !("lookup" in body)) {
+  if (!isValidLookupQuery(query)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
   let attempt: RowDataPacket[] | null = null;
 
-  switch (body.lookup) {
+  switch (query.lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
 
       attempt = await Attempt.findById(id);
 
       return res.json({ attempt });
     case "user":
-      const user = parseInt(params.param);
+      const user = parseInt(params.identifier);
 
       attempt = await Attempt.findByUser(user);
 
       return res.json({ attempt });
 
     case "problem":
-      const problem = parseInt(params.param);
+      const problem = parseInt(params.identifier);
 
       attempt = await Attempt.findByProblem(problem);
 

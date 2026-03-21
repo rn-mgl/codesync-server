@@ -9,10 +9,9 @@ import {
   assignField,
   isAdditionalProblemData,
   isBaseProblemData,
+  isValidIdentifierParam,
   isValidLookupQuery,
-  isValidLookupParam,
   isValidUpdateParam,
-  isValidDestroyParam,
 } from "@src/utils/type.util";
 import { randomUUID } from "crypto";
 import { type Request, type Response } from "express";
@@ -82,12 +81,12 @@ export const find = async (req: Request, res: Response) => {
   const params = req.params;
   const query = req.query;
 
-  if (!isValidLookupParam(params) || !isValidLookupQuery(query)) {
+  if (!isValidIdentifierParam(params) || !isValidLookupQuery(query)) {
     throw new AppError(`Invalid parameter`, StatusCodes.BAD_REQUEST);
   }
 
   const lookup = query.lookup;
-  const param = params.param;
+  const param = params.identifier;
   let problem: null | RowDataPacket[] = null;
 
   switch (lookup) {
@@ -205,7 +204,7 @@ export const destroy = async (req: Request, res: Response) => {
     throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!isValidDestroyParam(params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
   }
 

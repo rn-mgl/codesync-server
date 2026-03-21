@@ -11,6 +11,8 @@ import {
   assignField,
   isAdditionalSubmissionData,
   isBaseSubmissionData,
+  isValidIdentifierParam,
+  isValidLookupQuery,
   isValidPostSubmissionData,
   isValidSubmissionType,
 } from "@src/utils/type.util";
@@ -148,39 +150,39 @@ export const all = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
   const params = req.params;
-  const body = req.body;
+  const query = req.query;
 
-  if (typeof params !== "object" || params === null || !("param" in params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (typeof body !== "object" || body === null || !("lookup" in body)) {
+  if (!isValidLookupQuery(query)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
   let submission: RowDataPacket[] | null = null;
 
-  switch (body.lookup) {
+  switch (query.lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
 
       submission = await Submission.findById(id);
 
       return res.json({ submission });
     case "user":
-      const userId = parseInt(params.param);
+      const userId = parseInt(params.identifier);
 
       submission = await Submission.findByUser(userId);
 
       return res.json({ submission });
     case "problem":
-      const problemId = parseInt(params.param);
+      const problemId = parseInt(params.identifier);
 
       submission = await Submission.findByProblem(problemId);
 
       return res.json({ submission });
     case "status":
-      const status = params.param;
+      const status = params.identifier;
 
       submission = await Submission.findByStatus(status);
 

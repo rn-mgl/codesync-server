@@ -10,6 +10,8 @@ import {
   isAdditionalAttemptData,
   isAdditionalSessionParticipantData,
   isBaseSessionParticipantData,
+  isValidIdentifierParam,
+  isValidLookupQuery,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -60,28 +62,28 @@ export const create = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
   const params = req.params;
-  const body = req.body;
+  const query = req.query;
 
-  if (typeof params !== "object" || params === null || !("param" in params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (typeof body !== "object" || body === null || !("lookup" in body)) {
+  if (!isValidLookupQuery(query)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
   let sessionParticipants: RowDataPacket[] | null = null;
 
-  switch (body.lookup) {
+  switch (query.lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
 
       sessionParticipants = await SessionParticipant.findById(id);
 
       return res.json({ session_participants: sessionParticipants });
 
     case "session":
-      const session = parseInt(params.param);
+      const session = parseInt(params.identifier);
 
       sessionParticipants = await SessionParticipant.findBySession(session);
 

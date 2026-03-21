@@ -8,7 +8,7 @@ import {
   assignField,
   isBaseStudyGroupMemberData,
   isValidLookupQuery,
-  isValidLookupParam,
+  isValidIdentifierParam,
   isValidUpdateParam,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
@@ -44,7 +44,7 @@ export const find = async (req: Request, res: Response) => {
   const params = req.params;
   const query = req.query;
 
-  if (!isValidLookupQuery(query) || !isValidLookupParam(params)) {
+  if (!isValidLookupQuery(query) || !isValidIdentifierParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
@@ -52,28 +52,28 @@ export const find = async (req: Request, res: Response) => {
 
   switch (query.lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
 
       studyGroupMember = await StudyGroupMember.findById(id);
 
       return res.json({ study_group_member: studyGroupMember });
 
     case "group":
-      const group = parseInt(params.param);
+      const group = parseInt(params.identifier);
 
       studyGroupMember = await StudyGroupMember.findByGroup(group);
 
       return res.json({ study_group_member: studyGroupMember });
 
     case "user":
-      const user = parseInt(params.param);
+      const user = parseInt(params.identifier);
 
       studyGroupMember = await StudyGroupMember.findByUser(user);
 
       return res.json({ study_group_member: studyGroupMember });
 
     case "role":
-      const role = params.param;
+      const role = params.identifier;
 
       studyGroupMember = await StudyGroupMember.findByRole(role);
 

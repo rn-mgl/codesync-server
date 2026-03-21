@@ -8,7 +8,7 @@ import {
 const router = Router();
 
 router.post("/", create);
-router.get("/:param", find);
+router.get("/:identifier", find);
 router.patch("/:id", update);
 
 export default router;

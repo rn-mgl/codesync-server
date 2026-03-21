@@ -84,14 +84,34 @@ const validateFields = <T extends object>(
   }
 };
 
-export const isValidLookupParam = (
-  data: unknown,
-): data is object & Record<"param", string> => {
+export const isValidIdParam = (data: unknown): data is Record<"id", string> => {
   return (
     typeof data === "object" &&
     data !== null &&
-    "param" in data &&
-    typeof data.param === "string"
+    "id" in data &&
+    typeof data.id === "string"
+  );
+};
+
+export const isValidIdentifierParam = (
+  data: unknown,
+): data is Record<"identifier", string> => {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "identifier" in data &&
+    typeof data.identifier === "string"
+  );
+};
+
+export const isValidSlugParam = (
+  data: unknown,
+): data is Record<"slug", string> => {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "slug" in data &&
+    typeof data.slug === "string"
   );
 };
 
@@ -107,17 +127,6 @@ export const isValidLookupQuery = (
 };
 
 export const isValidUpdateParam = (
-  data: unknown,
-): data is Object & Record<"identifier", string> => {
-  return (
-    typeof data === "object" &&
-    data !== null &&
-    "identifier" in data &&
-    typeof data.identifier === "string"
-  );
-};
-
-export const isValidDestroyParam = (
   data: unknown,
 ): data is Object & Record<"identifier", string> => {
   return (

@@ -10,7 +10,7 @@ import {
   isAdditionalUserProgressData,
   isBaseUserProgressData,
   isValidLookupQuery,
-  isValidLookupParam,
+  isValidIdentifierParam,
   isValidUpdateParam,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
@@ -61,7 +61,7 @@ export const find = async (req: Request, res: Response) => {
   const params = req.params;
   const query = req.query;
 
-  if (!isValidLookupParam(params) || !isValidLookupQuery(query)) {
+  if (!isValidIdentifierParam(params) || !isValidLookupQuery(query)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
@@ -69,21 +69,21 @@ export const find = async (req: Request, res: Response) => {
 
   switch (query.lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
 
       progress = await UserProgress.findById(id);
 
       return res.json({ progress });
 
     case "user":
-      const user = parseInt(params.param);
+      const user = parseInt(params.identifier);
 
       progress = await UserProgress.findByUser(user);
 
       return res.json({ progress });
 
     case "date":
-      const date = params.param;
+      const date = params.identifier;
 
       progress = await UserProgress.findByDate(date);
 

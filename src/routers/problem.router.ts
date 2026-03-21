@@ -11,7 +11,7 @@ const router = Router();
 
 router.post("/", create);
 router.get("/", all);
-router.get("/:param", find);
+router.get("/:identifier", find);
 router.patch("/:identifier", update);
 router.delete("/:identifier", destroy);
 

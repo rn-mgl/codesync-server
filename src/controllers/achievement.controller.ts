@@ -10,7 +10,7 @@ import {
   isAdditionalAchievementData,
   isBaseAchievementData,
   isValidLookupQuery,
-  isValidLookupParam,
+  isValidIdentifierParam,
   isValidUpdateParam,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
@@ -51,7 +51,7 @@ export const find = async (req: Request, res: Response) => {
   const params = req.params;
   const query = req.query;
 
-  if (!isValidLookupQuery(query) || !isValidLookupParam(params)) {
+  if (!isValidLookupQuery(query) || !isValidIdentifierParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
@@ -59,14 +59,14 @@ export const find = async (req: Request, res: Response) => {
 
   switch (query.lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
 
       achievement = await Achievement.findById(id);
 
       return res.json({ achievement });
 
     case "slug":
-      const slug = params.param;
+      const slug = params.identifier;
 
       achievement = await Achievement.findBySlug(slug);
 

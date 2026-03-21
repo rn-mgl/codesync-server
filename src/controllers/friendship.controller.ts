@@ -6,7 +6,7 @@ import {
   isAdditionalFriendshipData,
   isBaseFriendshipData,
   isValidLookupQuery,
-  isValidLookupParam,
+  isValidIdentifierParam,
   isValidUpdateParam,
 } from "@src/utils/type.util";
 import AppError from "@src/errors/app.error";
@@ -47,7 +47,7 @@ export const find = async (req: Request, res: Response) => {
   const query = req.query;
   const params = req.params;
 
-  if (!isValidLookupQuery(query) || !isValidLookupParam(params)) {
+  if (!isValidLookupQuery(query) || !isValidIdentifierParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
@@ -55,21 +55,21 @@ export const find = async (req: Request, res: Response) => {
 
   switch (query.lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
 
       friendship = await Friendship.findById(id);
 
       return res.json({ friendship });
 
     case "user":
-      const user = parseInt(params.param);
+      const user = parseInt(params.identifier);
 
       friendship = await Friendship.findByUser(user);
 
       return res.json({ friendship });
 
     case "status":
-      const status = params.param;
+      const status = params.identifier;
 
       friendship = await Friendship.findByStatus(status);
 

@@ -3,10 +3,8 @@ import type { BaseUserAchievementData } from "@src/interface/user.interface";
 import UserAchievement from "@src/models/user-achievement.model";
 import {
   isBaseUserAchievementData,
-  isValidDestroyParam,
+  isValidIdentifierParam,
   isValidLookupQuery,
-  isValidLookupParam,
-  isValidUpdateParam,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -43,7 +41,7 @@ export const find = async (req: Request, res: Response) => {
   const params = req.params;
   const query = req.query;
 
-  if (!isValidLookupQuery(query) || !isValidLookupParam(params)) {
+  if (!isValidLookupQuery(query) || !isValidIdentifierParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
@@ -51,21 +49,21 @@ export const find = async (req: Request, res: Response) => {
 
   switch (query.lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
 
       userAchievement = await UserAchievement.findById(id);
 
       return res.json({ user_achievement: userAchievement });
 
     case "user":
-      const user = parseInt(params.param);
+      const user = parseInt(params.identifier);
 
       userAchievement = await UserAchievement.findByUser(user);
 
       return res.json({ user_achievement: userAchievement });
 
     case "achievement":
-      const achievement = parseInt(params.param);
+      const achievement = parseInt(params.identifier);
 
       userAchievement = await UserAchievement.findByAchievement(achievement);
 
@@ -78,7 +76,7 @@ export const find = async (req: Request, res: Response) => {
 export const destroy = async (req: Request, res: Response) => {
   const params = req.params;
 
-  if (!isValidDestroyParam(params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
   }
 

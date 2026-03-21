@@ -10,7 +10,7 @@ import {
   isAdditionalStudyGroupData,
   isBaseStudyGroupData,
   isValidLookupQuery,
-  isValidLookupParam,
+  isValidIdentifierParam,
   isValidUpdateParam,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
@@ -61,7 +61,7 @@ export const find = async (req: Request, res: Response) => {
   const query = req.query;
   const params = req.params;
 
-  if (!isValidLookupQuery(query) || !isValidLookupParam(params)) {
+  if (!isValidLookupQuery(query) || !isValidIdentifierParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
@@ -69,21 +69,21 @@ export const find = async (req: Request, res: Response) => {
 
   switch (query.lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
 
       studyGroup = await StudyGroup.findById(id);
 
       return res.json({ study_group: studyGroup });
 
     case "owner":
-      const owner = parseInt(params.param);
+      const owner = parseInt(params.identifier);
 
       studyGroup = await StudyGroup.findByOwner(owner);
 
       return res.json({ study_group: studyGroup });
 
     case "code":
-      const code = params.param;
+      const code = params.identifier;
 
       studyGroup = await StudyGroup.findByCode(code);
 
