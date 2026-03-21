@@ -116,12 +116,10 @@ export const all = async (req: Request, res: Response) => {
     }
   }
 
-  return res
-    .status(StatusCodes.OK)
-    .json({
-      success: true,
-      data: { test_cases: Object.fromEntries(testCases) },
-    });
+  return res.status(StatusCodes.OK).json({
+    success: true,
+    data: { test_cases: Object.fromEntries(testCases) },
+  });
 };
 
 export const find = async (req: Request, res: Response) => {
@@ -145,13 +143,16 @@ export const find = async (req: Request, res: Response) => {
 
       testCase = await TestCase.findById(id);
 
-      return res.json({ test_case: testCase });
-    case "problem":
-      const problem = parseInt(params.param);
+      if (!testCase || !testCase[0]) {
+        throw new AppError(
+          `The test case you are trying to find does not exist.`,
+          StatusCodes.NOT_FOUND,
+        );
+      }
 
-      testCase = await TestCase.findByProblem(problem);
-
-      return res.json({ test_case: testCase });
+      return res
+        .status(StatusCodes.OK)
+        .json({ success: true, data: { test_case: testCase[0] } });
 
     default:
       throw new AppError(`Invalid lookup key.`, StatusCodes.BAD_REQUEST);
