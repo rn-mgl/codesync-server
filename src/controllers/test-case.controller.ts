@@ -3,6 +3,7 @@ import type { FullProblemData } from "@src/interface/problem.interface";
 import type {
   AdditionalTestCaseData,
   BaseTestCaseData,
+  FullTestCaseData,
 } from "@src/interface/test-case.interface";
 import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
@@ -84,7 +85,7 @@ export const create = async (req: Request, res: Response) => {
 export const all = async (req: Request, res: Response) => {
   const query = req.query;
 
-  let testCases: RowDataPacket[] = [];
+  const testCases: Map<string, FullTestCaseData[]> = new Map();
 
   const slug: string = typeof query.problem === "string" ? query.problem : "";
 
@@ -98,14 +99,29 @@ export const all = async (req: Request, res: Response) => {
       );
     }
 
-    testCases = await TestCase.findByProblem(problem[0].id);
+    const problemTestCases = (await TestCase.findByProblem(
+      problem[0].id,
+    )) as FullTestCaseData[];
+
+    testCases.set(problem[0].title, problemTestCases);
   } else {
-    testCases = await TestCase.all();
+    const problems = (await Problem.all()) as FullProblemData[];
+
+    for (const p of problems) {
+      const testCase = (await TestCase.findByProblem(
+        p.id,
+      )) as FullTestCaseData[];
+
+      testCases.set(p.title, testCase);
+    }
   }
 
   return res
     .status(StatusCodes.OK)
-    .json({ success: true, data: { test_cases: testCases } });
+    .json({
+      success: true,
+      data: { test_cases: Object.fromEntries(testCases) },
+    });
 };
 
 export const find = async (req: Request, res: Response) => {

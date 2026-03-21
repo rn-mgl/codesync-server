@@ -54,7 +54,8 @@ class TestCase implements FullTestCaseData {
     try {
       const db = createConnection();
 
-      const query = `SELECT tc.id, p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
+      const query = `SELECT tc.id, tc.input, tc.expected_output, tc.memory_limit_mb, tc.time_limit_ms, 
+                      p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
                       INNER JOIN problems AS p ON tc.problem_id = p.id
                      WHERE tc.deleted_at IS NULL AND p.deleted_at IS NULL;`;
 
@@ -71,7 +72,10 @@ class TestCase implements FullTestCaseData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM test_cases WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT tc.id, tc.input, tc.expected_output, tc.memory_limit_mb, tc.time_limit_ms, 
+                      p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
+                      INNER JOIN problems AS p ON tc.problem_id = p.id
+                     WHERE tc.deleted_at IS NULL AND p.deleted_at IS NULL AND tc.id = ?;`;
 
       const values = [id];
 
@@ -88,7 +92,10 @@ class TestCase implements FullTestCaseData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM test_cases WHERE problem_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT tc.id, tc.input, tc.expected_output, tc.memory_limit_mb, tc.time_limit_ms, 
+                      p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
+                      INNER JOIN problems AS p ON tc.problem_id = p.id
+                     WHERE tc.deleted_at IS NULL AND p.deleted_at IS NULL AND p.id = ?;`;
 
       const values = [problemId];
 
