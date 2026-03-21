@@ -1,5 +1,8 @@
 import AppError from "@src/errors/app.error";
-import type { FullProblemData } from "@src/interface/problem.interface";
+import type {
+  BaseProblemData,
+  FullProblemData,
+} from "@src/interface/problem.interface";
 import type {
   AdditionalTestCaseData,
   BaseTestCaseData,
@@ -11,7 +14,8 @@ import {
   assignField,
   isAdditionalTestCaseData,
   isBaseTestCaseData,
-  isValidLookupParam,
+  isValidIdentifierParam,
+  isValidIdParam,
   isValidLookupQuery,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
@@ -130,18 +134,21 @@ export const find = async (req: Request, res: Response) => {
     throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!isValidLookupParam(params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
   const lookup = query.lookup;
-  let testCase: RowDataPacket[] | null = null;
+  let testCase:
+    | (FullTestCaseData & Pick<BaseProblemData, "title" | "slug">)[]
+    | null = null;
 
   switch (lookup) {
     case "id":
-      const id = parseInt(params.param);
+      const id = parseInt(params.identifier);
 
-      testCase = await TestCase.findById(id);
+      testCase = (await TestCase.findById(id)) as (FullTestCaseData &
+        Pick<BaseProblemData, "title" | "slug">)[];
 
       if (!testCase || !testCase[0]) {
         throw new AppError(
@@ -163,20 +170,45 @@ export const update = async (req: Request, res: Response) => {
   const body = req.body;
   const params = req.params;
 
+  if (!("testCase" in body)) {
+    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const { testCase } = body;
+
+  if (!("problem" in testCase) || typeof testCase.problem !== "string") {
+    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const slug = testCase.problem;
+
+  const problem = (await Problem.findBySlug(slug)) as FullProblemData[];
+
+  if (!problem || !problem[0]) {
+    throw new AppError(
+      `The problem ${slug} does not exist.`,
+      StatusCodes.NOT_FOUND,
+    );
+  }
+
+  testCase.problem_id = problem[0].id;
+
+  console.log(testCase);
+
   if (
-    !isBaseTestCaseData(body, "partial") &&
-    !isAdditionalTestCaseData(body, "partial")
+    !isBaseTestCaseData(testCase, "partial") &&
+    !isAdditionalTestCaseData(testCase, "partial")
   ) {
     throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (typeof params !== "object" || params === null || !("id" in params)) {
-    throw new AppError(`Invalid test case update.`, StatusCodes.BAD_REQUEST);
+  if (!isValidIdParam(params)) {
+    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
 
   let updateData: Partial<BaseTestCaseData & AdditionalTestCaseData> = {};
 
-  if (isBaseTestCaseData(body)) {
+  if (isBaseTestCaseData(testCase)) {
     const FIELDS: (keyof BaseTestCaseData)[] = [
       "expected_output",
       "input",
@@ -186,18 +218,18 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof BaseTestCaseData];
+      const value = testCase[field as keyof BaseTestCaseData];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }
     }
   }
 
-  if (isAdditionalTestCaseData(body)) {
+  if (isAdditionalTestCaseData(testCase)) {
     const FIELDS: (keyof AdditionalTestCaseData)[] = ["order_index"];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalTestCaseData];
+      const value = testCase[field as keyof AdditionalTestCaseData];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }
@@ -205,6 +237,17 @@ export const update = async (req: Request, res: Response) => {
   }
 
   const id = parseInt(params.id);
+
+  const find = (await TestCase.findById(id)) as (FullTestCaseData &
+    Pick<BaseProblemData, "title" | "slug">)[];
+
+  if (!find || !find[0]) {
+    throw new AppError(
+      `The test case you are trying to update does not exist.`,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+
   const updated = await TestCase.update(id, updateData);
 
   if (!updated) {
@@ -214,5 +257,8 @@ export const update = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ success: !!updated });
+  return res.json({
+    success: !!updated,
+    data: { message: `Test case ${id} updated.` },
+  });
 };

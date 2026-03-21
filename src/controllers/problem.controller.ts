@@ -11,7 +11,6 @@ import {
   isBaseProblemData,
   isValidIdentifierParam,
   isValidLookupQuery,
-  isValidUpdateParam,
 } from "@src/utils/type.util";
 import { randomUUID } from "crypto";
 import { type Request, type Response } from "express";
@@ -123,7 +122,7 @@ export const update = async (req: Request, res: Response) => {
 
   const { problem } = body;
 
-  if (!isValidUpdateParam(params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid request`, StatusCodes.BAD_REQUEST);
   }
 

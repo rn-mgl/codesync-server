@@ -7,7 +7,6 @@ import {
   isBaseFriendshipData,
   isValidLookupQuery,
   isValidIdentifierParam,
-  isValidUpdateParam,
 } from "@src/utils/type.util";
 import AppError from "@src/errors/app.error";
 import type {
@@ -84,7 +83,7 @@ export const update = async (req: Request, res: Response) => {
   const body = req.body;
   const params = req.params;
 
-  if (!isValidUpdateParam(params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 

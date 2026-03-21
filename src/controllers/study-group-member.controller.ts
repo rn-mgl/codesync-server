@@ -9,7 +9,6 @@ import {
   isBaseStudyGroupMemberData,
   isValidLookupQuery,
   isValidIdentifierParam,
-  isValidUpdateParam,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -87,7 +86,7 @@ export const update = async (req: Request, res: Response) => {
   const body = req.body;
   const params = req.params;
 
-  if (!isValidUpdateParam(params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid request.`, StatusCodes.BAD_REQUEST);
   }
 

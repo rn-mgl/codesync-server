@@ -126,17 +126,6 @@ export const isValidLookupQuery = (
   );
 };
 
-export const isValidUpdateParam = (
-  data: unknown,
-): data is Object & Record<"identifier", string> => {
-  return (
-    typeof data === "object" &&
-    data !== null &&
-    "identifier" in data &&
-    typeof data.identifier === "string"
-  );
-};
-
 type validationType = "full" | "partial";
 
 export function isBaseUserData(

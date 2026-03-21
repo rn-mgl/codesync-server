@@ -11,7 +11,6 @@ import {
   isBaseAchievementData,
   isValidLookupQuery,
   isValidIdentifierParam,
-  isValidUpdateParam,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -84,7 +83,7 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!isValidUpdateParam(params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
