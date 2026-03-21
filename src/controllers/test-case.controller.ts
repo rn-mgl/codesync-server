@@ -10,6 +10,8 @@ import {
   assignField,
   isAdditionalTestCaseData,
   isBaseTestCaseData,
+  isValidLookupParam,
+  isValidLookupQuery,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -82,9 +84,24 @@ export const create = async (req: Request, res: Response) => {
 export const all = async (req: Request, res: Response) => {
   const query = req.query;
 
-  let slug = typeof query.problem === "string" ? query.problem : "";
+  let testCases: RowDataPacket[] = [];
 
-  const testCases = await TestCase.all(slug);
+  const slug: string = typeof query.problem === "string" ? query.problem : "";
+
+  if (slug) {
+    const problem = (await Problem.findBySlug(slug)) as FullProblemData[];
+
+    if (!problem || !problem[0]) {
+      throw new AppError(
+        `The problem you are looking for does not exist.`,
+        StatusCodes.BAD_REQUEST,
+      );
+    }
+
+    testCases = await TestCase.findByProblem(problem[0].id);
+  } else {
+    testCases = await TestCase.all();
+  }
 
   return res
     .status(StatusCodes.OK)
@@ -92,18 +109,18 @@ export const all = async (req: Request, res: Response) => {
 };
 
 export const find = async (req: Request, res: Response) => {
-  const body = req.body;
+  const query = req.query;
   const params = req.params;
 
-  if (typeof body !== "object" || body === null || !("lookup" in body)) {
+  if (!isValidLookupQuery(query)) {
     throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
 
-  if (typeof params !== "object" || params === null || !("param" in params)) {
+  if (!isValidLookupParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  const lookup = body.lookup;
+  const lookup = query.lookup;
   let testCase: RowDataPacket[] | null = null;
 
   switch (lookup) {
