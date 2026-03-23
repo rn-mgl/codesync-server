@@ -71,14 +71,14 @@ const validateFields = <T extends object>(
     return fields.every(
       (field) =>
         field in data &&
-        data[field as keyof T] &&
+        data[field as keyof T] !== undefined &&
         VALID_TYPES.includes(typeof data[field as keyof T]),
     );
   } else {
     return fields.some(
       (field) =>
         field in data &&
-        data[field as keyof T] &&
+        data[field as keyof T] !== undefined &&
         VALID_TYPES.includes(typeof data[field as keyof T]),
     );
   }
