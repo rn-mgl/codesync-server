@@ -58,6 +58,8 @@ export const create = async (req: Request, res: Response) => {
     memory_limit_mb: testCase.memory_limit_mb,
     problem_id: testCase.problem_id,
     time_limit_ms: testCase.time_limit_ms,
+    is_sample: testCase.is_sample,
+    is_hidden: testCase.is_hidden,
   };
 
   if (isAdditionalTestCaseData(testCase, "partial")) {

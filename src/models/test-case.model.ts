@@ -15,6 +15,8 @@ class TestCase implements FullTestCaseData {
   problem_id: number;
   time_limit_ms: number;
   deleted_at: string | null;
+  is_sample: boolean;
+  is_hidden: boolean;
 
   constructor(data: FullTestCaseData) {
     this.id = data.id;
@@ -25,6 +27,8 @@ class TestCase implements FullTestCaseData {
     this.time_limit_ms = data.time_limit_ms;
     this.order_index = data.order_index;
     this.deleted_at = data.deleted_at;
+    this.is_hidden = data.is_hidden;
+    this.is_sample = data.is_sample;
   }
 
   static async create(

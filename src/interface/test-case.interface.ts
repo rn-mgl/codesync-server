@@ -4,6 +4,8 @@ export interface BaseTestCaseData {
   expected_output: string;
   time_limit_ms: number;
   memory_limit_mb: number;
+  is_sample: boolean;
+  is_hidden: boolean;
 }
 
 export interface AdditionalTestCaseData {

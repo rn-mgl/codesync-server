@@ -287,6 +287,8 @@ export function isBaseTestCaseData(
     "memory_limit_mb",
     "problem_id",
     "time_limit_ms",
+    "is_hidden",
+    "is_sample",
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
