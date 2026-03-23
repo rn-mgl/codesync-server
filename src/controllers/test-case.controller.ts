@@ -195,8 +195,6 @@ export const update = async (req: Request, res: Response) => {
 
   testCase.problem_id = problem[0].id;
 
-  console.log(testCase);
-
   if (
     !isBaseTestCaseData(testCase, "partial") &&
     !isAdditionalTestCaseData(testCase, "partial")
@@ -210,13 +208,15 @@ export const update = async (req: Request, res: Response) => {
 
   let updateData: Partial<BaseTestCaseData & AdditionalTestCaseData> = {};
 
-  if (isBaseTestCaseData(testCase)) {
+  if (isBaseTestCaseData(testCase, "partial")) {
     const FIELDS: (keyof BaseTestCaseData)[] = [
       "expected_output",
       "input",
       "memory_limit_mb",
       "problem_id",
       "time_limit_ms",
+      "is_hidden",
+      "is_sample",
     ];
 
     for (const field of FIELDS) {
@@ -227,7 +227,7 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  if (isAdditionalTestCaseData(testCase)) {
+  if (isAdditionalTestCaseData(testCase, "partial")) {
     const FIELDS: (keyof AdditionalTestCaseData)[] = ["order_index"];
 
     for (const field of FIELDS) {
