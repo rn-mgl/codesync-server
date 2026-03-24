@@ -4,7 +4,9 @@ import type {
   BaseProblemData,
   FullProblemData,
 } from "@src/interface/problem.interface";
+import type { FullTestCaseData } from "@src/interface/test-case.interface";
 import Problem from "@src/models/problem.model";
+import TestCase from "@src/models/test-case.model";
 import {
   assignField,
   isAdditionalProblemData,
@@ -86,30 +88,39 @@ export const find = async (req: Request, res: Response) => {
 
   const lookup = query.lookup;
   const param = params.identifier;
-  let problem: null | RowDataPacket[] = null;
+  let problem: null | FullProblemData[] = null;
 
   switch (lookup) {
     case "id":
       const id = parseInt(param);
 
-      problem = await Problem.findById(id);
+      problem = (await Problem.findById(id)) as FullProblemData[];
 
-      if (!problem || !problem.length) {
+      if (!problem || !problem[0]) {
         throw new AppError(`Problem not found.`, StatusCodes.NOT_FOUND);
       }
 
-      return res.json({ success: !!problem, data: { problem: problem[0] } });
+      break;
     case "slug":
-      problem = await Problem.findBySlug(param);
+      problem = (await Problem.findBySlug(param)) as FullProblemData[];
 
-      if (!problem || !problem.length) {
+      if (!problem || !problem[0]) {
         throw new AppError(`Problem not found.`, StatusCodes.NOT_FOUND);
       }
+      break;
 
-      return res.json({ success: !!problem, data: { problem: problem[0] } });
     default:
       throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
+
+  const testCases = (await TestCase.findByProblem(
+    problem[0].id,
+  )) as FullTestCaseData[];
+
+  return res.json({
+    success: !!problem,
+    data: { problem: problem[0], testCases },
+  });
 };
 
 export const update = async (req: Request, res: Response) => {
