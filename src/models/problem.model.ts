@@ -12,8 +12,8 @@ class Problem implements FullProblemData {
   slug: string;
   description: string;
   difficulty: "easy" | "medium" | "hard";
-  input_format: string;
-  output_format: string;
+  input_format: string | unknown[] | Record<string, unknown>;
+  output_format: string | unknown[] | Record<string, unknown>;
   constraints: string;
   editorial: string;
   acceptance_rate: number;

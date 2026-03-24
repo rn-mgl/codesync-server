@@ -18,7 +18,6 @@ import { randomUUID } from "crypto";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
-import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;

@@ -6,8 +6,8 @@ export interface BaseProblemData {
 }
 
 export interface AdditionalProblemData {
-  input_format: string;
-  output_format: string;
+  input_format: string | unknown[] | Record<string, unknown>;
+  output_format: string | unknown[] | Record<string, unknown>;
   constraints: string;
   editorial: string;
   acceptance_rate: number;
