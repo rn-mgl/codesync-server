@@ -106,8 +106,8 @@ export const find = async (req: Request, res: Response) => {
       if (!problem || !problem[0]) {
         throw new AppError(`Problem not found.`, StatusCodes.NOT_FOUND);
       }
-      break;
 
+      break;
     default:
       throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
@@ -116,7 +116,7 @@ export const find = async (req: Request, res: Response) => {
     problem[0].id,
   )) as FullTestCaseData[];
 
-  return res.json({
+  return res.status(StatusCodes.OK).json({
     success: !!problem,
     data: { problem: problem[0], testCases },
   });
