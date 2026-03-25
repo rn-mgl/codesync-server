@@ -1,3 +1,15 @@
+export interface InputFormat {
+  style: "function" | "class";
+  version: number;
+  name: string;
+  params: { name: string; type: string }[];
+}
+
+export interface OutputFormat {
+  version: number;
+  type: string;
+}
+
 export interface BaseProblemData {
   title: string;
   slug: string;
@@ -6,8 +18,8 @@ export interface BaseProblemData {
 }
 
 export interface AdditionalProblemData {
-  input_format: string | unknown[] | Record<string, unknown>;
-  output_format: string | unknown[] | Record<string, unknown>;
+  input_format: InputFormat;
+  output_format: OutputFormat;
   constraints: string;
   editorial: string;
   acceptance_rate: number;

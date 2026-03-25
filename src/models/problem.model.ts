@@ -3,6 +3,8 @@ import type {
   AdditionalProblemData,
   BaseProblemData,
   FullProblemData,
+  InputFormat,
+  OutputFormat,
 } from "@src/interface/problem.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
@@ -12,8 +14,8 @@ class Problem implements FullProblemData {
   slug: string;
   description: string;
   difficulty: "easy" | "medium" | "hard";
-  input_format: string | unknown[] | Record<string, unknown>;
-  output_format: string | unknown[] | Record<string, unknown>;
+  input_format: InputFormat;
+  output_format: OutputFormat;
   constraints: string;
   editorial: string;
   acceptance_rate: number;
