@@ -7,12 +7,21 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - sandbox-data:/app/sandbox
+    depends_on:
+      - database
 
   database:
     container_name: codesync-database
     image: mysql:9
     volumes:
       - database:/var/lib/mysql
+
+  sandbox-cleaner:
+    container_name: sandbox-cleaner
+    build: ./cleaner
+    image: sandbox-cleaner-image
+    profiles:
+      - sandbox
 
   javascript-sandbox:
     build: ./sandbox
