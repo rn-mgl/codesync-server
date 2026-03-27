@@ -17,7 +17,6 @@ services:
       - database:/var/lib/mysql
 
   sandbox-cleaner:
-    container_name: sandbox-cleaner
     build: ./cleaner
     image: sandbox-cleaner-image
     profiles:
