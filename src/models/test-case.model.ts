@@ -9,7 +9,7 @@ import type { ResultSetHeader, RowDataPacket } from "mysql2";
 class TestCase implements FullTestCaseData {
   id: number;
   expected_output: string;
-  input: string;
+  input: Record<string, unknown> | string;
   memory_limit_mb: number;
   order_index: number;
   problem_id: number;

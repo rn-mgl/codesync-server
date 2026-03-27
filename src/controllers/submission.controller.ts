@@ -1,12 +1,20 @@
 import AppError from "@src/errors/app.error";
+import type { FullProblemData } from "@src/interface/problem.interface";
 import type { ServerResponse } from "@src/interface/server.interface";
 import type {
   AdditionalSubmissionData,
   BaseSubmissionData,
 } from "@src/interface/submission.interface";
+import type { FullTestCaseData } from "@src/interface/test-case.interface";
 import Problem from "@src/models/problem.model";
 import Submission from "@src/models/submission.model";
-import { createSandboxFile, processCode } from "@src/services/sandbox.service";
+import TestCase from "@src/models/test-case.model";
+import {
+  cleanupSandbox,
+  createSandboxFile,
+  generateCodeProcessor,
+  processCode,
+} from "@src/services/sandbox.service";
 import {
   assignField,
   isAdditionalSubmissionData,
@@ -43,10 +51,31 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid submission type.`, StatusCodes.BAD_REQUEST);
   }
 
+  const problem = (await Problem.findBySlug(
+    submission.problem,
+  )) as FullProblemData[];
+
+  if (!problem.length || !problem[0]) {
+    throw new AppError(
+      `The problem ${submission.problem} does not exist.`,
+      StatusCodes.NOT_FOUND,
+    );
+  }
+
+  const testCases = (await TestCase.findByProblem(
+    problem[0].id,
+  )) as FullTestCaseData[];
+
+  const codeAndTestCase = generateCodeProcessor(
+    submission.code,
+    problem[0],
+    testCases,
+  );
+
   let fileName: string | null = null;
 
   try {
-    fileName = createSandboxFile(submission.language, submission.code);
+    fileName = createSandboxFile(submission.language, codeAndTestCase);
   } catch (error) {
     throw new AppError(
       "An error occurred during code processing.",
@@ -56,17 +85,10 @@ export const create = async (req: Request, res: Response) => {
 
   const processedCode = await processCode(submission.language, fileName);
 
+  const cleanup = await cleanupSandbox(fileName);
+
   switch (type) {
     case "run":
-      const problem = await Problem.findBySlug(submission.problem);
-
-      if (!problem.length || !problem[0]) {
-        throw new AppError(
-          `The problem ${submission.problem} does not exist.`,
-          StatusCodes.NOT_FOUND,
-        );
-      }
-
       const createSubmission = {
         user_id: user.id,
         problem_id: problem[0].id,

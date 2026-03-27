@@ -1,6 +1,6 @@
 export interface BaseTestCaseData {
   problem_id: number;
-  input: string;
+  input: Record<string, unknown> | string;
   expected_output: string;
   time_limit_ms: number;
   memory_limit_mb: number;
