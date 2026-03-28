@@ -210,18 +210,29 @@ class SandboxService implements SandboxServiceData {
       }
 
       const expectedOutput = matchingTestCase.expected_output;
+      const comparisonMethod = this.problem.output_format.comparison;
 
       let isMatched: boolean = true;
 
       if (typeof result === "object") {
+        // for array
         if (Array.isArray(result)) {
           for (let i = 0; i < result.length; i++) {
-            if (result[i] !== expectedOutput[i]) {
-              isMatched = false;
-              break;
+            if (comparisonMethod.ordered) {
+              if (result[i] !== expectedOutput[i]) {
+                isMatched = false;
+                break;
+              }
+            } else {
+              if (!expectedOutput.includes(result[i])) {
+                isMatched = false;
+                break;
+              }
             }
           }
-        } else {
+        }
+        // for object
+        else {
           for (const [key, value] of Object.entries(result)) {
             if (expectedOutput[key as keyof typeof expectedOutput] !== value) {
               isMatched = false;
@@ -229,7 +240,9 @@ class SandboxService implements SandboxServiceData {
             }
           }
         }
-      } else {
+      }
+      // for primitive
+      else {
         isMatched = JSON.stringify(result) === JSON.stringify(expectedOutput);
       }
 

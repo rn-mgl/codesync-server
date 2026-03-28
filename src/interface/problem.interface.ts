@@ -8,6 +8,7 @@ export interface InputFormat {
 export interface OutputFormat {
   version: number;
   type: string;
+  comparison: Record<string, unknown>;
 }
 
 export interface BaseProblemData {
