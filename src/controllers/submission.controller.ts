@@ -9,12 +9,7 @@ import type { FullTestCaseData } from "@src/interface/test-case.interface";
 import Problem from "@src/models/problem.model";
 import Submission from "@src/models/submission.model";
 import TestCase from "@src/models/test-case.model";
-import {
-  cleanupSandbox,
-  createSandboxFile,
-  generateCodeProcessor,
-  processCode,
-} from "@src/services/sandbox.service";
+import { SandboxService } from "@src/services/sandbox.service";
 import {
   assignField,
   isAdditionalSubmissionData,
@@ -66,26 +61,25 @@ export const create = async (req: Request, res: Response) => {
     problem[0].id,
   )) as FullTestCaseData[];
 
-  const codeAndTestCase = generateCodeProcessor(
-    submission.code,
-    problem[0],
-    testCases,
-  );
+  const sandbox = new SandboxService({
+    code: submission.code,
+    language: submission.language,
+    problem: problem[0],
+    testCases: testCases,
+  });
 
-  let fileName: string | null = null;
+  const processedCode = await sandbox.compileAndRunCode();
 
-  try {
-    fileName = createSandboxFile(submission.language, codeAndTestCase);
-  } catch (error) {
-    throw new AppError(
-      "An error occurred during code processing.",
-      StatusCodes.INTERNAL_SERVER_ERROR,
-    );
+  if (processedCode.stderr) {
+    const errorOutput = {
+      success: false,
+      message: `Code did not run successfully. ${processedCode.stderr}`,
+    };
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errorOutput);
   }
 
-  const processedCode = await processCode(submission.language, fileName);
-
-  const cleanup = await cleanupSandbox(fileName);
+  const judgedOutput = sandbox.judgeOutput(processedCode.stdout);
 
   switch (type) {
     case "run":
@@ -137,27 +131,12 @@ export const create = async (req: Request, res: Response) => {
 
       return res
         .status(!!created ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ success: !!created });
+        .json({ success: !!created, data: { judge: judgedOutput } });
     case "test":
-      let data: ServerResponse | null = null;
-
-      if (processedCode.stderr) {
-        data = {
-          success: false,
-          message: `Code did not run successfully. ${processedCode.stderr}`,
-        };
-      } else {
-        data = {
-          success: true,
-          data: processedCode.stdout,
-        };
-      }
-
-      return res
-        .status(
-          data.success ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR,
-        )
-        .json(data);
+      return res.status(StatusCodes.OK).json({
+        success: true,
+        data: { judge: judgedOutput },
+      });
 
     default:
       throw new AppError(`Invalid submission type.`, StatusCodes.BAD_REQUEST);
