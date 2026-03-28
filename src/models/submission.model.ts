@@ -3,8 +3,8 @@ import type {
   AdditionalSubmissionData,
   BaseSubmissionData,
   FullSubmissionData,
-  SUBMISSION_STATUS,
-  SUPPORTED_LANGUAGES,
+  SubmissionStatus,
+  SupportedLanguages,
 } from "@src/interface/submission.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
@@ -13,10 +13,10 @@ class Submission implements FullSubmissionData {
   code: string;
   error_message: string;
   execution_time_ms: number;
-  language: SUPPORTED_LANGUAGES;
+  language: SupportedLanguages;
   memory_used_kb: number;
   problem_id: number;
-  status: SUBMISSION_STATUS;
+  status: SubmissionStatus;
   test_results: string;
   user_id: number;
   deleted_at: string | null;

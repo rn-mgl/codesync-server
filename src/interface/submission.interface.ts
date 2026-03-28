@@ -2,8 +2,8 @@ export interface BaseSubmissionData {
   user_id: number;
   problem_id: number;
   code: string;
-  language: SUPPORTED_LANGUAGES;
-  status: SUBMISSION_STATUS;
+  language: SupportedLanguages;
+  status: SubmissionStatus;
 }
 
 export interface AdditionalSubmissionData {
@@ -18,9 +18,9 @@ export interface SubmissionType {
   type: "test" | "run";
 }
 
-export type SUPPORTED_LANGUAGES = "javascript" | "php";
+export type SupportedLanguages = "javascript" | "php";
 
-export type SUBMISSION_STATUS =
+export type SubmissionStatus =
   | "processing"
   | "accepted"
   | "wrong_answer"
