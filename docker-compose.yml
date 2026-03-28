@@ -23,8 +23,18 @@ services:
       - sandbox
 
   javascript-sandbox:
-    build: ./sandbox
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile.js
     image: javascript-sandbox-image
+    profiles:
+      - sandbox
+
+  php-sandbox:
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile.php
+    image: php-sandbox-image
     profiles:
       - sandbox
 

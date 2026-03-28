@@ -3,4 +3,4 @@
 .env
 
 /sandbox/*
-!/sandbox/Dockerfile
+!/sandbox/Dockerfile.*
