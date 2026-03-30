@@ -26,13 +26,31 @@ class SandboxService implements SandboxServiceData {
       command: "node",
       image: "javascript-sandbox-image",
       extension: "js",
-      testCaseInit: "const testCases",
+      return: "console.log(JSON.stringify(output))",
+      initialize: {
+        testCase: "const testCases",
+        output: "const output = {};",
+      },
+      process: {
+        record: "output[tc.id]",
+      },
     },
     php: {
       command: "php",
-      image: "",
+      image: "php-sandbox-image",
       extension: "php",
-      testCaseInit: "$testCases",
+      return: "echo json_encode($output)",
+      initialize: {
+        testCase: "$testCases",
+        output: "$output = [];",
+      },
+      delimitter: {
+        start: "<?php",
+        end: "?>",
+      },
+      process: {
+        record: `$output[$tc["id"]]`,
+      },
     },
   } as const;
 
@@ -60,37 +78,31 @@ class SandboxService implements SandboxServiceData {
   }
 
   generateCodeProcessor(): void {
+    const sandbox = this.SANDBOXES[this.language];
+    const outputContainer = sandbox.initialize.output;
+    const returnOutput = sandbox.return;
     const initializedTestCases = this.generateTestCaseArray();
 
-    // function name from input format
-    const executeCode = this.problem.input_format.name;
+    const testCaseLoop = this.generateTestCaseLoop();
 
-    // pass all parameters from input format, access value under tc.input in testCaseLoop
-    const parameters = this.problem.input_format.params
-      .map((p) => `tc.input.${p.name}`)
-      .join(", ");
-
-    const testCaseLoop = [
-      "const output = {};",
+    const fullCode = [
+      outputContainer,
       "\n\n",
-      "for (const tc of testCases) {",
-      "\n\t",
-      `output[tc.id] = ${executeCode}(${parameters});`,
-      "\n",
-      "}",
-      "\n\n",
-      "console.log(JSON.stringify(output));",
-    ];
-
-    const command = [
-      `${initializedTestCases}`,
+      initializedTestCases,
       "\n\n",
       this.code,
       "\n\n",
-      testCaseLoop.join(""),
+      testCaseLoop,
+      "\n\n",
+      returnOutput,
     ];
 
-    this.code = command.join("");
+    this.code = fullCode.join("");
+
+    if (sandbox.delimitter) {
+      const delimitted = `${sandbox.delimitter.start}\n\n${this.code}\n\n${sandbox.delimitter.end}`;
+      this.code = delimitted;
+    }
 
     return;
   }
@@ -112,10 +124,10 @@ class SandboxService implements SandboxServiceData {
       stdout: "",
     };
 
-    const runCommand = `docker run --rm -v ${this.SANDBOX_CODE_VOLUME}:/usr/src/app/sandbox ${sandbox.image} ${sandbox.command} sandbox/${file}`;
+    const command = `docker run --rm -v ${this.SANDBOX_CODE_VOLUME}:/usr/src/app/sandbox ${sandbox.image} ${sandbox.command} sandbox/${file}`;
 
     try {
-      processedCode = await this.execAsync(runCommand, {
+      processedCode = await this.execAsync(command, {
         timeout: 5000,
         env: { DOCKER_API_VERSION: env.DOCKER_API_VERSION },
       });
@@ -149,23 +161,64 @@ class SandboxService implements SandboxServiceData {
   private generateTestCaseArray() {
     const sandbox = this.SANDBOXES[this.language];
 
-    const parsedTestCases = this.parseTestCases();
+    let testCases = JSON.stringify(this.testCases);
 
-    const testCasesInit = `${sandbox.testCaseInit} = ${parsedTestCases};`;
+    switch (this.language) {
+      case "javascript":
+        break;
+      case "php":
+        testCases = `json_decode('${testCases}', true)`;
+        break;
+      default:
+        return testCases;
+    }
+
+    const testCasesInit = `${sandbox.initialize.testCase} = ${testCases};`;
 
     return testCasesInit;
   }
 
-  private parseTestCases() {
-    const testCases = JSON.stringify(this.testCases, null, 2);
+  private generateTestCaseLoop() {
+    const sandbox = this.SANDBOXES[this.language];
+    const functionName = this.problem.input_format.name;
+    const parameters = this.problem.input_format.params
+      .map((p) => this.generateParameterVariable(p.name))
+      .join(", ");
+    const recordResult = sandbox.process.record;
+    const executeCode = `${recordResult} = ${functionName}(${parameters});`;
+
+    let forLoop: string[] = [];
 
     switch (this.language) {
       case "javascript":
-        return testCases;
+        forLoop = [
+          "for (const tc of testCases){",
+          "\n\n",
+          executeCode,
+          "\n\n",
+          "}",
+        ];
+
+        return forLoop.join("");
       case "php":
-        return `json_decode(${testCases}, true)`;
-      default:
-        return testCases;
+        forLoop = [
+          "foreach ($testCases as $tc){",
+          "\n\n",
+          executeCode,
+          "\n\n",
+          "}",
+        ];
+
+        return forLoop.join("");
+    }
+  }
+
+  private generateParameterVariable(param: string) {
+    switch (this.language) {
+      case "javascript":
+        return `tc.input.${param}`;
+      case "php":
+        return `$tc["input"]["${param}"]`;
     }
   }
 

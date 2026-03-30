@@ -61,8 +61,20 @@ export const create = async (req: Request, res: Response) => {
     problem[0].id,
   )) as FullTestCaseData[];
 
+  const stripTags = ["<?php", "?>", "<?"];
+
+  let code = submission.code;
+
+  switch (submission.language) {
+    case "php":
+      for (const tag of stripTags) {
+        code = code.replaceAll(tag, "");
+      }
+      break;
+  }
+
   const sandbox = new SandboxService({
-    code: submission.code,
+    code: code,
     language: submission.language,
     problem: problem[0],
     testCases: testCases,
