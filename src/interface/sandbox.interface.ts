@@ -6,18 +6,6 @@ export interface SandboxData {
   command: string;
   image: string;
   extension: string;
-  initialize: {
-    testCase: string;
-    output: string;
-  };
-  return: string;
-  delimitter?: {
-    start: string;
-    end: string;
-  };
-  process: {
-    record: string;
-  };
 }
 
 export interface SandboxServiceData {

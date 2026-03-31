@@ -26,31 +26,11 @@ class SandboxService implements SandboxServiceData {
       command: "node",
       image: "javascript-sandbox-image",
       extension: "js",
-      return: "console.log(JSON.stringify(output))",
-      initialize: {
-        testCase: "const testCases",
-        output: "const output = {};",
-      },
-      process: {
-        record: "output[tc.id]",
-      },
     },
     php: {
       command: "php",
       image: "php-sandbox-image",
       extension: "php",
-      return: "echo json_encode($output)",
-      initialize: {
-        testCase: "$testCases",
-        output: "$output = [];",
-      },
-      delimitter: {
-        start: "<?php",
-        end: "?>",
-      },
-      process: {
-        record: `$output[$tc["id"]]`,
-      },
     },
   } as const;
 
@@ -72,37 +52,7 @@ class SandboxService implements SandboxServiceData {
 
     fs.writeFileSync(path, this.code);
 
-    this.setFile(fileName);
-
-    return;
-  }
-
-  generateCodeProcessor(): void {
-    const sandbox = this.SANDBOXES[this.language];
-    const outputContainer = sandbox.initialize.output;
-    const returnOutput = sandbox.return;
-    const initializedTestCases = this.generateTestCaseArray();
-
-    const testCaseLoop = this.generateTestCaseLoop();
-
-    const fullCode = [
-      outputContainer,
-      "\n\n",
-      initializedTestCases,
-      "\n\n",
-      this.code,
-      "\n\n",
-      testCaseLoop,
-      "\n\n",
-      returnOutput,
-    ];
-
-    this.code = fullCode.join("");
-
-    if (sandbox.delimitter) {
-      const delimitted = `${sandbox.delimitter.start}\n\n${this.code}\n\n${sandbox.delimitter.end}`;
-      this.code = delimitted;
-    }
+    this.file = fileName;
 
     return;
   }
@@ -111,9 +61,7 @@ class SandboxService implements SandboxServiceData {
     stderr: string;
     stdout: string;
   }> {
-    const file = this.getFile();
-
-    if (!file) {
+    if (!this.file) {
       throw new Error("No file created in the current instance.");
     }
 
@@ -124,7 +72,7 @@ class SandboxService implements SandboxServiceData {
       stdout: "",
     };
 
-    const command = `docker run --rm -v ${this.SANDBOX_CODE_VOLUME}:/usr/src/app/sandbox ${sandbox.image} ${sandbox.command} sandbox/${file}`;
+    const command = `docker run --rm -v ${this.SANDBOX_CODE_VOLUME}:/usr/src/app/sandbox ${sandbox.image} ${sandbox.command} sandbox/${this.file}`;
 
     try {
       processedCode = await this.execAsync(command, {
@@ -139,13 +87,11 @@ class SandboxService implements SandboxServiceData {
   }
 
   private async cleanupSandbox() {
-    const file = this.getFile();
-
-    if (!file) {
+    if (!this.file) {
       throw new Error("No file created in the current instance.");
     }
 
-    const command = `docker run --rm -v ${this.SANDBOX_CODE_VOLUME}:/data/code ${this.SANDBOX_CLEANER_IMAGE} rm code/${file}`;
+    const command = `docker run --rm -v ${this.SANDBOX_CODE_VOLUME}:/data/code ${this.SANDBOX_CLEANER_IMAGE} rm code/${this.file}`;
 
     try {
       const { stderr, stdout } = await this.execAsync(command, {
@@ -158,80 +104,15 @@ class SandboxService implements SandboxServiceData {
     }
   }
 
-  private generateTestCaseArray() {
-    const sandbox = this.SANDBOXES[this.language];
-
-    let testCases = JSON.stringify(this.testCases);
-
-    switch (this.language) {
-      case "javascript":
-        break;
-      case "php":
-        testCases = `json_decode('${testCases}', true)`;
-        break;
-      default:
-        return testCases;
-    }
-
-    const testCasesInit = `${sandbox.initialize.testCase} = ${testCases};`;
-
-    return testCasesInit;
-  }
-
-  private generateTestCaseLoop() {
-    const sandbox = this.SANDBOXES[this.language];
-    const functionName = this.problem.input_format.name;
-    const parameters = this.problem.input_format.params
-      .map((p) => this.generateParameterVariable(p.name))
-      .join(", ");
-    const recordResult = sandbox.process.record;
-    const executeCode = `${recordResult} = ${functionName}(${parameters});`;
-
-    let forLoop: string[] = [];
-
-    switch (this.language) {
-      case "javascript":
-        forLoop = [
-          "for (const tc of testCases){",
-          "\n\n",
-          executeCode,
-          "\n\n",
-          "}",
-        ];
-
-        return forLoop.join("");
-      case "php":
-        forLoop = [
-          "foreach ($testCases as $tc){",
-          "\n\n",
-          executeCode,
-          "\n\n",
-          "}",
-        ];
-
-        return forLoop.join("");
-    }
-  }
-
-  private generateParameterVariable(param: string) {
-    switch (this.language) {
-      case "javascript":
-        return `tc.input.${param}`;
-      case "php":
-        return `$tc["input"]["${param}"]`;
-    }
-  }
-
-  private setFile(file: string): void {
-    this.file = file;
-  }
-
-  private getFile(): string | null {
-    return this.file;
-  }
-
   async compileAndRunCode() {
-    this.generateCodeProcessor();
+    switch (this.language) {
+      case "javascript":
+        this.javascriptTemplate();
+        break;
+      case "php":
+        this.phpTemplate();
+        break;
+    }
 
     this.createSandboxFile();
 
@@ -303,6 +184,50 @@ class SandboxService implements SandboxServiceData {
     }
 
     return Object.fromEntries(judgedOutput);
+  }
+
+  private javascriptTemplate() {
+    const functionName = this.problem.input_format.name;
+    const parameters = this.problem.input_format.params
+      .map((param) => `tc.input.${param.name}`)
+      .join(", ");
+
+    const codeLines = [
+      "const output = {};",
+      `const testCases = ${JSON.stringify(this.testCases)};`,
+      this.code,
+      "for (const tc of testCases) {",
+      `\toutput[tc.id] = ${functionName}(${parameters});`,
+      "}",
+      "console.log(JSON.stringify(output));",
+    ];
+
+    this.code = codeLines.join("\n\n");
+
+    return;
+  }
+
+  private phpTemplate() {
+    const functionName = this.problem.input_format.name;
+    const parameters = this.problem.input_format.params
+      .map((param) => `$tc["input"]["${param.name}"]`)
+      .join(", ");
+
+    const codeLines = [
+      "<?php",
+      "$output = [];",
+      `$testCases = json_decode('${JSON.stringify(this.testCases)}', true);`,
+      this.code,
+      "foreach ($testCases as $tc) {",
+      `\t$output[$tc["id"]] = ${functionName}(${parameters});`,
+      "}",
+      "echo json_encode($output);",
+      "?>",
+    ];
+
+    this.code = codeLines.join("\n\n");
+
+    return;
   }
 }
 
