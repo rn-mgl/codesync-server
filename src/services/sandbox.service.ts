@@ -104,42 +104,73 @@ class SandboxService implements SandboxServiceData {
     }
   }
 
-  private judgeOutput(output: string): Record<number, boolean> {
-    const judgedOutput: Map<number, boolean> = new Map();
+  private judgeOutput(
+    testCaseOutput: string,
+  ): Record<string, { result: boolean; memory: number }> {
+    const judgedOutput: Map<string, { result: boolean; memory: number }> =
+      new Map();
 
-    let parsedOutput: object;
+    let parsedTestCaseOutput: Record<
+      string,
+      {
+        memory: {
+          before: number;
+          after: number;
+        };
+        result: unknown;
+      }
+    >;
 
     try {
-      parsedOutput = JSON.parse(output);
+      parsedTestCaseOutput = JSON.parse(testCaseOutput);
     } catch (error) {
       throw new Error("Output could not be validated.");
     }
 
-    for (const [id, result] of Object.entries(parsedOutput)) {
+    for (const [testCaseId, testCaseResult] of Object.entries(
+      parsedTestCaseOutput,
+    )) {
+      const memoryResult = testCaseResult.memory;
+      const functionOutput = testCaseResult.result;
+
+      const memoryUsedBeforeMB = memoryResult.before / 1024 / 1024;
+      const memoryUsedAterMB = memoryResult.after / 1024 / 1024;
+      const totalMemoryUsed = memoryUsedAterMB - memoryUsedBeforeMB;
+
+      let isMatched: boolean = true;
+
       const matchingTestCase = this.testCases.find(
-        (tc) => tc.id === Number(id),
+        (tc) => tc.id === Number(testCaseId),
       );
 
       if (!matchingTestCase) {
-        throw new Error(`Test Case ${id} does not exist. Stopped code judge.`);
+        throw new Error(
+          `Test Case ${testCaseId} does not exist. Stopped code judge.`,
+        );
+      }
+
+      if (totalMemoryUsed > matchingTestCase.memory_limit_mb) {
+        judgedOutput.set(testCaseId, {
+          result: false,
+          memory: totalMemoryUsed,
+        });
+        continue;
       }
 
       const expectedOutput = matchingTestCase.expected_output;
       const comparisonMethod = this.problem.output_format.comparison;
 
-      let isMatched: boolean = true;
-
-      if (typeof result === "object") {
+      if (typeof functionOutput === "object" && functionOutput !== null) {
         // for array
-        if (Array.isArray(result)) {
-          for (let i = 0; i < result.length; i++) {
+        if (Array.isArray(functionOutput)) {
+          for (let i = 0; i < functionOutput.length; i++) {
             if (comparisonMethod.ordered) {
-              if (result[i] !== expectedOutput[i]) {
+              if (functionOutput[i] !== expectedOutput[i]) {
                 isMatched = false;
                 break;
               }
             } else {
-              if (!expectedOutput.includes(result[i])) {
+              if (!expectedOutput.includes(functionOutput[i])) {
                 isMatched = false;
                 break;
               }
@@ -148,7 +179,7 @@ class SandboxService implements SandboxServiceData {
         }
         // for object
         else {
-          for (const [key, value] of Object.entries(result)) {
+          for (const [key, value] of Object.entries(functionOutput)) {
             if (expectedOutput[key as keyof typeof expectedOutput] !== value) {
               isMatched = false;
               break;
@@ -158,10 +189,14 @@ class SandboxService implements SandboxServiceData {
       }
       // for primitive
       else {
-        isMatched = JSON.stringify(result) === JSON.stringify(expectedOutput);
+        isMatched =
+          JSON.stringify(functionOutput) === JSON.stringify(expectedOutput);
       }
 
-      judgedOutput.set(Number(id), isMatched);
+      judgedOutput.set(testCaseId, {
+        result: isMatched,
+        memory: totalMemoryUsed,
+      });
     }
 
     return Object.fromEntries(judgedOutput);
@@ -178,7 +213,10 @@ class SandboxService implements SandboxServiceData {
       `const testCases = ${JSON.stringify(this.testCases)};`,
       this.code,
       `for (const tc of testCases) {`,
-      `\toutput[tc.id] = ${functionName}(${parameters});`,
+      `\toutput[tc.id] = {memory : {before : 0, after : 0}, result : {}};`,
+      `\toutput[tc.id].memory.before = process.memoryUsage().heapUsed;`,
+      `\toutput[tc.id].result = ${functionName}(${parameters});`,
+      `\toutput[tc.id].memory.after = process.memoryUsage().heapUsed;`,
       `}`,
       `console.log(JSON.stringify(output));`,
     ];
@@ -200,7 +238,10 @@ class SandboxService implements SandboxServiceData {
       `$testCases = json_decode('${JSON.stringify(this.testCases)}', true);`,
       this.code,
       `foreach ($testCases as $tc) {`,
-      `\t$output[$tc["id"]] = ${functionName}(${parameters});`,
+      `\t$output[$tc["id"]] = ["memory" => ["before" => 0, "after" => 0], "result" => []];`,
+      `\t$output[$tc["id"]]["memory"]["before"] = memory_get_usage();`,
+      `\t$output[$tc["id"]]["result"] = ${functionName}(${parameters});`,
+      `\t$output[$tc["id"]]["memory"]["after"] = memory_get_usage();`,
       `}`,
       `echo json_encode($output);`,
       `?>`,
