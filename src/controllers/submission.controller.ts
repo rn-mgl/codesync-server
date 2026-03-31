@@ -61,12 +61,12 @@ export const create = async (req: Request, res: Response) => {
     problem[0].id,
   )) as FullTestCaseData[];
 
-  const stripTags = ["<?php", "?>", "<?"];
-
   let code = submission.code;
 
   switch (submission.language) {
     case "php":
+      const stripTags = ["<?php", "?>", "<?"];
+
       for (const tag of stripTags) {
         code = code.replaceAll(tag, "");
       }
@@ -81,17 +81,6 @@ export const create = async (req: Request, res: Response) => {
   });
 
   const processedCode = await sandbox.compileAndRunCode();
-
-  if (processedCode.stderr) {
-    const errorOutput = {
-      success: false,
-      message: `Code did not run successfully. ${processedCode.stderr}`,
-    };
-
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errorOutput);
-  }
-
-  const judgedOutput = sandbox.judgeOutput(processedCode.stdout);
 
   switch (type) {
     case "run":
@@ -143,11 +132,11 @@ export const create = async (req: Request, res: Response) => {
 
       return res
         .status(!!created ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ success: !!created, data: { judge: judgedOutput } });
+        .json({ success: !!created, data: { judge: processedCode } });
     case "test":
       return res.status(StatusCodes.OK).json({
         success: true,
-        data: { judge: judgedOutput },
+        data: { judge: processedCode },
       });
 
     default:

@@ -41,7 +41,7 @@ class SandboxService implements SandboxServiceData {
     this.testCases = data.testCases;
   }
 
-  createSandboxFile(): void {
+  private createSandboxFile(): void {
     const uuid = randomUUID();
 
     const sandbox = this.SANDBOXES[this.language];
@@ -104,26 +104,7 @@ class SandboxService implements SandboxServiceData {
     }
   }
 
-  async compileAndRunCode() {
-    switch (this.language) {
-      case "javascript":
-        this.javascriptTemplate();
-        break;
-      case "php":
-        this.phpTemplate();
-        break;
-    }
-
-    this.createSandboxFile();
-
-    const processedCode = await this.executeSandboxCode();
-
-    await this.cleanupSandbox();
-
-    return processedCode;
-  }
-
-  judgeOutput(output: string): Record<number, boolean> {
+  private judgeOutput(output: string): Record<number, boolean> {
     const judgedOutput: Map<number, boolean> = new Map();
 
     let parsedOutput: object;
@@ -228,6 +209,37 @@ class SandboxService implements SandboxServiceData {
     this.code = codeLines.join("\n\n");
 
     return;
+  }
+
+  async compileAndRunCode() {
+    // generate code template
+    switch (this.language) {
+      case "javascript":
+        this.javascriptTemplate();
+        break;
+      case "php":
+        this.phpTemplate();
+        break;
+    }
+
+    // create file for generated code template
+    this.createSandboxFile();
+
+    // execute the said file
+    const processedCode = await this.executeSandboxCode();
+
+    // throw errors if necessary
+    if (processedCode.stderr) {
+      throw new Error(`Code did not run successfully. ${processedCode.stderr}`);
+    }
+
+    // cleanup sandbox
+    await this.cleanupSandbox();
+
+    // validate result
+    const judged = this.judgeOutput(processedCode.stdout);
+
+    return judged;
   }
 }
 
