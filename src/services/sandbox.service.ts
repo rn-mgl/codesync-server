@@ -193,13 +193,13 @@ class SandboxService implements SandboxServiceData {
       .join(", ");
 
     const codeLines = [
-      "const output = {};",
+      `const output = {};`,
       `const testCases = ${JSON.stringify(this.testCases)};`,
       this.code,
-      "for (const tc of testCases) {",
+      `for (const tc of testCases) {`,
       `\toutput[tc.id] = ${functionName}(${parameters});`,
-      "}",
-      "console.log(JSON.stringify(output));",
+      `}`,
+      `console.log(JSON.stringify(output));`,
     ];
 
     this.code = codeLines.join("\n\n");
@@ -214,15 +214,15 @@ class SandboxService implements SandboxServiceData {
       .join(", ");
 
     const codeLines = [
-      "<?php",
-      "$output = [];",
+      `<?php`,
+      `$output = [];`,
       `$testCases = json_decode('${JSON.stringify(this.testCases)}', true);`,
       this.code,
-      "foreach ($testCases as $tc) {",
+      `foreach ($testCases as $tc) {`,
       `\t$output[$tc["id"]] = ${functionName}(${parameters});`,
-      "}",
-      "echo json_encode($output);",
-      "?>",
+      `}`,
+      `echo json_encode($output);`,
+      `?>`,
     ];
 
     this.code = codeLines.join("\n\n");
