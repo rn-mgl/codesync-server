@@ -72,7 +72,7 @@ class SandboxService implements SandboxServiceData {
       stdout: "",
     };
 
-    const command = `docker run --rm -v ${this.SANDBOX_CODE_VOLUME}:/usr/src/app/sandbox ${sandbox.image} ${sandbox.command} sandbox/${this.file}`;
+    const command = `docker run --rm --network none -v ${this.SANDBOX_CODE_VOLUME}:/usr/src/app/sandbox ${sandbox.image} ${sandbox.command} sandbox/${this.file}`;
 
     try {
       processedCode = await this.execAsync(command, {
@@ -91,7 +91,7 @@ class SandboxService implements SandboxServiceData {
       throw new Error("No file created in the current instance.");
     }
 
-    const command = `docker run --rm -v ${this.SANDBOX_CODE_VOLUME}:/data/code ${this.SANDBOX_CLEANER_IMAGE} rm code/${this.file}`;
+    const command = `docker run --rm --network none -v ${this.SANDBOX_CODE_VOLUME}:/data/code ${this.SANDBOX_CLEANER_IMAGE} rm code/${this.file}`;
 
     try {
       const { stderr, stdout } = await this.execAsync(command, {
