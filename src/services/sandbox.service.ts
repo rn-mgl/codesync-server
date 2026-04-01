@@ -83,7 +83,7 @@ class SandboxService implements SandboxServiceData {
         env: { DOCKER_API_VERSION: env.DOCKER_API_VERSION },
       });
     } catch (error: any) {
-      processedCode.stderr = error.stderr ?? "Execution error";
+      processedCode.stderr = error.stdout ?? error.stderr ?? "Execution error";
     }
 
     return processedCode;
@@ -210,20 +210,24 @@ class SandboxService implements SandboxServiceData {
       .join(", ");
 
     const codeLines = [
-      `const output = {};`,
-      `const testCases = ${JSON.stringify(this.testCases)};`,
+      `try {`,
+      `\tconst output = {};`,
+      `\tconst testCases = ${JSON.stringify(this.testCases)};`,
       this.code,
       `for (const tc of testCases) {`,
-      `\toutput[tc.id] = {memory : {before : 0, after : 0}, cpu : {before : 0, after : 0}, result : {}};`,
-      `\toutput[tc.id].memory.before = process.memoryUsage().heapUsed;`,
-      `\tconst cpuBefore = process.cpuUsage();`,
-      `\toutput[tc.id].cpu.before = cpuBefore.system + cpuBefore.user;`,
-      `\toutput[tc.id].result = ${functionName}(${parameters});`,
-      `\tconst cpuAfter = process.cpuUsage();`,
-      `\toutput[tc.id].cpu.after = cpuAfter.system + cpuAfter.user;`,
-      `\toutput[tc.id].memory.after = process.memoryUsage().heapUsed;`,
+      `\t\toutput[tc.id] = {memory : {before : 0, after : 0}, cpu : {before : 0, after : 0}, result : {}};`,
+      `\t\toutput[tc.id].memory.before = process.memoryUsage().heapUsed;`,
+      `\t\tconst cpuBefore = process.cpuUsage();`,
+      `\t\toutput[tc.id].cpu.before = cpuBefore.system + cpuBefore.user;`,
+      `\t\toutput[tc.id].result = ${functionName}(${parameters});`,
+      `\t\tconst cpuAfter = process.cpuUsage();`,
+      `\t\toutput[tc.id].cpu.after = cpuAfter.system + cpuAfter.user;`,
+      `\t\toutput[tc.id].memory.after = process.memoryUsage().heapUsed;`,
       `}`,
-      `console.log(JSON.stringify(output));`,
+      `\tconsole.log(JSON.stringify({success : true, output}));`,
+      `} catch (e) {`,
+      `\tconsole.log(JSON.stringify({success : false, message : e?.message ?? "Something went wrong."}));`,
+      `}`,
     ];
 
     this.code = codeLines.join("\n\n");
@@ -239,20 +243,24 @@ class SandboxService implements SandboxServiceData {
 
     const codeLines = [
       `<?php`,
-      `$output = [];`,
-      `$testCases = json_decode('${JSON.stringify(this.testCases)}', true);`,
+      `try {`,
+      `\t$output = [];`,
+      `\t$testCases = json_decode('${JSON.stringify(this.testCases)}', true);`,
       this.code,
       `foreach ($testCases as $tc) {`,
-      `\t$output[$tc["id"]] = ["memory" => ["before" => 0, "after" => 0], "cpu" => ["before" => 0, "after" => 0], "result" => []];`,
-      `\t$output[$tc["id"]]["memory"]["before"] = memory_get_usage();`,
-      `\t$cpuBefore = getrusage();`,
-      `\t$output[$tc["id"]]["cpu"]["before"] = $cpuBefore["ru_utime.tv_usec"] + $cpuBefore["ru_stime.tv_usec"];`,
-      `\t$output[$tc["id"]]["result"] = ${functionName}(${parameters});`,
-      `\t$cpuAfter = getrusage();`,
-      `\t$output[$tc["id"]]["cpu"]["after"] = $cpuAfter["ru_utime.tv_usec"] + $cpuAfter["ru_stime.tv_usec"];`,
-      `\t$output[$tc["id"]]["memory"]["after"] = memory_get_usage();`,
+      `\t\t$output[$tc["id"]] = ["memory" => ["before" => 0, "after" => 0], "cpu" => ["before" => 0, "after" => 0], "result" => []];`,
+      `\t\t$output[$tc["id"]]["memory"]["before"] = memory_get_usage();`,
+      `\t\t$cpuBefore = getrusage();`,
+      `\t\t$output[$tc["id"]]["cpu"]["before"] = $cpuBefore["ru_utime.tv_usec"] + $cpuBefore["ru_stime.tv_usec"];`,
+      `\t\t$output[$tc["id"]]["result"] = ${functionName}(${parameters});`,
+      `\t\t$cpuAfter = getrusage();`,
+      `\t\t$output[$tc["id"]]["cpu"]["after"] = $cpuAfter["ru_utime.tv_usec"] + $cpuAfter["ru_stime.tv_usec"];`,
+      `\t\t$output[$tc["id"]]["memory"]["after"] = memory_get_usage();`,
       `}`,
-      `echo json_encode($output);`,
+      `\techo json_encode(["success" => true, "output" => $output]);`,
+      `} catch (\\Throwable $e) {`,
+      `\techo json_encode(["success" => false, "message" => $e->getMessage() ?? "Something went wrong."]);`,
+      `}`,
       `?>`,
     ];
 
@@ -280,7 +288,7 @@ class SandboxService implements SandboxServiceData {
 
     // throw errors if necessary
     if (processedCode.stderr) {
-      throw new Error(`Code did not run successfully. ${processedCode.stderr}`);
+      throw new Error(processedCode.stderr);
     }
 
     // cleanup sandbox
