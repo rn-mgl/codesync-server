@@ -1,6 +1,7 @@
 import { env } from "@src/configs/env.config";
 import type { FullProblemData } from "@src/interface/problem.interface";
 import type {
+  CodeExecuteOutput,
   JudgeOutput,
   SandboxData,
   SandboxServiceData,
@@ -113,16 +114,22 @@ class SandboxService implements SandboxServiceData {
       { result: boolean; memory: number; run_time: number }
     > = new Map();
 
-    let parsedTestCaseOutput: TestCaseOutput;
+    let executedCode: CodeExecuteOutput;
 
     try {
-      parsedTestCaseOutput = JSON.parse(testCaseOutput);
+      executedCode = JSON.parse(testCaseOutput);
     } catch (error) {
       throw new Error("Output could not be validated.");
     }
 
+    if (!executedCode.success) {
+      throw new Error(executedCode.message);
+    }
+
+    const executedCodeOutput = executedCode.output;
+
     for (const [testCaseId, testCaseResult] of Object.entries(
-      parsedTestCaseOutput,
+      executedCodeOutput,
     )) {
       const memoryResult = testCaseResult.memory;
       const cpuResult = testCaseResult.cpu;
