@@ -1,11 +1,14 @@
 import { env } from "@src/configs/env.config";
 import type { FullProblemData } from "@src/interface/problem.interface";
 import type {
+  JudgeOutput,
   SandboxData,
   SandboxServiceData,
+  TestCaseOutput,
 } from "@src/interface/sandbox.interface";
 import type { SupportedLanguages } from "@src/interface/submission.interface";
 import type { FullTestCaseData } from "@src/interface/test-case.interface";
+import { memoryToMB, runtimeToMS } from "@src/utils/normalizer.util";
 import fs from "fs";
 import { exec } from "node:child_process";
 import { randomUUID } from "node:crypto";
@@ -104,22 +107,13 @@ class SandboxService implements SandboxServiceData {
     }
   }
 
-  private judgeOutput(
-    testCaseOutput: string,
-  ): Record<string, { result: boolean; memory: number }> {
-    const judgedOutput: Map<string, { result: boolean; memory: number }> =
-      new Map();
-
-    let parsedTestCaseOutput: Record<
+  private judgeOutput(testCaseOutput: string): JudgeOutput {
+    const judgedOutput: Map<
       string,
-      {
-        memory: {
-          before: number;
-          after: number;
-        };
-        result: unknown;
-      }
-    >;
+      { result: boolean; memory: number; run_time: number }
+    > = new Map();
+
+    let parsedTestCaseOutput: TestCaseOutput;
 
     try {
       parsedTestCaseOutput = JSON.parse(testCaseOutput);
@@ -131,11 +125,16 @@ class SandboxService implements SandboxServiceData {
       parsedTestCaseOutput,
     )) {
       const memoryResult = testCaseResult.memory;
+      const cpuResult = testCaseResult.cpu;
       const functionOutput = testCaseResult.result;
 
-      const memoryUsedBeforeMB = memoryResult.before / 1024 / 1024;
-      const memoryUsedAterMB = memoryResult.after / 1024 / 1024;
-      const totalMemoryUsed = memoryUsedAterMB - memoryUsedBeforeMB;
+      const memoryUsedBefore = memoryToMB(memoryResult.before);
+      const memoryUsedAfter = memoryToMB(memoryResult.after);
+      const totalMemoryUsed = memoryUsedAfter - memoryUsedBefore;
+
+      const cpuUsageBefore = runtimeToMS(cpuResult.before);
+      const cpuUsageAfter = runtimeToMS(cpuResult.after);
+      const totalCpuUsage = cpuUsageAfter - cpuUsageBefore;
 
       let isMatched: boolean = true;
 
@@ -153,6 +152,7 @@ class SandboxService implements SandboxServiceData {
         judgedOutput.set(testCaseId, {
           result: false,
           memory: totalMemoryUsed,
+          run_time: totalCpuUsage,
         });
         continue;
       }
@@ -196,13 +196,14 @@ class SandboxService implements SandboxServiceData {
       judgedOutput.set(testCaseId, {
         result: isMatched,
         memory: totalMemoryUsed,
+        run_time: totalCpuUsage,
       });
     }
 
     return Object.fromEntries(judgedOutput);
   }
 
-  private javascriptTemplate() {
+  private javascriptTemplate(): void {
     const functionName = this.problem.input_format.name;
     const parameters = this.problem.input_format.params
       .map((param) => `tc.input.${param.name}`)
@@ -213,9 +214,13 @@ class SandboxService implements SandboxServiceData {
       `const testCases = ${JSON.stringify(this.testCases)};`,
       this.code,
       `for (const tc of testCases) {`,
-      `\toutput[tc.id] = {memory : {before : 0, after : 0}, result : {}};`,
+      `\toutput[tc.id] = {memory : {before : 0, after : 0}, cpu : {before : 0, after : 0}, result : {}};`,
       `\toutput[tc.id].memory.before = process.memoryUsage().heapUsed;`,
+      `\tconst cpuBefore = process.cpuUsage();`,
+      `\toutput[tc.id].cpu.before = cpuBefore.system + cpuBefore.user;`,
       `\toutput[tc.id].result = ${functionName}(${parameters});`,
+      `\tconst cpuAfter = process.cpuUsage();`,
+      `\toutput[tc.id].cpu.after = cpuAfter.system + cpuAfter.user;`,
       `\toutput[tc.id].memory.after = process.memoryUsage().heapUsed;`,
       `}`,
       `console.log(JSON.stringify(output));`,
@@ -226,7 +231,7 @@ class SandboxService implements SandboxServiceData {
     return;
   }
 
-  private phpTemplate() {
+  private phpTemplate(): void {
     const functionName = this.problem.input_format.name;
     const parameters = this.problem.input_format.params
       .map((param) => `$tc["input"]["${param.name}"]`)
@@ -238,9 +243,13 @@ class SandboxService implements SandboxServiceData {
       `$testCases = json_decode('${JSON.stringify(this.testCases)}', true);`,
       this.code,
       `foreach ($testCases as $tc) {`,
-      `\t$output[$tc["id"]] = ["memory" => ["before" => 0, "after" => 0], "result" => []];`,
+      `\t$output[$tc["id"]] = ["memory" => ["before" => 0, "after" => 0], "cpu" => ["before" => 0, "after" => 0], "result" => []];`,
       `\t$output[$tc["id"]]["memory"]["before"] = memory_get_usage();`,
+      `\t$cpuBefore = getrusage();`,
+      `\t$output[$tc["id"]]["cpu"]["before"] = $cpuBefore["ru_utime.tv_usec"] + $cpuBefore["ru_stime.tv_usec"];`,
       `\t$output[$tc["id"]]["result"] = ${functionName}(${parameters});`,
+      `\t$cpuAfter = getrusage();`,
+      `\t$output[$tc["id"]]["cpu"]["after"] = $cpuAfter["ru_utime.tv_usec"] + $cpuAfter["ru_stime.tv_usec"];`,
       `\t$output[$tc["id"]]["memory"]["after"] = memory_get_usage();`,
       `}`,
       `echo json_encode($output);`,
@@ -252,7 +261,7 @@ class SandboxService implements SandboxServiceData {
     return;
   }
 
-  async compileAndRunCode() {
+  async compileAndRunCode(): Promise<JudgeOutput> {
     // generate code template
     switch (this.language) {
       case "javascript":

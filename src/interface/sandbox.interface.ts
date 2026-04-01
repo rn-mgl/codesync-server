@@ -14,3 +14,23 @@ export interface SandboxServiceData {
   problem: FullProblemData;
   testCases: FullTestCaseData[];
 }
+
+export type TestCaseOutput = Record<
+  string,
+  {
+    memory: {
+      before: number;
+      after: number;
+    };
+    cpu: {
+      before: number;
+      after: number;
+    };
+    result: unknown;
+  }
+>;
+
+export type JudgeOutput = Record<
+  string,
+  { result: boolean; memory: number; run_time: number }
+>;
