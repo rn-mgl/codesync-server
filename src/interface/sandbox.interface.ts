@@ -32,5 +32,5 @@ export type TestCaseOutput = Record<
 
 export type JudgeOutput = Record<
   string,
-  { result: boolean; memory: number; run_time: number }
+  { matched: boolean; memory: number; run_time: number; result: unknown }
 >;

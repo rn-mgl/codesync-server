@@ -149,10 +149,7 @@ class SandboxService implements SandboxServiceData {
   }
 
   private judgeOutput(executedCodeOutput: TestCaseOutput): JudgeOutput {
-    const judgedOutput: Map<
-      string,
-      { result: boolean; memory: number; run_time: number }
-    > = new Map();
+    const judgedOutput: JudgeOutput = {};
 
     for (const [testCaseId, testCaseResult] of Object.entries(
       executedCodeOutput,
@@ -182,11 +179,12 @@ class SandboxService implements SandboxServiceData {
       }
 
       if (totalMemoryUsed > matchingTestCase.memory_limit_mb) {
-        judgedOutput.set(testCaseId, {
-          result: false,
+        judgedOutput[testCaseId] = {
+          matched: false,
           memory: totalMemoryUsed,
           run_time: totalCpuUsage,
-        });
+          result: null,
+        };
         continue;
       }
 
@@ -226,14 +224,15 @@ class SandboxService implements SandboxServiceData {
           JSON.stringify(functionOutput) === JSON.stringify(expectedOutput);
       }
 
-      judgedOutput.set(testCaseId, {
-        result: isMatched,
+      judgedOutput[testCaseId] = {
+        matched: isMatched,
         memory: totalMemoryUsed,
         run_time: totalCpuUsage,
-      });
+        result: functionOutput ?? null,
+      };
     }
 
-    return Object.fromEntries(judgedOutput);
+    return judgedOutput;
   }
 
   private javascriptTemplate(): void {
