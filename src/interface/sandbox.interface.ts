@@ -29,17 +29,6 @@ export type TestCaseOutput = Record<
     result: unknown;
   }
 >;
-export interface SuccessCodeExecute {
-  success: true;
-  output: TestCaseOutput;
-}
-
-export interface ErrorCodeExecute {
-  success: false;
-  message: string;
-}
-
-export type CodeExecuteOutput = SuccessCodeExecute | ErrorCodeExecute;
 
 export type JudgeOutput = Record<
   string,

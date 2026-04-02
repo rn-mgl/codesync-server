@@ -1,6 +1,6 @@
 import AppError from "@src/errors/app.error";
 import type { FullProblemData } from "@src/interface/problem.interface";
-import type { ServerResponse } from "@src/interface/server.interface";
+import type { JudgeOutput } from "@src/interface/sandbox.interface";
 import type {
   AdditionalSubmissionData,
   BaseSubmissionData,
@@ -80,7 +80,7 @@ export const create = async (req: Request, res: Response) => {
     testCases: testCases,
   });
 
-  const processedCode = await sandbox.compileAndRunCode();
+  const processedCode: JudgeOutput = await sandbox.compileAndRunCode();
 
   switch (type) {
     case "run":

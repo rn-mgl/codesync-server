@@ -1,7 +1,6 @@
 import { env } from "@src/configs/env.config";
 import type { FullProblemData } from "@src/interface/problem.interface";
 import type {
-  CodeExecuteOutput,
   JudgeOutput,
   SandboxData,
   SandboxServiceData,
@@ -231,25 +230,21 @@ class SandboxService implements SandboxServiceData {
       .join(", ");
 
     const codeLines = [
-      `try {`,
-      `\tconst output = {};`,
-      `\tconst testCases = ${JSON.stringify(this.testCases)};`,
+      `const output = {};`,
+      `const testCases = ${JSON.stringify(this.testCases)};`,
       this.code,
       `for (const tc of testCases) {`,
-      `\t\toutput[tc.id] = {memory : {before : 0, after : 0}, cpu : {before : 0, after : 0}, result : {}};`,
-      `\t\toutput[tc.id].memory.before = process.memoryUsage().heapUsed;`,
-      `\t\tconst cpuBefore = process.cpuUsage();`,
-      `\t\toutput[tc.id].cpu.before = cpuBefore.system + cpuBefore.user;`,
-      `\t\toutput[tc.id].result = ${functionName}(${parameters});`,
-      `\t\tconst cpuAfter = process.cpuUsage();`,
-      `\t\toutput[tc.id].cpu.after = cpuAfter.system + cpuAfter.user;`,
-      `\t\toutput[tc.id].memory.after = process.memoryUsage().heapUsed;`,
+      `\toutput[tc.id] = {memory : {before : 0, after : 0}, cpu : {before : 0, after : 0}, result : {}};`,
+      `\toutput[tc.id].memory.before = process.memoryUsage().heapUsed;`,
+      `\tconst cpuBefore = process.cpuUsage();`,
+      `\toutput[tc.id].cpu.before = cpuBefore.system + cpuBefore.user;`,
+      `\toutput[tc.id].result = ${functionName}(${parameters});`,
+      `\tconst cpuAfter = process.cpuUsage();`,
+      `\toutput[tc.id].cpu.after = cpuAfter.system + cpuAfter.user;`,
+      `\toutput[tc.id].memory.after = process.memoryUsage().heapUsed;`,
       `}`,
-      `\tconsole.log(JSON.stringify({success : true, output}));`,
-      `} catch (e) {`,
-      `\tconsole.log(JSON.stringify({success : false, message : e?.message ?? "Something went wrong."}));`,
-      `process.exit()`,
-      `}`,
+      `console.log(JSON.stringify(output));`,
+      `process.exit();`,
     ];
 
     this.code = codeLines.join("\n\n");
@@ -265,24 +260,20 @@ class SandboxService implements SandboxServiceData {
 
     const codeLines = [
       `<?php`,
-      `try {`,
-      `\t$output = [];`,
-      `\t$testCases = json_decode('${JSON.stringify(this.testCases)}', true);`,
+      `$output = [];`,
+      `$testCases = json_decode('${JSON.stringify(this.testCases)}', true);`,
       this.code,
       `foreach ($testCases as $tc) {`,
-      `\t\t$output[$tc["id"]] = ["memory" => ["before" => 0, "after" => 0], "cpu" => ["before" => 0, "after" => 0], "result" => []];`,
-      `\t\t$output[$tc["id"]]["memory"]["before"] = memory_get_usage();`,
-      `\t\t$cpuBefore = getrusage();`,
-      `\t\t$output[$tc["id"]]["cpu"]["before"] = $cpuBefore["ru_utime.tv_usec"] + $cpuBefore["ru_stime.tv_usec"];`,
-      `\t\t$output[$tc["id"]]["result"] = ${functionName}(${parameters});`,
-      `\t\t$cpuAfter = getrusage();`,
-      `\t\t$output[$tc["id"]]["cpu"]["after"] = $cpuAfter["ru_utime.tv_usec"] + $cpuAfter["ru_stime.tv_usec"];`,
-      `\t\t$output[$tc["id"]]["memory"]["after"] = memory_get_usage();`,
+      `\t$output[$tc["id"]] = ["memory" => ["before" => 0, "after" => 0], "cpu" => ["before" => 0, "after" => 0], "result" => []];`,
+      `\t$output[$tc["id"]]["memory"]["before"] = memory_get_usage();`,
+      `\t$cpuBefore = getrusage();`,
+      `\t$output[$tc["id"]]["cpu"]["before"] = $cpuBefore["ru_utime.tv_usec"] + $cpuBefore["ru_stime.tv_usec"];`,
+      `\t$output[$tc["id"]]["result"] = ${functionName}(${parameters});`,
+      `\t$cpuAfter = getrusage();`,
+      `\t$output[$tc["id"]]["cpu"]["after"] = $cpuAfter["ru_utime.tv_usec"] + $cpuAfter["ru_stime.tv_usec"];`,
+      `\t$output[$tc["id"]]["memory"]["after"] = memory_get_usage();`,
       `}`,
-      `\techo json_encode(["success" => true, "output" => $output]);`,
-      `} catch (\\Throwable $e) {`,
-      `\techo json_encode(["success" => false, "message" => $e->getMessage() ?? "Something went wrong."]);`,
-      `}`,
+      `echo json_encode($output);`,
       `exit();`,
       `?>`,
     ];
@@ -318,7 +309,7 @@ class SandboxService implements SandboxServiceData {
     }
 
     // get and parse output
-    let stdoutData: CodeExecuteOutput;
+    let stdoutData: TestCaseOutput;
 
     try {
       stdoutData = JSON.parse(executedCode.stdout);
@@ -326,15 +317,11 @@ class SandboxService implements SandboxServiceData {
       throw new Error("Output could not be validated.");
     }
 
-    if (!stdoutData.success) {
-      throw new Error(stdoutData.message);
-    }
-
     // cleanup sandbox
     await this.cleanupSandbox();
 
     // validate result
-    const judged = this.judgeOutput(stdoutData.output);
+    const judged = this.judgeOutput(stdoutData);
 
     return judged;
   }
