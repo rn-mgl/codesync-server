@@ -3,7 +3,6 @@ export const memoryToMB = (memory: number) => {
 };
 
 export const runtimeToMS = (runtime: number) => {
-  console.log(runtime / 1000);
   return runtime / 1000;
 };
 
@@ -18,6 +17,18 @@ export const mapExitCode = (exitCode: number): string => {
     case 137:
       return "Memory Limit Exception";
     case 255:
+    default:
       return "Error Exception";
+  }
+};
+
+export const mapExitSignal = (signal: string) => {
+  switch (signal) {
+    case "SIGKILL":
+      return "Memory Limit Exception";
+    case "SIGTERM":
+      return "Timeout Limit Exception";
+    default:
+      return "Runtime Error Exception";
   }
 };

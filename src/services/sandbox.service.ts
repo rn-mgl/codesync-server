@@ -8,7 +8,12 @@ import type {
 } from "@src/interface/sandbox.interface";
 import type { SupportedLanguages } from "@src/interface/submission.interface";
 import type { FullTestCaseData } from "@src/interface/test-case.interface";
-import { mapExitCode, memoryToMB, runtimeToMS } from "@src/utils/sandbox.util";
+import {
+  mapExitCode,
+  mapExitSignal,
+  memoryToMB,
+  runtimeToMS,
+} from "@src/utils/sandbox.util";
 import fs from "fs";
 import { exec } from "node:child_process";
 import { randomUUID } from "node:crypto";
@@ -63,6 +68,7 @@ class SandboxService implements SandboxServiceData {
   private async executeSandboxCode(): Promise<{
     stderr: string;
     stdout: string;
+    signal: string;
     exitCode: number;
   }> {
     if (!this.file) {
@@ -71,9 +77,15 @@ class SandboxService implements SandboxServiceData {
 
     const sandbox = this.SANDBOXES[this.language];
 
-    let executedCode: { stderr: string; stdout: string; exitCode: number } = {
+    let executedCode: {
+      stderr: string;
+      stdout: string;
+      signal: string;
+      exitCode: number;
+    } = {
       stderr: "",
       stdout: "",
+      signal: "",
       exitCode: 0,
     };
 
@@ -102,6 +114,7 @@ class SandboxService implements SandboxServiceData {
       executedCode.exitCode = 0;
     } catch (error: any) {
       console.log(error);
+      executedCode.signal = error?.signal ?? "";
       executedCode.stderr = error?.stderr ?? error?.stdout ?? "Execution error";
       executedCode.exitCode = error?.code ?? 1;
     }
@@ -303,7 +316,9 @@ class SandboxService implements SandboxServiceData {
     // throw errors if necessary
     if (executedCode.stderr || executedCode.exitCode > 0) {
       const mappedExitCode = mapExitCode(executedCode.exitCode);
-      const errorMessage = `${mappedExitCode}\n\n${executedCode.stderr}`;
+      const mappedExitSignal = mapExitSignal(executedCode.signal);
+
+      const errorMessage = `${mappedExitCode} | ${mappedExitSignal}\n\n${executedCode.stderr}`;
 
       throw new Error(errorMessage.trim());
     }
