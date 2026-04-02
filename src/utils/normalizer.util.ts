@@ -16,12 +16,3 @@ export const normalizeString = (s: string) => {
 
   return s;
 };
-
-export const memoryToMB = (memory: number) => {
-  return memory / 1024 / 1024;
-};
-
-export const runtimeToMS = (runtime: number) => {
-  console.log(runtime / 1000);
-  return runtime / 1000;
-};

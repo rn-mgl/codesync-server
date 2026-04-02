@@ -9,7 +9,7 @@ import type {
 } from "@src/interface/sandbox.interface";
 import type { SupportedLanguages } from "@src/interface/submission.interface";
 import type { FullTestCaseData } from "@src/interface/test-case.interface";
-import { memoryToMB, runtimeToMS } from "@src/utils/normalizer.util";
+import { mapExitCode, memoryToMB, runtimeToMS } from "@src/utils/sandbox.util";
 import fs from "fs";
 import { exec } from "node:child_process";
 import { randomUUID } from "node:crypto";
@@ -64,6 +64,7 @@ class SandboxService implements SandboxServiceData {
   private async executeSandboxCode(): Promise<{
     stderr: string;
     stdout: string;
+    exitCode: number;
   }> {
     if (!this.file) {
       throw new Error("No file created in the current instance.");
@@ -71,23 +72,42 @@ class SandboxService implements SandboxServiceData {
 
     const sandbox = this.SANDBOXES[this.language];
 
-    let processedCode: { stderr: string; stdout: string } = {
+    let executedCode: { stderr: string; stdout: string; exitCode: number } = {
       stderr: "",
       stdout: "",
+      exitCode: 0,
     };
 
-    const command = `timeout 2s docker run --rm --network none --memory 128m --cpus 1 -v ${this.SANDBOX_CODE_VOLUME}:/usr/src/app/sandbox ${sandbox.image} ${sandbox.command} sandbox/${this.file}`;
+    const commandLines = [
+      `timeout 2s`,
+      `docker run --rm`,
+      `--network none`,
+      `--memory 128m`,
+      `--cpus 1`,
+      `-v ${this.SANDBOX_CODE_VOLUME}:/usr/src/app/sandbox`,
+      sandbox.image,
+      sandbox.command,
+      `sandbox/${this.file}`,
+    ];
+
+    const command = commandLines.join(" ");
 
     try {
-      processedCode = await this.execAsync(command, {
+      const output = await this.execAsync(command, {
         timeout: 5000,
         env: { DOCKER_API_VERSION: env.DOCKER_API_VERSION },
       });
+
+      executedCode.stdout = output.stdout;
+      executedCode.stderr = output.stderr;
+      executedCode.exitCode = 0;
     } catch (error: any) {
-      processedCode.stderr = error.stdout ?? error.stderr ?? "Execution error";
+      console.log(error);
+      executedCode.stderr = error?.stderr ?? error?.stdout ?? "Execution error";
+      executedCode.exitCode = error?.code ?? 1;
     }
 
-    return processedCode;
+    return executedCode;
   }
 
   private async cleanupSandbox() {
@@ -95,7 +115,15 @@ class SandboxService implements SandboxServiceData {
       throw new Error("No file created in the current instance.");
     }
 
-    const command = `docker run --rm --network none -v ${this.SANDBOX_CODE_VOLUME}:/data/code ${this.SANDBOX_CLEANER_IMAGE} rm code/${this.file}`;
+    const commandLines = [
+      `docker run --rm`,
+      `--network none`,
+      `-v ${this.SANDBOX_CODE_VOLUME}:/data/code`,
+      this.SANDBOX_CLEANER_IMAGE,
+      `rm code/${this.file}`,
+    ];
+
+    const command = commandLines.join(" ");
 
     try {
       const { stderr, stdout } = await this.execAsync(command, {
@@ -108,25 +136,11 @@ class SandboxService implements SandboxServiceData {
     }
   }
 
-  private judgeOutput(testCaseOutput: string): JudgeOutput {
+  private judgeOutput(executedCodeOutput: TestCaseOutput): JudgeOutput {
     const judgedOutput: Map<
       string,
       { result: boolean; memory: number; run_time: number }
     > = new Map();
-
-    let executedCode: CodeExecuteOutput;
-
-    try {
-      executedCode = JSON.parse(testCaseOutput);
-    } catch (error) {
-      throw new Error("Output could not be validated.");
-    }
-
-    if (!executedCode.success) {
-      throw new Error(executedCode.message);
-    }
-
-    const executedCodeOutput = executedCode.output;
 
     for (const [testCaseId, testCaseResult] of Object.entries(
       executedCodeOutput,
@@ -293,18 +307,34 @@ class SandboxService implements SandboxServiceData {
     this.createSandboxFile();
 
     // execute the said file
-    const processedCode = await this.executeSandboxCode();
+    const executedCode = await this.executeSandboxCode();
 
     // throw errors if necessary
-    if (processedCode.stderr) {
-      throw new Error(processedCode.stderr);
+    if (executedCode.stderr || executedCode.exitCode > 0) {
+      const mappedExitCode = mapExitCode(executedCode.exitCode);
+      const errorMessage = `${mappedExitCode}\n\n${executedCode.stderr}`;
+
+      throw new Error(errorMessage.trim());
+    }
+
+    // get and parse output
+    let stdoutData: CodeExecuteOutput;
+
+    try {
+      stdoutData = JSON.parse(executedCode.stdout);
+    } catch (error) {
+      throw new Error("Output could not be validated.");
+    }
+
+    if (!stdoutData.success) {
+      throw new Error(stdoutData.message);
     }
 
     // cleanup sandbox
     await this.cleanupSandbox();
 
     // validate result
-    const judged = this.judgeOutput(processedCode.stdout);
+    const judged = this.judgeOutput(stdoutData.output);
 
     return judged;
   }
