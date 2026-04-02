@@ -22,5 +22,6 @@ export const memoryToMB = (memory: number) => {
 };
 
 export const runtimeToMS = (runtime: number) => {
+  console.log(runtime / 1000);
   return runtime / 1000;
 };
