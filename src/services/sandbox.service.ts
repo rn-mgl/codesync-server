@@ -234,6 +234,7 @@ class SandboxService implements SandboxServiceData {
       `\tconsole.log(JSON.stringify({success : true, output}));`,
       `} catch (e) {`,
       `\tconsole.log(JSON.stringify({success : false, message : e?.message ?? "Something went wrong."}));`,
+      `process.exit()`,
       `}`,
     ];
 
@@ -268,6 +269,7 @@ class SandboxService implements SandboxServiceData {
       `} catch (\\Throwable $e) {`,
       `\techo json_encode(["success" => false, "message" => $e->getMessage() ?? "Something went wrong."]);`,
       `}`,
+      `exit();`,
       `?>`,
     ];
 
