@@ -57,8 +57,12 @@ export const create = async (req: Request, res: Response) => {
     );
   }
 
+  const testCaseOptions =
+    submission.type === "test" ? { is_sample: true } : { is_hidden: true };
+
   const testCases = (await TestCase.findByProblem(
     problem[0].id,
+    testCaseOptions,
   )) as FullTestCaseData[];
 
   let code = submission.code;

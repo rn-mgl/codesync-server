@@ -112,9 +112,9 @@ export const find = async (req: Request, res: Response) => {
       throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
 
-  const testCases = (await TestCase.findByProblem(
-    problem[0].id,
-  )) as FullTestCaseData[];
+  const testCases = (await TestCase.findByProblem(problem[0].id, {
+    is_sample: true,
+  })) as FullTestCaseData[];
 
   return res.status(StatusCodes.OK).json({
     success: !!problem,

@@ -54,16 +54,37 @@ class TestCase implements FullTestCaseData {
     }
   }
 
-  static async all() {
+  static async all(
+    type?: Partial<Pick<BaseTestCaseData, "is_hidden" | "is_sample">>,
+  ) {
     try {
       const db = createConnection();
+
+      const conditions = [`tc.deleted_at IS NULL`, `p.deleted_at IS NULL`];
+
+      const values = [];
+
+      if (type) {
+        const VALID_TYPES: (keyof typeof type)[] = ["is_hidden", "is_sample"];
+
+        for (const option of VALID_TYPES) {
+          const value = type[option as keyof typeof type];
+
+          if (typeof value === "boolean") {
+            conditions.push(`tc.${option} = ?`);
+            values.push(value);
+          }
+        }
+      }
+
+      const mappedConditions = conditions.join(" AND ");
 
       const query = `SELECT tc.*, 
                       p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
                       INNER JOIN problems AS p ON tc.problem_id = p.id
-                     WHERE tc.deleted_at IS NULL AND p.deleted_at IS NULL;`;
+                     WHERE ${mappedConditions};`;
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query);
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 
       return result;
     } catch (error) {
@@ -92,16 +113,40 @@ class TestCase implements FullTestCaseData {
     }
   }
 
-  static async findByProblem(problemId: number) {
+  static async findByProblem(
+    problemId: number,
+    type?: Partial<Pick<BaseTestCaseData, "is_sample" | "is_hidden">>,
+  ) {
     try {
       const db = createConnection();
+
+      const conditions = [
+        "tc.deleted_at IS NULL",
+        "p.deleted_at IS NULL",
+        "p.id = ?",
+      ];
+
+      const values: (string | number | boolean)[] = [problemId];
+
+      if (type) {
+        const VALID_TYPES: (keyof typeof type)[] = ["is_sample", "is_hidden"];
+
+        for (const option of VALID_TYPES) {
+          const value = type[option as keyof typeof type];
+
+          if (typeof value === "boolean") {
+            conditions.push(`tc.${option} = ?`);
+            values.push(value);
+          }
+        }
+      }
+
+      const mappedConditions = conditions.join(" AND ");
 
       const query = `SELECT tc.*, 
                       p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
                       INNER JOIN problems AS p ON tc.problem_id = p.id
-                     WHERE tc.deleted_at IS NULL AND p.deleted_at IS NULL AND p.id = ?;`;
-
-      const values = [problemId];
+                     WHERE ${mappedConditions};`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 
