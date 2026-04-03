@@ -179,13 +179,11 @@ class SandboxService implements SandboxServiceData {
       }
 
       if (totalMemoryUsed > matchingTestCase.memory_limit_mb) {
-        judgedOutput[testCaseId] = {
-          matched: false,
-          memory: totalMemoryUsed,
-          run_time: totalCpuUsage,
-          result: null,
-        };
-        continue;
+        throw new Error(`Memory Limit Exception | Test Case ${testCaseId}}`);
+      }
+
+      if (totalCpuUsage > matchingTestCase.time_limit_ms) {
+        throw new Error(`Time Limit Exception | Test Case ${testCaseId}`);
       }
 
       const expectedOutput = matchingTestCase.expected_output;
