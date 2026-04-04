@@ -134,9 +134,60 @@ export const create = async (req: Request, res: Response) => {
         );
       }
 
+      const totalTestCases = testCases.length;
+
+      const firstFailedTestCase = Object.entries(processedCode).find(
+        ([id, output]) => !output.matched,
+      )?.[0];
+
+      const failedTestCase = firstFailedTestCase
+        ? testCases.find((tc) => tc.id === Number(firstFailedTestCase))
+        : null;
+
+      const firstFailedOutput = firstFailedTestCase
+        ? processedCode[firstFailedTestCase]?.result
+        : null;
+
+      const passedTestCases = Object.values(processedCode).reduce(
+        (count, output) => {
+          return output.matched ? count + 1 : count;
+        },
+        0,
+      );
+
+      const sumMemoryUsed = Object.values(processedCode).reduce(
+        (count, output) => {
+          return output.memory + count;
+        },
+        0,
+      );
+
+      const sumRunTime = Object.values(processedCode).reduce(
+        (count, output) => {
+          return output.run_time + count;
+        },
+        0,
+      );
+
+      const averageMemoryUsed = sumMemoryUsed / totalTestCases;
+
+      const averageRunTime = sumRunTime / totalTestCases;
+
       return res
         .status(!!created ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ success: !!created, data: { judge: processedCode } });
+        .json({
+          success: !!created,
+          data: {
+            judge: processedCode,
+            summary: {
+              total: totalTestCases,
+              passed: passedTestCases,
+              memory: Number(averageMemoryUsed.toFixed(3)),
+              runtime: Number(averageRunTime.toFixed(3)),
+              failed: { testCase: failedTestCase, output: firstFailedOutput },
+            },
+          },
+        });
     case "test":
       return res.status(StatusCodes.OK).json({
         success: true,
