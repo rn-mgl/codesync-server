@@ -1,9 +1,9 @@
-export const memoryToMB = (memory: number) => {
-  return memory / 1024 / 1024;
+export const memoryToMb = (memory: number) => {
+  return Number((memory / 1024 / 1024).toFixed(3));
 };
 
-export const runtimeToMS = (runtime: number) => {
-  return runtime / 1000;
+export const runtimeToMs = (runtime: number) => {
+  return Number((runtime / 1000).toFixed(3));
 };
 
 export const mapExitCode = (exitCode: number): string => {

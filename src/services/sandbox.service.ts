@@ -11,8 +11,8 @@ import type { FullTestCaseData } from "@src/interface/test-case.interface";
 import {
   mapExitCode,
   mapExitSignal,
-  memoryToMB,
-  runtimeToMS,
+  memoryToMb,
+  runtimeToMs,
 } from "@src/utils/sandbox.util";
 import fs from "fs";
 import { exec } from "node:child_process";
@@ -158,12 +158,12 @@ class SandboxService implements SandboxServiceData {
       const cpuResult = testCaseResult.cpu;
       const functionOutput = testCaseResult.result;
 
-      const memoryUsedBefore = memoryToMB(memoryResult.before);
-      const memoryUsedAfter = memoryToMB(memoryResult.after);
+      const memoryUsedBefore = memoryToMb(memoryResult.before);
+      const memoryUsedAfter = memoryToMb(memoryResult.after);
       const totalMemoryUsed = memoryUsedAfter - memoryUsedBefore;
 
-      const cpuUsageBefore = runtimeToMS(cpuResult.before);
-      const cpuUsageAfter = runtimeToMS(cpuResult.after);
+      const cpuUsageBefore = runtimeToMs(cpuResult.before);
+      const cpuUsageAfter = runtimeToMs(cpuResult.after);
       const totalCpuUsage = cpuUsageAfter - cpuUsageBefore;
 
       let isMatched: boolean = true;
@@ -315,7 +315,7 @@ class SandboxService implements SandboxServiceData {
       const mappedExitCode = mapExitCode(executedCode.exitCode);
       const mappedExitSignal = mapExitSignal(executedCode.signal);
 
-      const errorMessage = `${mappedExitCode} | ${mappedExitSignal}\n\n${executedCode.stderr}`;
+      const errorMessage = `${mappedExitCode || mappedExitSignal}\n\n${executedCode.stderr}`;
 
       throw new Error(errorMessage.trim());
     }

@@ -421,7 +421,7 @@ export function isAdditionalSubmissionData(
   const REQUIRED_FIELDS: readonly (keyof AdditionalSubmissionData)[] = [
     "error_message",
     "execution_time_ms",
-    "memory_used_kb",
+    "memory_used_mb",
     "test_results",
   ] as const;
 

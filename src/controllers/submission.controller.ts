@@ -88,52 +88,6 @@ export const create = async (req: Request, res: Response) => {
 
   switch (type) {
     case "run":
-      const createSubmission = {
-        user_id: user.id,
-        problem_id: problem[0].id,
-        code: submission.code,
-        language: submission.language,
-        status: "processing",
-      };
-
-      if (!isBaseSubmissionData(createSubmission)) {
-        throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
-      }
-
-      let createData: BaseSubmissionData & Partial<AdditionalSubmissionData> = {
-        code: createSubmission.code,
-        language: createSubmission.language,
-        problem_id: createSubmission.problem_id,
-        status: createSubmission.status,
-        user_id: createSubmission.user_id,
-      };
-
-      if (isAdditionalSubmissionData(createSubmission, "partial")) {
-        const FIELDS: (keyof AdditionalSubmissionData)[] = [
-          "error_message",
-          "execution_time_ms",
-          "memory_used_kb",
-          "test_results",
-        ];
-
-        for (const field of FIELDS) {
-          const value =
-            createSubmission[field as keyof AdditionalSubmissionData];
-          if (value !== undefined) {
-            assignField(field, value, createData);
-          }
-        }
-      }
-
-      const created = await Submission.create(createData);
-
-      if (!created) {
-        throw new AppError(
-          `An error occurred during submission.`,
-          StatusCodes.BAD_REQUEST,
-        );
-      }
-
       const totalTestCases = testCases.length;
 
       const firstFailedTestCase = Object.entries(processedCode).find(
@@ -172,6 +126,56 @@ export const create = async (req: Request, res: Response) => {
       const averageMemoryUsed = sumMemoryUsed / totalTestCases;
 
       const averageRunTime = sumRunTime / totalTestCases;
+
+      const createSubmission = {
+        user_id: user.id,
+        problem_id: problem[0].id,
+        code: submission.code,
+        language: submission.language,
+        status: "processing",
+        memory_used_mb: averageMemoryUsed,
+        execution_time_ms: averageRunTime,
+        test_results: JSON.stringify(processedCode),
+        error_message: null,
+      };
+
+      if (!isBaseSubmissionData(createSubmission)) {
+        throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
+      }
+
+      let createData: BaseSubmissionData & Partial<AdditionalSubmissionData> = {
+        code: createSubmission.code,
+        language: createSubmission.language,
+        problem_id: createSubmission.problem_id,
+        status: createSubmission.status,
+        user_id: createSubmission.user_id,
+      };
+
+      if (isAdditionalSubmissionData(createSubmission, "partial")) {
+        const FIELDS: (keyof AdditionalSubmissionData)[] = [
+          "error_message",
+          "execution_time_ms",
+          "memory_used_mb",
+          "test_results",
+        ];
+
+        for (const field of FIELDS) {
+          const value =
+            createSubmission[field as keyof AdditionalSubmissionData];
+          if (value !== undefined) {
+            assignField(field, value, createData);
+          }
+        }
+      }
+
+      const created = await Submission.create(createData);
+
+      if (!created) {
+        throw new AppError(
+          `An error occurred during submission.`,
+          StatusCodes.BAD_REQUEST,
+        );
+      }
 
       return res
         .status(!!created ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)

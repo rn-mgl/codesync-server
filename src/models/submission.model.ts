@@ -14,7 +14,7 @@ class Submission implements FullSubmissionData {
   error_message: string;
   execution_time_ms: number;
   language: SupportedLanguages;
-  memory_used_kb: number;
+  memory_used_mb: number;
   problem_id: number;
   status: SubmissionStatus;
   test_results: string;
@@ -27,7 +27,7 @@ class Submission implements FullSubmissionData {
     this.error_message = data.error_message;
     this.execution_time_ms = data.execution_time_ms;
     this.language = data.language;
-    this.memory_used_kb = data.memory_used_kb;
+    this.memory_used_mb = data.memory_used_mb;
     this.problem_id = data.problem_id;
     this.status = data.status;
     this.test_results = data.test_results;
