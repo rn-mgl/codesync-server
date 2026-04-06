@@ -9,8 +9,8 @@ export interface BaseSubmissionData {
 export interface AdditionalSubmissionData {
   execution_time_ms: number;
   memory_used_mb: number;
-  test_results: string;
-  error_message: string;
+  test_results: string | null;
+  error_message: string | null;
   deleted_at: string | null;
 }
 

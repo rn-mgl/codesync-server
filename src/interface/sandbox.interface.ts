@@ -1,5 +1,8 @@
 import type { FullProblemData } from "./problem.interface";
-import type { SupportedLanguages } from "./submission.interface";
+import type {
+  SubmissionStatus,
+  SupportedLanguages,
+} from "./submission.interface";
 import type { FullTestCaseData } from "./test-case.interface";
 
 export interface SandboxData {
@@ -30,7 +33,26 @@ export type TestCaseOutput = Record<
   }
 >;
 
-export type JudgeOutput = Record<
+export type JudgeSuccessOutput = Record<
   string,
   { matched: boolean; memory: number; run_time: number; result: unknown }
 >;
+
+export type JudgeErrorOutput = Record<
+  string,
+  { matched: boolean; memory: number; run_time: number; result: unknown }
+>;
+
+export type JudgeOutput =
+  | {
+      success: true;
+      output: JudgeSuccessOutput;
+    }
+  | {
+      success: false;
+      error: Exclude<
+        SubmissionStatus,
+        "processing" | "accepted" | "wrong_answer"
+      >;
+      message: string;
+    };

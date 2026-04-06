@@ -1,6 +1,9 @@
 import AppError from "@src/errors/app.error";
 import type { FullProblemData } from "@src/interface/problem.interface";
-import type { JudgeOutput } from "@src/interface/sandbox.interface";
+import type {
+  JudgeOutput,
+  JudgeSuccessOutput,
+} from "@src/interface/sandbox.interface";
 import type {
   AdditionalSubmissionData,
   BaseSubmissionData,
@@ -90,54 +93,69 @@ export const create = async (req: Request, res: Response) => {
     case "run":
       const totalTestCases = testCases.length;
 
-      const firstFailedTestCase = Object.entries(processedCode).find(
-        ([id, output]) => !output.matched,
-      )?.[0];
-
-      const failedTestCase = firstFailedTestCase
-        ? testCases.find((tc) => tc.id === Number(firstFailedTestCase))
-        : null;
-
-      const firstFailedOutput = firstFailedTestCase
-        ? processedCode[firstFailedTestCase]?.result
-        : null;
-
-      const passedTestCases = Object.values(processedCode).reduce(
-        (count, output) => {
-          return output.matched ? count + 1 : count;
-        },
-        0,
-      );
-
-      const sumMemoryUsed = Object.values(processedCode).reduce(
-        (count, output) => {
-          return output.memory + count;
-        },
-        0,
-      );
-
-      const sumRunTime = Object.values(processedCode).reduce(
-        (count, output) => {
-          return output.run_time + count;
-        },
-        0,
-      );
-
-      const averageMemoryUsed = sumMemoryUsed / totalTestCases;
-
-      const averageRunTime = sumRunTime / totalTestCases;
-
-      const createSubmission = {
+      const createSubmission: BaseSubmissionData &
+        Partial<AdditionalSubmissionData> = {
         user_id: user.id,
         problem_id: problem[0].id,
         code: submission.code,
         language: submission.language,
         status: "processing",
-        memory_used_mb: averageMemoryUsed,
-        execution_time_ms: averageRunTime,
-        test_results: JSON.stringify(processedCode),
+        memory_used_mb: 0,
+        execution_time_ms: 0,
+        test_results: null,
         error_message: null,
       };
+
+      let failedTestCase: FullTestCaseData | null = null;
+      let firstFailedOutput: unknown | null = null;
+      let passedTestCases: number = 0;
+      let averageMemoryUsed: number = 0;
+      let averageRunTime: number = 0;
+      let codeOutput: JudgeSuccessOutput | null = null;
+
+      if (processedCode.success) {
+        codeOutput = processedCode.output;
+
+        const firstFailedTestCase = Object.entries(codeOutput).find(
+          ([id, output]) => !output.matched,
+        )?.[0];
+
+        failedTestCase = firstFailedTestCase
+          ? (testCases.find((tc) => tc.id === Number(firstFailedTestCase)) ??
+            null)
+          : null;
+
+        firstFailedOutput = firstFailedTestCase
+          ? codeOutput[firstFailedTestCase]?.result
+          : null;
+
+        passedTestCases = Object.values(codeOutput).reduce((count, output) => {
+          return output.matched ? count + 1 : count;
+        }, 0);
+
+        const sumMemoryUsed = Object.values(codeOutput).reduce(
+          (count, output) => {
+            return output.memory + count;
+          },
+          0,
+        );
+
+        const sumRunTime = Object.values(codeOutput).reduce((count, output) => {
+          return output.run_time + count;
+        }, 0);
+
+        averageMemoryUsed = sumMemoryUsed / totalTestCases;
+
+        averageRunTime = sumRunTime / totalTestCases;
+
+        createSubmission.status = failedTestCase ? "wrong_answer" : "accepted";
+        createSubmission.memory_used_mb = averageMemoryUsed;
+        createSubmission.execution_time_ms = averageRunTime;
+        createSubmission.test_results = JSON.stringify(codeOutput);
+      } else {
+        createSubmission.status = processedCode.error;
+        createSubmission.error_message = processedCode.message;
+      }
 
       if (!isBaseSubmissionData(createSubmission)) {
         throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
@@ -177,12 +195,16 @@ export const create = async (req: Request, res: Response) => {
         );
       }
 
+      if (!processedCode.success) {
+        throw new AppError(processedCode.message, StatusCodes.BAD_REQUEST);
+      }
+
       return res
         .status(!!created ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
         .json({
           success: !!created,
           data: {
-            judge: processedCode,
+            judge: codeOutput,
             summary: {
               total: totalTestCases,
               passed: passedTestCases,
@@ -193,9 +215,16 @@ export const create = async (req: Request, res: Response) => {
           },
         });
     case "test":
+      if (!processedCode.success) {
+        throw new AppError(
+          processedCode.message,
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        );
+      }
+
       return res.status(StatusCodes.OK).json({
         success: true,
-        data: { judge: processedCode },
+        data: { judge: processedCode.output },
       });
 
     default:

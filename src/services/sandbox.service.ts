@@ -149,7 +149,7 @@ class SandboxService implements SandboxServiceData {
   }
 
   private judgeOutput(executedCodeOutput: TestCaseOutput): JudgeOutput {
-    const judgedOutput: JudgeOutput = {};
+    const judgedOutput: JudgeOutput = { success: true, output: {} };
 
     for (const [testCaseId, testCaseResult] of Object.entries(
       executedCodeOutput,
@@ -173,17 +173,33 @@ class SandboxService implements SandboxServiceData {
       );
 
       if (!matchingTestCase) {
-        throw new Error(
-          `Test Case ${testCaseId} does not exist. Stopped code judge.`,
-        );
+        const judgeError: JudgeOutput = {
+          success: false,
+          error: "compilation_error",
+          message: `Test Case ${testCaseId} does not exist. Stopped code judge.`,
+        };
+
+        return judgeError;
       }
 
       if (totalMemoryUsed > matchingTestCase.memory_limit_mb) {
-        throw new Error(`Memory Limit Exception | Test Case ${testCaseId}}`);
+        const judgeError: JudgeOutput = {
+          success: false,
+          error: "memory_limit_exceeded",
+          message: `Memory Limit Exception | Test Case ${testCaseId}}`,
+        };
+
+        return judgeError;
       }
 
       if (totalCpuUsage > matchingTestCase.time_limit_ms) {
-        throw new Error(`Time Limit Exception | Test Case ${testCaseId}`);
+        const judgeError: JudgeOutput = {
+          success: false,
+          error: "time_limit_exceeded",
+          message: `Time Limit Exception | Test Case ${testCaseId}`,
+        };
+
+        return judgeError;
       }
 
       const expectedOutput = matchingTestCase.expected_output;
@@ -222,7 +238,7 @@ class SandboxService implements SandboxServiceData {
           JSON.stringify(functionOutput) === JSON.stringify(expectedOutput);
       }
 
-      judgedOutput[testCaseId] = {
+      judgedOutput.output[testCaseId] = {
         matched: isMatched,
         memory: totalMemoryUsed,
         run_time: totalCpuUsage,
@@ -317,7 +333,13 @@ class SandboxService implements SandboxServiceData {
 
       const errorMessage = `${mappedExitCode || mappedExitSignal}\n\n${executedCode.stderr}`;
 
-      throw new Error(errorMessage.trim());
+      const judgeError: JudgeOutput = {
+        success: false,
+        error: "runtime_error",
+        message: errorMessage,
+      };
+
+      return judgeError;
     }
 
     // get and parse output
