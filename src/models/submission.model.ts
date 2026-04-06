@@ -11,13 +11,13 @@ import type { ResultSetHeader, RowDataPacket } from "mysql2";
 class Submission implements FullSubmissionData {
   id: number;
   code: string;
-  error_message: string;
+  error_message: string | null;
   execution_time_ms: number;
   language: SupportedLanguages;
   memory_used_mb: number;
   problem_id: number;
   status: SubmissionStatus;
-  test_results: string;
+  test_results: string | null;
   user_id: number;
   deleted_at: string | null;
 
@@ -58,13 +58,30 @@ class Submission implements FullSubmissionData {
     }
   }
 
-  static async all() {
+  static async all(options?: Pick<FullSubmissionData, "status">) {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM submissions WHERE deleted_at IS NULL;`;
+      const conditions = [`deleted_at IS NULL`];
+      const values: string[] = [];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query);
+      if (options) {
+        const VALID_OPTIONS: (keyof typeof options)[] = ["status"];
+
+        for (const option of VALID_OPTIONS) {
+          const value = options[option as keyof typeof options];
+          if (value !== undefined) {
+            conditions.push(`${option} = ?`);
+            values.push(value);
+          }
+        }
+      }
+
+      const mappedConditions = conditions.join(" AND ");
+
+      const query = `SELECT id, execution_time_ms, memory_used_mb FROM submissions WHERE ${mappedConditions};`;
+
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 
       return result;
     } catch (error) {

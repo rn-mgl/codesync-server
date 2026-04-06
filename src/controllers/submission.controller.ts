@@ -7,6 +7,7 @@ import type {
 import type {
   AdditionalSubmissionData,
   BaseSubmissionData,
+  FullSubmissionData,
 } from "@src/interface/submission.interface";
 import type { FullTestCaseData } from "@src/interface/test-case.interface";
 import Problem from "@src/models/problem.model";
@@ -112,6 +113,9 @@ export const create = async (req: Request, res: Response) => {
       let averageMemoryUsed: number = 0;
       let averageRunTime: number = 0;
       let codeOutput: JudgeSuccessOutput | null = null;
+      let statistics:
+        | Pick<FullSubmissionData, "memory_used_mb" | "execution_time_ms">[]
+        | null = null;
 
       if (processedCode.success) {
         codeOutput = processedCode.output;
@@ -148,6 +152,10 @@ export const create = async (req: Request, res: Response) => {
 
         averageRunTime = sumRunTime / totalTestCases;
 
+        statistics = (await Submission.all({
+          status: "accepted",
+        })) as FullSubmissionData[];
+
         createSubmission.status = failedTestCase ? "wrong_answer" : "accepted";
         createSubmission.memory_used_mb = averageMemoryUsed;
         createSubmission.execution_time_ms = averageRunTime;
@@ -161,13 +169,14 @@ export const create = async (req: Request, res: Response) => {
         throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
       }
 
-      let createData: BaseSubmissionData & Partial<AdditionalSubmissionData> = {
-        code: createSubmission.code,
-        language: createSubmission.language,
-        problem_id: createSubmission.problem_id,
-        status: createSubmission.status,
-        user_id: createSubmission.user_id,
-      };
+      const createData: BaseSubmissionData & Partial<AdditionalSubmissionData> =
+        {
+          code: createSubmission.code,
+          language: createSubmission.language,
+          problem_id: createSubmission.problem_id,
+          status: createSubmission.status,
+          user_id: createSubmission.user_id,
+        };
 
       if (isAdditionalSubmissionData(createSubmission, "partial")) {
         const FIELDS: (keyof AdditionalSubmissionData)[] = [
@@ -211,6 +220,8 @@ export const create = async (req: Request, res: Response) => {
               memory: Number(averageMemoryUsed.toFixed(3)),
               runtime: Number(averageRunTime.toFixed(3)),
               failed: { testCase: failedTestCase, output: firstFailedOutput },
+              code: createData.code,
+              statistics,
             },
           },
         });
