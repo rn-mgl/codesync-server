@@ -149,9 +149,9 @@ export const create = async (req: Request, res: Response) => {
           return output.run_time + count;
         }, 0);
 
-        averageMemoryUsed = sumMemoryUsed / totalTestCases;
+        averageMemoryUsed = Number((sumMemoryUsed / totalTestCases).toFixed(2));
 
-        averageRunTime = sumRunTime / totalTestCases;
+        averageRunTime = Number((sumRunTime / totalTestCases).toFixed(2));
 
         createSubmission.status = failedTestCase ? "wrong_answer" : "accepted";
         createSubmission.memory_used_mb = averageMemoryUsed;
@@ -214,8 +214,8 @@ export const create = async (req: Request, res: Response) => {
         const runtimeMap = new Map<number, number>();
 
         for (const accepted of acceptedSubmissions) {
-          const roundedMemory = Math.round(accepted.memory_used_mb);
-          const roundedRuntime = Math.round(accepted.execution_time_ms);
+          const roundedMemory = accepted.memory_used_mb;
+          const roundedRuntime = accepted.execution_time_ms;
 
           memoryMap.set(roundedMemory, (memoryMap.get(roundedMemory) ?? 0) + 1);
 
@@ -255,8 +255,8 @@ export const create = async (req: Request, res: Response) => {
             summary: {
               total: totalTestCases,
               passed: passedTestCases,
-              memory: Number(averageMemoryUsed.toFixed(3)),
-              runtime: Number(averageRunTime.toFixed(3)),
+              memory: averageMemoryUsed,
+              runtime: averageRunTime,
               failed: { testCase: failedTestCase, output: firstFailedOutput },
               code: createData.code,
               statistics,
