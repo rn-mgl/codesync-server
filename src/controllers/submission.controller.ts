@@ -259,6 +259,7 @@ export const create = async (req: Request, res: Response) => {
               runtime: averageRunTime,
               failed: { testCase: failedTestCase, output: firstFailedOutput },
               code: createData.code,
+              language: createData.language,
               statistics,
             },
           },
