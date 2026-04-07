@@ -23,18 +23,17 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "./src",
     "paths": {
-      "@src/*": ["*"],
-      "@controllers/*": ["controllers/*"],
-      "@database/*": ["database/*"],
-      "@middlewares/*": ["middlewares/*"],
-      "@models/*": ["models/*"],
-      "@routers/*": ["routers/*"],
-      "@services/*": ["services/*"],
-      "@interface/*": ["interface/*"],
-      "@utils/*": ["utils/*"],
-      "@errors/*": ["errors/*"]
+      "@src/*": ["./src/*"],
+      "@controllers/*": ["./src/controllers/*"],
+      "@database/*": ["./src/database/*"],
+      "@middlewares/*": ["./src/middlewares/*"],
+      "@models/*": ["./src/models/*"],
+      "@routers/*": ["./src/routers/*"],
+      "@services/*": ["./src/services/*"],
+      "@interface/*": ["./src/interface/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@errors/*": ["./src/errors/*"]
     }
   },
   "include": ["src/**/*"],

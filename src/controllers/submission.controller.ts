@@ -113,9 +113,10 @@ export const create = async (req: Request, res: Response) => {
       let averageMemoryUsed: number = 0;
       let averageRunTime: number = 0;
       let codeOutput: JudgeSuccessOutput | null = null;
-      let statistics:
-        | Pick<FullSubmissionData, "memory_used_mb" | "execution_time_ms">[]
-        | null = null;
+      let statistics: {
+        memory: { mb: number; percentage: number }[];
+        runtime: { ms: number; percentage: number }[];
+      } | null = null;
 
       if (processedCode.success) {
         codeOutput = processedCode.output;
@@ -151,10 +152,6 @@ export const create = async (req: Request, res: Response) => {
         averageMemoryUsed = sumMemoryUsed / totalTestCases;
 
         averageRunTime = sumRunTime / totalTestCases;
-
-        statistics = (await Submission.all({
-          status: "accepted",
-        })) as FullSubmissionData[];
 
         createSubmission.status = failedTestCase ? "wrong_answer" : "accepted";
         createSubmission.memory_used_mb = averageMemoryUsed;
@@ -206,6 +203,47 @@ export const create = async (req: Request, res: Response) => {
 
       if (!processedCode.success) {
         throw new AppError(processedCode.message, StatusCodes.BAD_REQUEST);
+      }
+
+      if (createSubmission.status === "accepted") {
+        const acceptedSubmissions = (await Submission.all({
+          status: "accepted",
+        })) as FullSubmissionData[];
+
+        const memoryMap = new Map<number, number>();
+        const runtimeMap = new Map<number, number>();
+
+        for (const accepted of acceptedSubmissions) {
+          const roundedMemory = Math.round(accepted.memory_used_mb);
+          const roundedRuntime = Math.round(accepted.execution_time_ms);
+
+          memoryMap.set(roundedMemory, (memoryMap.get(roundedMemory) ?? 0) + 1);
+
+          runtimeMap.set(
+            roundedRuntime,
+            (runtimeMap.get(roundedRuntime) ?? 0) + 1,
+          );
+        }
+
+        statistics = { memory: [], runtime: [] };
+
+        for (const [memory, count] of memoryMap.entries()) {
+          const mbPercentage = (count / acceptedSubmissions.length) * 100;
+
+          statistics.memory.push({
+            mb: memory,
+            percentage: Number(mbPercentage.toFixed(2)),
+          });
+        }
+
+        for (const [runtime, count] of runtimeMap.entries()) {
+          const msPercentage = (count / acceptedSubmissions.length) * 100;
+
+          statistics.runtime.push({
+            ms: runtime,
+            percentage: Number(msPercentage.toFixed(2)),
+          });
+        }
       }
 
       return res
