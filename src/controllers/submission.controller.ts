@@ -15,6 +15,11 @@ import Submission from "@src/models/submission.model";
 import TestCase from "@src/models/test-case.model";
 import { SandboxService } from "@src/services/sandbox.service";
 import {
+  executeSubmission,
+  loadExecutionContext,
+  normalizeSubmittedCode,
+} from "@src/services/submission.service";
+import {
   assignField,
   isAdditionalSubmissionData,
   isBaseSubmissionData,
@@ -50,45 +55,14 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid submission type.`, StatusCodes.BAD_REQUEST);
   }
 
-  const problem = (await Problem.findBySlug(
-    submission.problem,
-  )) as FullProblemData[];
+  const { problem, testCases } = await loadExecutionContext(submission);
 
-  if (!problem.length || !problem[0]) {
-    throw new AppError(
-      `The problem ${submission.problem} does not exist.`,
-      StatusCodes.NOT_FOUND,
-    );
-  }
-
-  const testCaseOptions =
-    submission.type === "test" ? { is_sample: true } : { is_hidden: true };
-
-  const testCases = (await TestCase.findByProblem(
-    problem[0].id,
-    testCaseOptions,
-  )) as FullTestCaseData[];
-
-  let code = submission.code;
-
-  switch (submission.language) {
-    case "php":
-      const stripTags = ["<?php", "?>", "<?"];
-
-      for (const tag of stripTags) {
-        code = code.replaceAll(tag, "");
-      }
-      break;
-  }
-
-  const sandbox = new SandboxService({
-    code: code,
+  const processedCode: JudgeOutput = await executeSubmission({
+    code: submission.code,
     language: submission.language,
-    problem: problem[0],
+    problem: problem,
     testCases: testCases,
   });
-
-  const processedCode: JudgeOutput = await sandbox.compileAndRunCode();
 
   switch (type) {
     case "run":
@@ -97,7 +71,7 @@ export const create = async (req: Request, res: Response) => {
       const createSubmission: BaseSubmissionData &
         Partial<AdditionalSubmissionData> = {
         user_id: user.id,
-        problem_id: problem[0].id,
+        problem_id: problem.id,
         code: submission.code,
         language: submission.language,
         status: "processing",
@@ -252,6 +226,7 @@ export const create = async (req: Request, res: Response) => {
           success: !!created,
           data: {
             judge: codeOutput,
+            statistics: statistics,
             summary: {
               total: totalTestCases,
               passed: passedTestCases,
@@ -260,7 +235,6 @@ export const create = async (req: Request, res: Response) => {
               failed: { testCase: failedTestCase, output: firstFailedOutput },
               code: createData.code,
               language: createData.language,
-              statistics,
             },
           },
         });
