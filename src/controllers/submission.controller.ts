@@ -1,23 +1,17 @@
 import AppError from "@src/errors/app.error";
-import type { FullProblemData } from "@src/interface/problem.interface";
-import type {
-  JudgeOutput,
-  JudgeSuccessOutput,
-} from "@src/interface/sandbox.interface";
+import type { UserMiddleware } from "@src/interface/auth.interface";
+import type { JudgeOutput } from "@src/interface/sandbox.interface";
 import type {
   AdditionalSubmissionData,
   BaseSubmissionData,
-  FullSubmissionData,
+  SubmissionStatistics,
 } from "@src/interface/submission.interface";
-import type { FullTestCaseData } from "@src/interface/test-case.interface";
-import Problem from "@src/models/problem.model";
 import Submission from "@src/models/submission.model";
-import TestCase from "@src/models/test-case.model";
-import { SandboxService } from "@src/services/sandbox.service";
 import {
+  analyzeResult,
+  buildSubmissionStatistics,
   executeSubmission,
   loadExecutionContext,
-  normalizeSubmittedCode,
 } from "@src/services/submission.service";
 import {
   assignField,
@@ -34,7 +28,7 @@ import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
-  const user = req.app.get("user");
+  const user = req.app.get("user") as UserMiddleware;
 
   if (!("submission" in body) || typeof body.submission !== "object") {
     throw new AppError(
@@ -66,7 +60,7 @@ export const create = async (req: Request, res: Response) => {
 
   switch (type) {
     case "run":
-      const totalTestCases = testCases.length;
+      const analysis = analyzeResult(processedCode, testCases);
 
       const createSubmission: BaseSubmissionData &
         Partial<AdditionalSubmissionData> = {
@@ -74,67 +68,14 @@ export const create = async (req: Request, res: Response) => {
         problem_id: problem.id,
         code: submission.code,
         language: submission.language,
-        status: "processing",
-        memory_used_mb: 0,
-        execution_time_ms: 0,
-        test_results: null,
-        error_message: null,
+        status: analysis.status,
+        memory_used_mb: analysis.success ? analysis.memoryUsedMb : 0,
+        execution_time_ms: analysis.success ? analysis.executionTimeMs : 0,
+        test_results: analysis.success
+          ? JSON.stringify(analysis.testResults)
+          : null,
+        error_message: !analysis.success ? analysis.message : null,
       };
-
-      let failedTestCase: FullTestCaseData | null = null;
-      let firstFailedOutput: unknown | null = null;
-      let passedTestCases: number = 0;
-      let averageMemoryUsed: number = 0;
-      let averageRunTime: number = 0;
-      let codeOutput: JudgeSuccessOutput | null = null;
-      let statistics: {
-        memory: { mb: number; percentage: number }[];
-        runtime: { ms: number; percentage: number }[];
-      } | null = null;
-
-      if (processedCode.success) {
-        codeOutput = processedCode.output;
-
-        const firstFailedTestCase = Object.entries(codeOutput).find(
-          ([id, output]) => !output.matched,
-        )?.[0];
-
-        failedTestCase = firstFailedTestCase
-          ? (testCases.find((tc) => tc.id === Number(firstFailedTestCase)) ??
-            null)
-          : null;
-
-        firstFailedOutput = firstFailedTestCase
-          ? codeOutput[firstFailedTestCase]?.result
-          : null;
-
-        passedTestCases = Object.values(codeOutput).reduce((count, output) => {
-          return output.matched ? count + 1 : count;
-        }, 0);
-
-        const sumMemoryUsed = Object.values(codeOutput).reduce(
-          (count, output) => {
-            return output.memory + count;
-          },
-          0,
-        );
-
-        const sumRunTime = Object.values(codeOutput).reduce((count, output) => {
-          return output.run_time + count;
-        }, 0);
-
-        averageMemoryUsed = Number((sumMemoryUsed / totalTestCases).toFixed(2));
-
-        averageRunTime = Number((sumRunTime / totalTestCases).toFixed(2));
-
-        createSubmission.status = failedTestCase ? "wrong_answer" : "accepted";
-        createSubmission.memory_used_mb = averageMemoryUsed;
-        createSubmission.execution_time_ms = averageRunTime;
-        createSubmission.test_results = JSON.stringify(codeOutput);
-      } else {
-        createSubmission.status = processedCode.error;
-        createSubmission.error_message = processedCode.message;
-      }
 
       if (!isBaseSubmissionData(createSubmission)) {
         throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
@@ -175,49 +116,15 @@ export const create = async (req: Request, res: Response) => {
         );
       }
 
-      if (!processedCode.success) {
-        throw new AppError(processedCode.message, StatusCodes.BAD_REQUEST);
+      // to throw errors/exceptions but still be saved in db
+      if (!analysis.success) {
+        throw new AppError(analysis.message, StatusCodes.BAD_REQUEST);
       }
 
-      if (createSubmission.status === "accepted") {
-        const acceptedSubmissions = (await Submission.all({
-          status: "accepted",
-        })) as FullSubmissionData[];
+      let statistics: SubmissionStatistics | null = null;
 
-        const memoryMap = new Map<number, number>();
-        const runtimeMap = new Map<number, number>();
-
-        for (const accepted of acceptedSubmissions) {
-          const roundedMemory = accepted.memory_used_mb;
-          const roundedRuntime = accepted.execution_time_ms;
-
-          memoryMap.set(roundedMemory, (memoryMap.get(roundedMemory) ?? 0) + 1);
-
-          runtimeMap.set(
-            roundedRuntime,
-            (runtimeMap.get(roundedRuntime) ?? 0) + 1,
-          );
-        }
-
-        statistics = { memory: [], runtime: [] };
-
-        for (const [memory, count] of memoryMap.entries()) {
-          const mbPercentage = (count / acceptedSubmissions.length) * 100;
-
-          statistics.memory.push({
-            mb: memory,
-            percentage: Number(mbPercentage.toFixed(2)),
-          });
-        }
-
-        for (const [runtime, count] of runtimeMap.entries()) {
-          const msPercentage = (count / acceptedSubmissions.length) * 100;
-
-          statistics.runtime.push({
-            ms: runtime,
-            percentage: Number(msPercentage.toFixed(2)),
-          });
-        }
+      if (createData.status === "accepted") {
+        statistics = await buildSubmissionStatistics();
       }
 
       return res
@@ -225,14 +132,14 @@ export const create = async (req: Request, res: Response) => {
         .json({
           success: !!created,
           data: {
-            judge: codeOutput,
+            judge: analysis.testResults,
             statistics: statistics,
             summary: {
-              total: totalTestCases,
-              passed: passedTestCases,
-              memory: averageMemoryUsed,
-              runtime: averageRunTime,
-              failed: { testCase: failedTestCase, output: firstFailedOutput },
+              total: analysis.summary.total,
+              passed: analysis.summary.passed,
+              memory: analysis.summary.memory,
+              runtime: analysis.summary.runtime,
+              failed: analysis.summary.failed,
               code: createData.code,
               language: createData.language,
             },

@@ -1,3 +1,6 @@
+import type { JudgeSuccessOutput } from "./sandbox.interface";
+import type { FullTestCaseData } from "./test-case.interface";
+
 export interface BaseSubmissionData {
   user_id: number;
   problem_id: number;
@@ -40,3 +43,31 @@ export interface FullSubmissionData
   extends BaseSubmissionData, AdditionalSubmissionData {
   id: number;
 }
+
+export type SuccessAnalysisResult = {
+  success: true;
+  status: SubmissionStatus;
+  memoryUsedMb: number;
+  executionTimeMs: number;
+  testResults: JudgeSuccessOutput;
+  summary: {
+    total: number;
+    passed: number;
+    memory: number;
+    runtime: number;
+    failed: { testCase: FullTestCaseData | null; output: unknown | null };
+  };
+};
+
+export type ErrorAnalysisResult = {
+  success: false;
+  status: SubmissionStatus;
+  message: string;
+};
+
+export type AnalysisResult = SuccessAnalysisResult | ErrorAnalysisResult;
+
+export type SubmissionStatistics = {
+  memory: { mb: number; percentage: number }[];
+  runtime: { ms: number; percentage: number }[];
+};
