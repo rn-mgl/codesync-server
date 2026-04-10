@@ -4,7 +4,7 @@ import type {
   JudgeOutput,
   SandboxData,
   SandboxServiceData,
-  TestCaseOutput,
+  ExecuteCodeOutput,
 } from "@src/interface/sandbox.interface";
 import type { SupportedLanguages } from "@src/interface/submission.interface";
 import type { FullTestCaseData } from "@src/interface/test-case.interface";
@@ -148,7 +148,7 @@ class SandboxService implements SandboxServiceData {
     }
   }
 
-  private judgeOutput(executedCodeOutput: TestCaseOutput): JudgeOutput {
+  private judgeOutput(executedCodeOutput: ExecuteCodeOutput): JudgeOutput {
     const judgedOutput: JudgeOutput = { success: true, output: {} };
 
     for (const [testCaseId, testCaseResult] of Object.entries(
@@ -243,6 +243,7 @@ class SandboxService implements SandboxServiceData {
         memory: totalMemoryUsed,
         run_time: totalCpuUsage,
         result: functionOutput ?? null,
+        logs: testCaseResult.logs,
       };
     }
 
@@ -258,18 +259,25 @@ class SandboxService implements SandboxServiceData {
     const codeLines = [
       `const output = {};`,
       `const testCases = ${JSON.stringify(this.testCases)};`,
+      `let logs = [];`,
+      `const logger = console.log;`,
+      `console.log = (...args) => { args.forEach((arg) => logs.push(arg)); }`,
       this.code,
       `for (const tc of testCases) {`,
-      `\toutput[tc.id] = {memory : {before : 0, after : 0}, cpu : {before : 0, after : 0}, result : {}};`,
+      `\toutput[tc.id] = {memory : {before : 0, after : 0}, cpu : {before : 0, after : 0}, result : {}, logs : []};`,
       `\toutput[tc.id].memory.before = process.memoryUsage().heapUsed;`,
       `\tconst cpuBefore = process.cpuUsage();`,
       `\toutput[tc.id].cpu.before = cpuBefore.system + cpuBefore.user;`,
       `\toutput[tc.id].result = ${functionName}(${parameters});`,
+      `\tif (logs.length) {`,
+      `\t\toutput[tc.id].logs = logs;`,
+      `\t}`,
       `\tconst cpuAfter = process.cpuUsage();`,
       `\toutput[tc.id].cpu.after = cpuAfter.system + cpuAfter.user;`,
       `\toutput[tc.id].memory.after = process.memoryUsage().heapUsed;`,
+      `\tlogs = [];`,
       `}`,
-      `console.log(JSON.stringify(output));`,
+      `logger(JSON.stringify(output));`,
       `process.exit();`,
     ];
 
@@ -290,11 +298,16 @@ class SandboxService implements SandboxServiceData {
       `$testCases = json_decode('${JSON.stringify(this.testCases)}', true);`,
       this.code,
       `foreach ($testCases as $tc) {`,
-      `\t$output[$tc["id"]] = ["memory" => ["before" => 0, "after" => 0], "cpu" => ["before" => 0, "after" => 0], "result" => []];`,
+      `\t$output[$tc["id"]] = ["memory" => ["before" => 0, "after" => 0], "cpu" => ["before" => 0, "after" => 0], "result" => [], "logs" => []];`,
       `\t$output[$tc["id"]]["memory"]["before"] = memory_get_usage();`,
       `\t$cpuBefore = getrusage();`,
       `\t$output[$tc["id"]]["cpu"]["before"] = $cpuBefore["ru_utime.tv_usec"] + $cpuBefore["ru_stime.tv_usec"];`,
+      `\tob_start();`,
       `\t$output[$tc["id"]]["result"] = ${functionName}(${parameters});`,
+      `\t$buffer = ob_get_clean();`,
+      `\tif ($buffer !== '') {`,
+      `\t\t$output[$tc["id"]]["logs"][] = $buffer;`,
+      `\t}`,
       `\t$cpuAfter = getrusage();`,
       `\t$output[$tc["id"]]["cpu"]["after"] = $cpuAfter["ru_utime.tv_usec"] + $cpuAfter["ru_stime.tv_usec"];`,
       `\t$output[$tc["id"]]["memory"]["after"] = memory_get_usage();`,
@@ -343,7 +356,7 @@ class SandboxService implements SandboxServiceData {
     }
 
     // get and parse output
-    let stdoutData: TestCaseOutput;
+    let stdoutData: ExecuteCodeOutput;
 
     try {
       stdoutData = JSON.parse(executedCode.stdout);

@@ -18,7 +18,7 @@ export interface SandboxServiceData {
   testCases: FullTestCaseData[];
 }
 
-export type TestCaseOutput = Record<
+type TestCaseOutput = Record<
   string,
   {
     memory: {
@@ -30,12 +30,21 @@ export type TestCaseOutput = Record<
       after: number;
     };
     result: unknown;
+    logs: unknown[];
   }
 >;
 
+export type ExecuteCodeOutput = TestCaseOutput;
+
 export type JudgeSuccessOutput = Record<
   string,
-  { matched: boolean; memory: number; run_time: number; result: unknown }
+  {
+    matched: boolean;
+    memory: number;
+    run_time: number;
+    result: unknown;
+    logs: unknown[];
+  }
 >;
 
 export type JudgeErrorOutput = Record<
