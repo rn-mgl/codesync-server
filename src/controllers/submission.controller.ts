@@ -124,7 +124,7 @@ export const create = async (req: Request, res: Response) => {
       let statistics: SubmissionStatistics | null = null;
 
       if (createData.status === "accepted") {
-        statistics = await buildSubmissionStatistics();
+        statistics = await buildSubmissionStatistics(problem.id);
       }
 
       return res

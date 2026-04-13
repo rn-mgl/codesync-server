@@ -58,15 +58,20 @@ class Submission implements FullSubmissionData {
     }
   }
 
-  static async all(options?: Pick<FullSubmissionData, "status">) {
+  static async all(
+    options?: Partial<Pick<FullSubmissionData, "status" | "problem_id">>,
+  ) {
     try {
       const db = createConnection();
 
       const conditions = [`deleted_at IS NULL`];
-      const values: string[] = [];
+      const values: unknown[] = [];
 
       if (options) {
-        const VALID_OPTIONS: (keyof typeof options)[] = ["status"];
+        const VALID_OPTIONS: (keyof typeof options)[] = [
+          "status",
+          "problem_id",
+        ];
 
         for (const option of VALID_OPTIONS) {
           const value = options[option as keyof typeof options];

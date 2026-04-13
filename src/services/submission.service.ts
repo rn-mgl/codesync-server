@@ -134,9 +134,10 @@ export const analyzeResult = (
   };
 };
 
-export const buildSubmissionStatistics = async () => {
+export const buildSubmissionStatistics = async (problemId: number) => {
   const acceptedSubmissions = (await Submission.all({
     status: "accepted",
+    problem_id: problemId,
   })) as FullSubmissionData[];
 
   const memoryMap = new Map<number, number>();
