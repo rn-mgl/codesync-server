@@ -50,6 +50,21 @@ class Achievement implements FullAchievementData {
     }
   }
 
+  static async all() {
+    try {
+      const db = createConnection();
+
+      const query = `SELECT * FROM achievements;`;
+
+      const [result, fields] = await db.execute<RowDataPacket[]>(query);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  }
+
   static async findById(id: number) {
     try {
       const db = createConnection();

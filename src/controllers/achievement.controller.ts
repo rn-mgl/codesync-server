@@ -46,6 +46,14 @@ export const create = async (req: Request, res: Response) => {
   return res.json({ success: !!created });
 };
 
+export const all = async (req: Request, res: Response) => {
+  const achievements = await Achievement.all();
+
+  return res
+    .status(achievements ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
+    .json({ success: !!achievements, data: { achievements } });
+};
+
 export const find = async (req: Request, res: Response) => {
   const params = req.params;
   const query = req.query;
