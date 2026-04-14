@@ -19,19 +19,25 @@ import type { RowDataPacket } from "mysql2";
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!isBaseAchievementData(body)) {
+  if (!("achievement" in body)) {
+    throw new AppError(`Invalid achievement data.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const { achievement } = body;
+
+  if (!isBaseAchievementData(achievement)) {
     throw new AppError(`Invalid achievement data.`, StatusCodes.BAD_REQUEST);
   }
 
   const createData: BaseAchievementData = {
-    badge_color: body.badge_color,
-    category: body.category,
-    description: body.description,
-    icon: body.icon,
-    name: body.name,
-    points: body.points,
-    slug: body.slug,
-    unlock_criteria: body.unlock_criteria,
+    badge_color: achievement.badge_color,
+    category: achievement.category,
+    description: achievement.description,
+    icon: achievement.icon,
+    name: achievement.name,
+    points: achievement.points,
+    slug: achievement.slug,
+    unlock_criteria: achievement.unlock_criteria,
   };
 
   const created = await Achievement.create(createData);
@@ -43,7 +49,10 @@ export const create = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ success: !!created });
+  return res.json({
+    success: !!created,
+    data: { message: `${createData.name} created successfully.` },
+  });
 };
 
 export const all = async (req: Request, res: Response) => {
