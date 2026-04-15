@@ -54,7 +54,7 @@ class Achievement implements FullAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM achievements;`;
+      const query = `SELECT id, name, slug, description, icon, badge_color, category, points FROM achievements;`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query);
 
