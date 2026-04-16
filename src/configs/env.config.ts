@@ -15,6 +15,9 @@ const REQUIRED_ENV = [
   "DB_PORT",
   "DB_PASS",
   "DOCKER_API_VERSION",
+  "CLOUDINARY_NAME",
+  "CLOUDINARY_KEY",
+  "CLOUDINARY_SECRET",
 ] as const;
 
 type EnvKeys = (typeof REQUIRED_ENV)[number];

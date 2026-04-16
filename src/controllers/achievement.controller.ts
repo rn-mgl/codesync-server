@@ -15,15 +15,45 @@ import {
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
+  const file = req.file;
 
-  if (!("achievement" in body)) {
-    throw new AppError(`Invalid achievement data.`, StatusCodes.BAD_REQUEST);
+  if (!file?.path) {
+    throw new AppError(
+      `File could not be found in the server.`,
+      StatusCodes.FAILED_DEPENDENCY,
+    );
   }
 
-  const { achievement } = body;
+  const uploaded = await cloudinary.uploader.upload(file.path, {
+    folder: "codesync-uploads",
+  });
+
+  const unlink = fs.unlink(file.path, (e) => {
+    console.log("Unlink Error: " + e);
+  });
+
+  if (!uploaded) {
+    throw new AppError(
+      `An error occurred during file upload.`,
+      StatusCodes.FAILED_DEPENDENCY,
+    );
+  }
+
+  const achievement = {
+    badge_color: body.badge_color,
+    category: body.category,
+    description: body.description,
+    icon: uploaded.secure_url,
+    name: body.name,
+    points: body.points,
+    slug: body.slug,
+    unlock_criteria: body.unlock_criteria,
+  };
 
   if (!isBaseAchievementData(achievement)) {
     throw new AppError(`Invalid achievement data.`, StatusCodes.BAD_REQUEST);
