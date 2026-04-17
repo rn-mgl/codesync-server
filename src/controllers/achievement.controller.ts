@@ -109,18 +109,42 @@ export const find = async (req: Request, res: Response) => {
 
       achievement = await Achievement.findById(id);
 
-      return res.json({ achievement });
+      if (!achievement.length || !achievement[0]) {
+        throw new AppError(
+          `The achievement you're trying to get does not exist.`,
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
+      return res
+        .status(
+          achievement ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR,
+        )
+        .json({
+          success: !!achievement,
+          data: { achievement: achievement[0] },
+        });
 
     case "slug":
       const slug = params.identifier;
 
       achievement = await Achievement.findBySlug(slug);
 
+      if (!achievement.length || !achievement[0]) {
+        throw new AppError(
+          `The achievement you're trying to get does not exist.`,
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
       return res
         .status(
           achievement ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR,
         )
-        .json({ success: !!achievement, data: { achievement } });
+        .json({
+          success: !!achievement,
+          data: { achievement: achievement[0] },
+        });
     default:
       throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
