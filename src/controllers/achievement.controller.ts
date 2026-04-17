@@ -116,7 +116,11 @@ export const find = async (req: Request, res: Response) => {
 
       achievement = await Achievement.findBySlug(slug);
 
-      return res.json({ achievement });
+      return res
+        .status(
+          achievement ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR,
+        )
+        .json({ success: !!achievement, data: { achievement } });
     default:
       throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
