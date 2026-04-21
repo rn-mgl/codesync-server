@@ -9,14 +9,14 @@ import {
   assignField,
   isAdditionalAchievementData,
   isBaseAchievementData,
-  isValidLookupQuery,
   isValidIdentifierParam,
+  isValidLookupQuery,
 } from "@src/utils/type.util";
+import { v2 as cloudinary } from "cloudinary";
 import { type Request, type Response } from "express";
+import fs from "fs";
 import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
-import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
@@ -154,21 +154,53 @@ export const update = async (req: Request, res: Response) => {
   const params = req.params;
   const body = req.body;
 
+  const achievementPayload = {
+    badge_color: body.badge_color,
+    category: body.category,
+    description: body.description,
+    icon: body.icon,
+    name: body.name,
+    points: body.points,
+    slug: body.slug,
+    unlock_criteria: body.unlock_criteria,
+  };
+
+  const file = req.file;
+
+  if (file?.path) {
+    const uploaded = await cloudinary.uploader.upload(file.path, {
+      folder: "codesync-uploads",
+    });
+
+    const unlink = fs.unlink(file.path, (e) => {
+      console.log(`Unlink Error : ` + e);
+    });
+
+    achievementPayload.icon = uploaded.secure_url;
+
+    if (!uploaded) {
+      throw new AppError(
+        `An error occurred during upload.`,
+        StatusCodes.FAILED_DEPENDENCY,
+      );
+    }
+  }
+
   if (!isValidLookupQuery(body)) {
-    throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+    throw new AppError(`Invalid lookup request.`, StatusCodes.BAD_REQUEST);
   }
 
   if (!isValidIdentifierParam(params)) {
-    throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+    throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!isBaseAchievementData(body, "partial")) {
+  if (!isBaseAchievementData(achievementPayload, "partial")) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
   let updateData: Partial<FullAchievementData> = {};
 
-  if (isBaseAchievementData(body, "partial")) {
+  if (isBaseAchievementData(achievementPayload, "partial")) {
     const FIELDS: (keyof BaseAchievementData)[] = [
       "badge_color",
       "category",
@@ -181,7 +213,7 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof BaseAchievementData];
+      const value = achievementPayload[field as keyof BaseAchievementData];
 
       if (value !== undefined) {
         assignField(field, value, updateData);
@@ -189,11 +221,12 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  if (isAdditionalAchievementData(body, "partial")) {
+  if (isAdditionalAchievementData(achievementPayload, "partial")) {
     const FIELDS: (keyof AdditionalAchievementData)[] = ["deleted_at"];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalAchievementData];
+      const value =
+        achievementPayload[field as keyof AdditionalAchievementData];
 
       if (value !== undefined) {
         assignField(field, value, updateData);
@@ -220,7 +253,10 @@ export const update = async (req: Request, res: Response) => {
     achievementId = Number(params.identifier);
 
     if (Number.isNaN(achievementId)) {
-      throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+      throw new AppError(
+        `Invalid achievement record.`,
+        StatusCodes.BAD_REQUEST,
+      );
     }
   }
 
@@ -233,5 +269,10 @@ export const update = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ success: !!updated });
+  return res
+    .status(updated ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
+    .json({
+      success: !!updated,
+      data: { message: `${updateData.name} has been updated successfully.` },
+    });
 };
