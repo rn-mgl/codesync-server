@@ -257,6 +257,13 @@ export const destroy = async (req: Request, res: Response) => {
 
   const deleted = await Problem.update(problemId, updateData);
 
+  if (!deleted) {
+    throw new AppError(
+      `An error occurred during deletion.`,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+
   return res
     .status(!!deleted ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
     .json({

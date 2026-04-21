@@ -11,11 +11,14 @@ import {
   isBaseAchievementData,
   isValidIdentifierParam,
   isValidLookupQuery,
+  isValidPostSubmissionData,
 } from "@src/utils/type.util";
 import { v2 as cloudinary } from "cloudinary";
+import { randomUUID } from "crypto";
 import { type Request, type Response } from "express";
 import fs from "fs";
 import { StatusCodes } from "http-status-codes";
+import { DateTime } from "luxon";
 import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
@@ -274,5 +277,73 @@ export const update = async (req: Request, res: Response) => {
     .json({
       success: !!updated,
       data: { message: `${updateData.name} has been updated successfully.` },
+    });
+};
+
+export const destroy = async (req: Request, res: Response) => {
+  const params = req.params;
+  const query = req.query;
+
+  if (!isValidLookupQuery(query)) {
+    throw new AppError(`Invalid lookup request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!isValidIdentifierParam(params)) {
+    throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+  }
+
+  let achievement: FullAchievementData[] | null = null;
+
+  if (query.lookup === "slug") {
+    achievement = (await Achievement.findBySlug(
+      params.identifier,
+    )) as FullAchievementData[];
+
+    if (!achievement || !achievement[0]) {
+      throw new AppError(
+        `The achievement you're trying to delete does not exist.`,
+        StatusCodes.NOT_FOUND,
+      );
+    }
+  } else {
+    const achievementId = Number(params.identifier);
+
+    if (Number.isNaN(achievementId)) {
+      throw new AppError(`Invalid identfier.`, StatusCodes.BAD_REQUEST);
+    }
+
+    achievement = (await Achievement.findById(
+      achievementId,
+    )) as FullAchievementData[];
+
+    if (!achievement || !achievement[0]) {
+      throw new AppError(
+        `The achievement you're trying to delete does not exist.`,
+        StatusCodes.NOT_FOUND,
+      );
+    }
+  }
+
+  const updateData: Pick<FullAchievementData, "slug" | "deleted_at"> = {
+    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
+    slug: achievement[0].slug + "_" + randomUUID(),
+  };
+
+  const deleted = await Achievement.update(achievement[0].id, updateData);
+
+  if (!deleted) {
+    throw new AppError(
+      `An error occurred during deletion.`,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  return res
+    .status(deleted ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
+    .json({
+      success: !!deleted,
+      data: {
+        message: `${achievement[0].name} has been deleted successfully.`,
+      },
     });
 };

@@ -2,6 +2,7 @@ import { createConnection } from "@src/database/database";
 import type {
   BaseAchievementData,
   FullAchievementData,
+  UnlockCriteria,
 } from "@src/interface/achievement.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
@@ -14,7 +15,7 @@ class Achievement implements FullAchievementData {
   name: string;
   points: number;
   slug: string;
-  unlock_criteria: string;
+  unlock_criteria: UnlockCriteria;
   deleted_at: string | null;
 
   constructor(data: FullAchievementData) {
@@ -54,7 +55,7 @@ class Achievement implements FullAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT id, name, slug, description, icon, badge_color, category, points FROM achievements;`;
+      const query = `SELECT id, name, slug, description, icon, badge_color, category, points FROM achievements WHERE deleted_at IS NULL;`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query);
 
