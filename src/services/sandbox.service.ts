@@ -201,13 +201,26 @@ class SandboxService implements SandboxServiceData {
 
         return judgeError;
       }
+      // expected_output is raw string, need to parse before comparing
+      const problemOutputType = this.problem.output_format.type;
+      const shouldParse = !["string", "void"].includes(problemOutputType);
 
-      const expectedOutput = matchingTestCase.expected_output;
+      // literally can be any data type
+      const expectedOutput: unknown = shouldParse
+        ? JSON.parse(matchingTestCase.expected_output)
+        : matchingTestCase.expected_output;
+
       const comparisonMethod = this.problem.output_format.comparison;
 
-      if (typeof functionOutput === "object" && functionOutput !== null) {
+      const isTraversable =
+        typeof functionOutput === "object" &&
+        functionOutput !== null &&
+        typeof expectedOutput === "object" &&
+        expectedOutput !== null;
+
+      if (isTraversable) {
         // for array
-        if (Array.isArray(functionOutput)) {
+        if (Array.isArray(functionOutput) && Array.isArray(expectedOutput)) {
           for (let i = 0; i < functionOutput.length; i++) {
             if (comparisonMethod.ordered) {
               if (functionOutput[i] !== expectedOutput[i]) {
@@ -216,6 +229,15 @@ class SandboxService implements SandboxServiceData {
               }
             } else {
               if (!expectedOutput.includes(functionOutput[i])) {
+                isMatched = false;
+                break;
+              }
+
+              const hasMissingValue = expectedOutput.find(
+                (output) => !functionOutput.includes(output),
+              );
+
+              if (hasMissingValue) {
                 isMatched = false;
                 break;
               }
@@ -234,8 +256,7 @@ class SandboxService implements SandboxServiceData {
       }
       // for primitive
       else {
-        isMatched =
-          JSON.stringify(functionOutput) === JSON.stringify(expectedOutput);
+        isMatched = functionOutput === expectedOutput;
       }
 
       judgedOutput.output[testCaseId] = {
