@@ -1,5 +1,9 @@
 import { type BaseUserData } from "@interface/user.interface";
 import type {
+  AdditionalAchievementData,
+  BaseAchievementData,
+} from "@src/interface/achievement.interface";
+import type {
   AdditionalAttemptData,
   BaseAttemptData,
 } from "@src/interface/attempt.interface";
@@ -12,19 +16,13 @@ import type {
   BaseCodeSnapshotData,
 } from "@src/interface/code-snapshot.interface";
 import type {
+  AdditionalFriendshipData,
+  BaseFriendshipData,
+} from "@src/interface/friendship.interface";
+import type {
   AdditionalHintData,
   BaseHintData,
 } from "@src/interface/hint.interface";
-import type {
-  AdditionalProblemData,
-  BaseProblemData,
-} from "@src/interface/problem.interface";
-import type {
-  AdditionalUserAchievementData,
-  AdditionalUserProgressData,
-  BaseUserAchievementData,
-  BaseUserProgressData,
-} from "@src/interface/user.interface";
 import type {
   AdditionalSessionData,
   AdditionalSessionParticipantData,
@@ -32,33 +30,27 @@ import type {
   BaseSessionParticipantData,
 } from "@src/interface/session.interface";
 import type {
-  AdditionalSubmissionData,
-  BaseSubmissionData,
-  PostSubmissionData,
-  SubmissionType,
-} from "@src/interface/submission.interface";
-import type {
-  AdditionalTestCaseData,
-  BaseTestCaseData,
-} from "@src/interface/test-case.interface";
-import type {
-  AdditionalTopicData,
-  BaseTopicData,
-} from "@src/interface/topic.interface";
-import type {
-  AdditionalFriendshipData,
-  BaseFriendshipData,
-} from "@src/interface/friendship.interface";
-import type {
   AdditionalStudyGroupData,
   AdditionalStudyGroupMemberData,
   BaseStudyGroupData,
   BaseStudyGroupMemberData,
 } from "@src/interface/study-group.interface";
 import type {
-  AdditionalAchievementData,
-  BaseAchievementData,
-} from "@src/interface/achievement.interface";
+  AdditionalSubmissionData,
+  BaseSubmissionData,
+  PostSubmissionData,
+  SubmissionType,
+} from "@src/interface/submission.interface";
+import type {
+  AdditionalTopicData,
+  BaseTopicData,
+} from "@src/interface/topic.interface";
+import type {
+  AdditionalUserAchievementData,
+  AdditionalUserProgressData,
+  BaseUserAchievementData,
+  BaseUserProgressData,
+} from "@src/interface/user.interface";
 
 export type ValidationType = "full" | "partial";
 
@@ -125,6 +117,10 @@ export const isValidObject = (
   data: unknown,
 ): data is Record<string, unknown> => {
   return typeof data === "object" && data !== null;
+};
+
+export const isValidString = (data: unknown): data is string => {
+  return typeof data === "string";
 };
 
 export function isBaseUserData(
@@ -202,62 +198,6 @@ export function isAdditionalTopicData(
   }
 
   const REQUIRED_FIELDS: readonly (keyof AdditionalTopicData)[] = ["icon"];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isBaseTestCaseData(
-  data: unknown,
-  type?: "full",
-): data is BaseTestCaseData;
-
-export function isBaseTestCaseData(
-  data: unknown,
-  type: "partial",
-): data is Partial<BaseTestCaseData>;
-
-export function isBaseTestCaseData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: readonly (keyof BaseTestCaseData)[] = [
-    "input",
-    "expected_output",
-    "memory_limit_mb",
-    "problem_id",
-    "time_limit_ms",
-    "is_hidden",
-    "is_sample",
-  ];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isAdditionalTestCaseData(
-  data: unknown,
-  type?: "full",
-): data is AdditionalTestCaseData;
-
-export function isAdditionalTestCaseData(
-  data: unknown,
-  type: "partial",
-): data is Partial<AdditionalTestCaseData>;
-
-export function isAdditionalTestCaseData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: readonly (keyof AdditionalTestCaseData)[] = [
-    "order_index",
-  ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
 }

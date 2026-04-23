@@ -1,12 +1,11 @@
 import { createConnection } from "@src/database/database";
 import type {
-  AdditionalTestCaseData,
   BaseTestCaseData,
-  FullTestCaseData,
+  TestCasePayload,
 } from "@src/interface/test-case.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
-class TestCase implements FullTestCaseData {
+class TestCase implements BaseTestCaseData {
   id: number;
   expected_output: string;
   input: Record<string, unknown> | string;
@@ -18,7 +17,7 @@ class TestCase implements FullTestCaseData {
   is_sample: boolean;
   is_hidden: boolean;
 
-  constructor(data: FullTestCaseData) {
+  constructor(data: BaseTestCaseData) {
     this.id = data.id;
     this.problem_id = data.problem_id;
     this.expected_output = data.expected_output;
@@ -31,9 +30,7 @@ class TestCase implements FullTestCaseData {
     this.is_sample = data.is_sample;
   }
 
-  static async create(
-    data: BaseTestCaseData & Partial<AdditionalTestCaseData>,
-  ) {
+  static async create(data: TestCasePayload) {
     try {
       const db = createConnection();
 
@@ -50,7 +47,7 @@ class TestCase implements FullTestCaseData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error(`An error occurred during the operation.`);
     }
   }
 
@@ -89,7 +86,7 @@ class TestCase implements FullTestCaseData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error(`An error occurred during the operation.`);
     }
   }
 
@@ -109,7 +106,7 @@ class TestCase implements FullTestCaseData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error(`An error occurred during the operation.`);
     }
   }
 
@@ -153,14 +150,11 @@ class TestCase implements FullTestCaseData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error(`An error occurred during the operation.`);
     }
   }
 
-  static async update(
-    id: number,
-    updates: Partial<BaseTestCaseData & AdditionalTestCaseData>,
-  ) {
+  static async update(id: number, updates: Partial<TestCasePayload>) {
     try {
       const db = createConnection();
 
@@ -179,7 +173,7 @@ class TestCase implements FullTestCaseData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error(`An error occurred during the operation.`);
     }
   }
 }

@@ -1,0 +1,109 @@
+import AppError from "@src/errors/app.error";
+import type {
+  BaseTestCaseData,
+  TestCasePayload,
+} from "@src/interface/test-case.interface";
+import TestCase from "@src/models/test-case.model";
+import { assignField, type ValidationType } from "@src/utils/type.util";
+import { StatusCodes } from "http-status-codes";
+import { DateTime } from "luxon";
+
+export function buildTestCasePayload(
+  testCase: TestCasePayload,
+  type?: "full",
+): TestCasePayload;
+
+export function buildTestCasePayload(
+  testCase: Partial<TestCasePayload>,
+  type: "partial",
+): Partial<TestCasePayload>;
+
+export function buildTestCasePayload(
+  testCase: TestCasePayload | Partial<TestCasePayload>,
+  type: ValidationType = "full",
+) {
+  const payload: typeof type extends "full"
+    ? TestCasePayload
+    : Partial<TestCasePayload> = {};
+
+  const FIELDS: (keyof TestCasePayload)[] = [
+    "expected_output",
+    "input",
+    "is_hidden",
+    "is_sample",
+    "memory_limit_mb",
+    "order_index",
+    "problem_id",
+    "time_limit_ms",
+  ];
+
+  for (const field of FIELDS) {
+    const value = testCase[field as keyof TestCasePayload];
+
+    if (value !== undefined) {
+      assignField(field, value, payload);
+    }
+  }
+
+  return payload;
+}
+
+export async function getTestCaseByLookup(
+  identifier: number,
+  lookup: "id",
+): Promise<BaseTestCaseData>;
+
+export async function getTestCaseByLookup(
+  identifier: number,
+  lookup: "problem",
+): Promise<BaseTestCaseData[]>;
+
+export async function getTestCaseByLookup(
+  identifier: number,
+  lookup: "problem",
+  withProblem: boolean,
+): Promise<BaseTestCaseData[]>;
+
+export async function getTestCaseByLookup(
+  identifier: number,
+  lookup: string,
+): Promise<BaseTestCaseData | BaseTestCaseData[]>;
+
+export async function getTestCaseByLookup(identifier: number, lookup: string) {
+  let testCase: BaseTestCaseData | BaseTestCaseData[] | null = null;
+
+  switch (lookup) {
+    case "id":
+      testCase = (await TestCase.findById(identifier)) as BaseTestCaseData[];
+
+      if (!testCase || !testCase[0]) {
+        throw new AppError(
+          `The test case you are trying to update does not exist.`,
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
+      testCase = testCase[0];
+
+      break;
+    case "problem":
+      testCase = (await TestCase.findByProblem(
+        identifier,
+      )) as BaseTestCaseData[];
+
+      break;
+
+    default:
+      throw new AppError(`Invalid lookup key.`, StatusCodes.BAD_REQUEST);
+  }
+
+  return testCase;
+}
+
+export function buildDeleteTestCasePayload() {
+  const updateData = {
+    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
+  };
+
+  return updateData;
+}

@@ -1,6 +1,6 @@
 import AppError from "@src/errors/app.error";
 import { isValidProblemPayload } from "@src/guard/problem.guard";
-import type { FullTestCaseData } from "@src/interface/test-case.interface";
+import type { BaseTestCaseData } from "@src/interface/test-case.interface";
 import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
 import {
@@ -42,7 +42,7 @@ export const create = async (req: Request, res: Response) => {
     );
   }
 
-  const createData = buildProblemPayload(problemPayload, "full");
+  const createData = buildProblemPayload(problemPayload);
 
   const created = await Problem.create(createData);
 
@@ -80,7 +80,7 @@ export const find = async (req: Request, res: Response) => {
 
   const testCases = (await TestCase.findByProblem(problem.id, {
     is_sample: true,
-  })) as FullTestCaseData[];
+  })) as BaseTestCaseData[];
 
   return res.status(StatusCodes.OK).json({
     success: true,

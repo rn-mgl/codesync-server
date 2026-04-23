@@ -13,7 +13,7 @@ import type {
   SubmissionType,
   SupportedLanguages,
 } from "@src/interface/submission.interface";
-import type { FullTestCaseData } from "@src/interface/test-case.interface";
+import type { BaseTestCaseData } from "@src/interface/test-case.interface";
 import Problem from "@src/models/problem.model";
 import Submission from "@src/models/submission.model";
 import TestCase from "@src/models/test-case.model";
@@ -22,7 +22,7 @@ import { SandboxService } from "./sandbox.service";
 
 export const loadExecutionContext = async (
   submission: PostSubmissionData & SubmissionType,
-): Promise<{ problem: BaseProblemData; testCases: FullTestCaseData[] }> => {
+): Promise<{ problem: BaseProblemData; testCases: BaseTestCaseData[] }> => {
   const problems = (await Problem.findBySlug(
     submission.problem,
   )) as BaseProblemData[];
@@ -42,7 +42,7 @@ export const loadExecutionContext = async (
   const testCases = (await TestCase.findByProblem(
     problem.id,
     testCaseOptions,
-  )) as FullTestCaseData[];
+  )) as BaseTestCaseData[];
 
   return { problem, testCases };
 };
@@ -75,7 +75,7 @@ export const executeSubmission = async (submission: SandboxServiceData) => {
 
 export const analyzeResult = (
   processedCode: JudgeOutput,
-  testCases: FullTestCaseData[],
+  testCases: BaseTestCaseData[],
 ): AnalysisResult => {
   if (!processedCode.success) {
     return {

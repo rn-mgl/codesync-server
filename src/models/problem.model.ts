@@ -59,7 +59,7 @@ class Problem implements BaseProblemData {
       return result;
     } catch (error) {
       console.log(error);
-      throw new Error("An error occurred while performing the action.");
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -75,7 +75,7 @@ class Problem implements BaseProblemData {
       return result;
     } catch (error) {
       console.log(error);
-      throw new Error("An error occurred while performing the action.");
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -92,7 +92,7 @@ class Problem implements BaseProblemData {
       return result;
     } catch (error) {
       console.log(error);
-      throw new Error("An error occurred while performing the action.");
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -109,7 +109,7 @@ class Problem implements BaseProblemData {
       return result;
     } catch (error) {
       console.log(error);
-      throw new Error("An error occurred while performing the action.");
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -133,7 +133,7 @@ class Problem implements BaseProblemData {
       return result;
     } catch (error) {
       console.log(error);
-      throw new Error("An error occurred while performing the action.");
+      throw new Error("An error occurred during the operation.");
     }
   }
 }

@@ -1,74 +1,61 @@
 import AppError from "@src/errors/app.error";
+import { isValidTestCasePayload } from "@src/guard/test-case.guard";
 import type { BaseProblemData } from "@src/interface/problem.interface";
-import type {
-  AdditionalTestCaseData,
-  BaseTestCaseData,
-  FullTestCaseData,
-} from "@src/interface/test-case.interface";
+import type { BaseTestCaseData } from "@src/interface/test-case.interface";
 import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
+import { getProblemByLookup } from "@src/services/problem.service";
 import {
-  assignField,
-  isAdditionalTestCaseData,
-  isBaseTestCaseData,
+  buildDeleteTestCasePayload,
+  buildTestCasePayload,
+  getTestCaseByLookup,
+} from "@src/services/test-case.service";
+import {
   isValidIdentifierParam,
   isValidIdParam,
   isValidLookupQuery,
+  isValidObject,
+  isValidString,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { DateTime } from "luxon";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!("testCase" in body)) {
+  if (!isValidObject(body)) {
     throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const { testCase } = body;
-
-  if (!("problem" in testCase)) {
+  if (body.testCase === undefined) {
     throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const problem = (await Problem.findBySlug(
-    testCase.problem,
-  )) as BaseProblemData[];
+  const testCase = body.testCase;
 
-  if (!problem || !problem[0]) {
-    throw new AppError(
-      `The problem you are connecting to does not exist.`,
-      StatusCodes.BAD_REQUEST,
-    );
-  }
-
-  testCase.problem_id = problem[0].id;
-
-  if (!isBaseTestCaseData(testCase)) {
+  if (!isValidObject(testCase)) {
     throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseTestCaseData & Partial<AdditionalTestCaseData> = {
-    input: testCase.input,
-    expected_output: testCase.expected_output,
-    memory_limit_mb: testCase.memory_limit_mb,
-    problem_id: testCase.problem_id,
-    time_limit_ms: testCase.time_limit_ms,
-    is_sample: testCase.is_sample,
-    is_hidden: testCase.is_hidden,
-  };
-
-  if (isAdditionalTestCaseData(testCase, "partial")) {
-    const FIELDS: (keyof AdditionalTestCaseData)[] = ["order_index"];
-
-    for (const field of FIELDS) {
-      const value = testCase[field as keyof AdditionalTestCaseData];
-      if (value !== undefined) {
-        assignField(field, value, createData);
-      }
-    }
+  if (testCase.problem === undefined) {
+    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
+
+  const testCaseProblem = testCase.problem;
+
+  if (!isValidString(testCaseProblem)) {
+    throw new AppError(`Invalid test case problem.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const problem = await getProblemByLookup(testCaseProblem, "slug");
+
+  testCase.problem_id = problem.id;
+
+  if (!isValidTestCasePayload(testCase)) {
+    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const createData = buildTestCasePayload(testCase);
 
   const created = await TestCase.create(createData);
 
@@ -79,41 +66,38 @@ export const create = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({
-    success: !!created,
-    data: { message: `Test Case for ${problem[0].title} created.` },
+  return res.status(StatusCodes.CREATED).json({
+    success: true,
+    data: { message: `Test Case created.` },
   });
 };
 
 export const all = async (req: Request, res: Response) => {
   const query = req.query;
 
-  const testCases: Map<string, FullTestCaseData[]> = new Map();
+  const testCases: Map<string, BaseTestCaseData[]> = new Map();
 
-  const slug: string = typeof query.problem === "string" ? query.problem : "";
+  let slug: string | null = null;
+
+  if (isValidObject(query) && isValidString(query.problem)) {
+    slug = query.problem;
+  }
 
   if (slug) {
-    const problem = (await Problem.findBySlug(slug)) as BaseProblemData[];
-
-    if (!problem || !problem[0]) {
-      throw new AppError(
-        `The problem you are looking for does not exist.`,
-        StatusCodes.BAD_REQUEST,
-      );
-    }
+    const problem = await getProblemByLookup(slug, "slug");
 
     const problemTestCases = (await TestCase.findByProblem(
-      problem[0].id,
-    )) as FullTestCaseData[];
+      problem.id,
+    )) as BaseTestCaseData[];
 
-    testCases.set(problem[0].title, problemTestCases);
+    testCases.set(problem.title, problemTestCases);
   } else {
     const problems = (await Problem.all()) as BaseProblemData[];
 
     for (const p of problems) {
       const testCase = (await TestCase.findByProblem(
         p.id,
-      )) as FullTestCaseData[];
+      )) as BaseTestCaseData[];
 
       testCases.set(p.title, testCase);
     }
@@ -137,117 +121,66 @@ export const find = async (req: Request, res: Response) => {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  const lookup = query.lookup;
-  let testCase:
-    | (FullTestCaseData & Pick<BaseProblemData, "title" | "slug">)[]
-    | null = null;
-
-  switch (lookup) {
-    case "id":
-      const id = parseInt(params.identifier);
-
-      testCase = (await TestCase.findById(id)) as (FullTestCaseData &
-        Pick<BaseProblemData, "title" | "slug">)[];
-
-      if (!testCase || !testCase[0]) {
-        throw new AppError(
-          `The test case you are trying to find does not exist.`,
-          StatusCodes.NOT_FOUND,
-        );
-      }
-
-      return res
-        .status(StatusCodes.OK)
-        .json({ success: true, data: { test_case: testCase[0] } });
-
-    default:
-      throw new AppError(`Invalid lookup key.`, StatusCodes.BAD_REQUEST);
+  if (query.lookup !== "id") {
+    throw new AppError(`Invalid identifier`, StatusCodes.BAD_REQUEST);
   }
+
+  const identifier = Number(params.identifier);
+
+  if (Number.isNaN(identifier)) {
+    throw new AppError(`Invalid identifier`, StatusCodes.BAD_REQUEST);
+  }
+
+  const testCase = await getTestCaseByLookup(identifier, query.lookup);
+
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { test_case: testCase } });
 };
 
 export const update = async (req: Request, res: Response) => {
   const body = req.body;
   const params = req.params;
 
-  if (!("testCase" in body)) {
-    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
-  }
-
-  const { testCase } = body;
-
-  if (!("problem" in testCase) || typeof testCase.problem !== "string") {
-    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
-  }
-
-  const slug = testCase.problem;
-
-  const problem = (await Problem.findBySlug(slug)) as BaseProblemData[];
-
-  if (!problem || !problem[0]) {
-    throw new AppError(
-      `The problem ${slug} does not exist.`,
-      StatusCodes.NOT_FOUND,
-    );
-  }
-
-  testCase.problem_id = problem[0].id;
-
-  if (
-    !isBaseTestCaseData(testCase, "partial") &&
-    !isAdditionalTestCaseData(testCase, "partial")
-  ) {
-    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
-  }
-
   if (!isValidIdParam(params)) {
     throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<BaseTestCaseData & AdditionalTestCaseData> = {};
-
-  if (isBaseTestCaseData(testCase, "partial")) {
-    const FIELDS: (keyof BaseTestCaseData)[] = [
-      "expected_output",
-      "input",
-      "memory_limit_mb",
-      "problem_id",
-      "time_limit_ms",
-      "is_hidden",
-      "is_sample",
-    ];
-
-    for (const field of FIELDS) {
-      const value = testCase[field as keyof BaseTestCaseData];
-      if (value !== undefined) {
-        assignField(field, value, updateData);
-      }
-    }
+  if (!isValidObject(body)) {
+    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (isAdditionalTestCaseData(testCase, "partial")) {
-    const FIELDS: (keyof AdditionalTestCaseData)[] = ["order_index"];
+  const testCasePayload = body.testCase;
 
-    for (const field of FIELDS) {
-      const value = testCase[field as keyof AdditionalTestCaseData];
-      if (value !== undefined) {
-        assignField(field, value, updateData);
-      }
-    }
+  if (!isValidObject(testCasePayload)) {
+    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const id = parseInt(params.id);
+  const testCaseProblem = testCasePayload.problem;
 
-  const find = (await TestCase.findById(id)) as (FullTestCaseData &
-    Pick<BaseProblemData, "title" | "slug">)[];
-
-  if (!find || !find[0]) {
-    throw new AppError(
-      `The test case you are trying to update does not exist.`,
-      StatusCodes.INTERNAL_SERVER_ERROR,
-    );
+  if (!isValidString(testCaseProblem)) {
+    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const updated = await TestCase.update(id, updateData);
+  const problem = await getProblemByLookup(testCaseProblem, "slug");
+
+  testCasePayload.problem_id = problem.id;
+
+  if (!isValidTestCasePayload(testCasePayload)) {
+    throw new AppError(`Invalid test case data.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const identifier = Number(params.id);
+
+  if (Number.isNaN(identifier)) {
+    throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const updateData = buildTestCasePayload(testCasePayload);
+
+  const testCase = await getTestCaseByLookup(identifier, "id");
+
+  const updated = await TestCase.update(testCase.id, updateData);
 
   if (!updated) {
     throw new AppError(
@@ -256,9 +189,9 @@ export const update = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({
-    success: !!updated,
-    data: { message: `Test case ${id} updated.` },
+  return res.status(StatusCodes.OK).json({
+    success: true,
+    data: { message: `Test case updated.` },
   });
 };
 
@@ -269,31 +202,27 @@ export const destroy = async (req: Request, res: Response) => {
     throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
   }
 
-  const id = Number(params.id);
+  const identifier = Number(params.id);
 
-  if (Number.isNaN(id)) {
-    throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
+  if (Number.isNaN(identifier)) {
+    throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
   }
 
-  const testCase = (await TestCase.findById(id)) as FullTestCaseData[];
+  const testCase = await getTestCaseByLookup(identifier, "id");
 
-  if (!testCase || !testCase[0]) {
+  const updateData = buildDeleteTestCasePayload();
+
+  const deleted = await TestCase.update(testCase.id, updateData);
+
+  if (!deleted) {
     throw new AppError(
-      `The test case you are trying to delete does not exist.`,
-      StatusCodes.NOT_FOUND,
+      `An error occurred during deletion.`,
+      StatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
 
-  const updateData = {
-    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
-  };
-
-  const deleted = await TestCase.update(testCase[0].id, updateData);
-
-  return res
-    .status(!!deleted ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
-    .json({
-      success: !!deleted,
-      data: { message: `Test case ${testCase[0].id} deleted.` },
-    });
+  return res.status(StatusCodes.OK).json({
+    success: true,
+    data: { message: `Test case ${testCase.id} deleted.` },
+  });
 };

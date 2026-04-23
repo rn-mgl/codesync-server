@@ -1,13 +1,13 @@
 import { env } from "@src/configs/env.config";
 import type { BaseProblemData } from "@src/interface/problem.interface";
 import type {
+  ExecuteCodeOutput,
   JudgeOutput,
   SandboxData,
   SandboxServiceData,
-  ExecuteCodeOutput,
 } from "@src/interface/sandbox.interface";
 import type { SupportedLanguages } from "@src/interface/submission.interface";
-import type { FullTestCaseData } from "@src/interface/test-case.interface";
+import type { BaseTestCaseData } from "@src/interface/test-case.interface";
 import {
   mapExitCode,
   mapExitSignal,
@@ -23,7 +23,7 @@ class SandboxService implements SandboxServiceData {
   code: string;
   language: SupportedLanguages;
   problem: BaseProblemData;
-  testCases: FullTestCaseData[];
+  testCases: BaseTestCaseData[];
 
   private file: string | null = null;
   private readonly execAsync = promisify(exec);

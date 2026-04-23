@@ -3,7 +3,7 @@ import type {
   SubmissionStatus,
   SupportedLanguages,
 } from "./submission.interface";
-import type { FullTestCaseData } from "./test-case.interface";
+import type { BaseTestCaseData } from "./test-case.interface";
 
 export interface SandboxData {
   command: string;
@@ -15,7 +15,7 @@ export interface SandboxServiceData {
   code: string;
   language: SupportedLanguages;
   problem: BaseProblemData;
-  testCases: FullTestCaseData[];
+  testCases: BaseTestCaseData[];
 }
 
 type TestCaseOutput = Record<

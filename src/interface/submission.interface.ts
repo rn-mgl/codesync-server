@@ -1,5 +1,5 @@
 import type { JudgeSuccessOutput } from "./sandbox.interface";
-import type { FullTestCaseData } from "./test-case.interface";
+import type { BaseTestCaseData } from "./test-case.interface";
 
 export interface BaseSubmissionData {
   user_id: number;
@@ -55,7 +55,7 @@ export type SuccessAnalysisResult = {
     passed: number;
     memory: number;
     runtime: number;
-    failed: { testCase: FullTestCaseData | null; output: unknown | null };
+    failed: { testCase: BaseTestCaseData | null; output: unknown | null };
   };
 };
 

@@ -11,7 +11,7 @@ import { DateTime } from "luxon";
 
 export function buildProblemPayload(
   problem: ProblemPayload,
-  type: "full",
+  type?: "full",
 ): ProblemPayload;
 
 export function buildProblemPayload(

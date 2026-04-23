@@ -1,4 +1,5 @@
 export interface BaseTestCaseData {
+  id: number;
   problem_id: number;
   input: Record<string, unknown> | string;
   expected_output: string;
@@ -6,14 +7,8 @@ export interface BaseTestCaseData {
   memory_limit_mb: number;
   is_sample: boolean;
   is_hidden: boolean;
-}
-
-export interface AdditionalTestCaseData {
   order_index: number;
   deleted_at: string | null;
 }
 
-export interface FullTestCaseData
-  extends BaseTestCaseData, AdditionalTestCaseData {
-  id: number;
-}
+export type TestCasePayload = Omit<BaseTestCaseData, "id" | "deleted_at">;
