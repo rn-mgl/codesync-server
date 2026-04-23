@@ -1,72 +1,60 @@
 import AppError from "@src/errors/app.error";
-import type {
-  AdditionalProblemData,
-  BaseProblemData,
-  FullProblemData,
-} from "@src/interface/problem.interface";
+import { isValidProblemPayload } from "@src/guard/problem.guard";
 import type { FullTestCaseData } from "@src/interface/test-case.interface";
 import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
 import {
-  assignField,
-  isAdditionalProblemData,
-  isBaseProblemData,
+  buildDeleteProblemPayload,
+  buildProblemPayload,
+  getProblemByLookup,
+} from "@src/services/problem.service";
+import {
   isValidIdentifierParam,
   isValidLookupQuery,
+  isValidObject,
 } from "@src/utils/type.util";
-import { randomUUID } from "crypto";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { DateTime } from "luxon";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!("problem" in body)) {
+  if (isValidObject(body)) {
     throw new AppError(
       `Invalid Problem data. Missing values.`,
       StatusCodes.BAD_REQUEST,
     );
   }
 
-  const { problem } = body;
-
-  if (!isBaseProblemData(problem)) {
+  if (body.problem === undefined) {
     throw new AppError(
       `Invalid Problem data. Missing values.`,
       StatusCodes.BAD_REQUEST,
     );
   }
 
-  const { title, slug, description, difficulty } = problem;
+  const problemPayload = body.problem;
 
-  let createData: BaseProblemData & Partial<AdditionalProblemData> = {
-    title,
-    slug,
-    difficulty,
-    description,
-  };
-
-  if (isAdditionalProblemData(problem, "partial")) {
-    const FIELDS: (keyof AdditionalProblemData)[] = [
-      "constraints",
-      "editorial",
-      "input_format",
-      "output_format",
-    ];
-
-    for (const field of FIELDS) {
-      const value = problem[field as keyof AdditionalProblemData];
-      if (value !== undefined) {
-        assignField(field, value, createData);
-      }
-    }
+  if (!isValidProblemPayload(problemPayload)) {
+    throw new AppError(
+      `Invalid Problem data. Missing values.`,
+      StatusCodes.BAD_REQUEST,
+    );
   }
+
+  const createData = buildProblemPayload(problemPayload, "full");
 
   const created = await Problem.create(createData);
 
+  if (!created) {
+    throw new AppError(
+      `An error occurred during creation.`,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+
   return res.status(StatusCodes.CREATED).json({
-    success: !!created,
+    success: true,
     data: { message: "Problem created." },
   });
 };
@@ -87,38 +75,16 @@ export const find = async (req: Request, res: Response) => {
 
   const lookup = query.lookup;
   const param = params.identifier;
-  let problem: null | FullProblemData[] = null;
 
-  switch (lookup) {
-    case "id":
-      const id = parseInt(param);
+  const problem = await getProblemByLookup(param, lookup);
 
-      problem = (await Problem.findById(id)) as FullProblemData[];
-
-      if (!problem || !problem[0]) {
-        throw new AppError(`Problem not found.`, StatusCodes.NOT_FOUND);
-      }
-
-      break;
-    case "slug":
-      problem = (await Problem.findBySlug(param)) as FullProblemData[];
-
-      if (!problem || !problem[0]) {
-        throw new AppError(`Problem not found.`, StatusCodes.NOT_FOUND);
-      }
-
-      break;
-    default:
-      throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
-  }
-
-  const testCases = (await TestCase.findByProblem(problem[0].id, {
+  const testCases = (await TestCase.findByProblem(problem.id, {
     is_sample: true,
   })) as FullTestCaseData[];
 
   return res.status(StatusCodes.OK).json({
-    success: !!problem,
-    data: { problem: problem[0], testCases },
+    success: true,
+    data: { problem: problem, testCases },
   });
 };
 
@@ -126,71 +92,34 @@ export const update = async (req: Request, res: Response) => {
   const body = req.body;
   const params = req.params;
 
-  if (!("problem" in body)) {
+  if (isValidObject(body)) {
+    throw new AppError(
+      `Invalid Problem data. Missing values.`,
+      StatusCodes.BAD_REQUEST,
+    );
+  }
+
+  if (body.problem === undefined) {
     throw new AppError(`Invalid request`, StatusCodes.BAD_REQUEST);
   }
 
-  const { problem } = body;
+  const problemPayload = body.problem;
 
   if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid request`, StatusCodes.BAD_REQUEST);
   }
 
-  if (
-    !isBaseProblemData(problem, "partial") &&
-    !isAdditionalProblemData(problem, "partial")
-  ) {
+  if (!isValidProblemPayload(problemPayload, "partial")) {
     throw new AppError(`Invalid problem data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<BaseProblemData & AdditionalProblemData> = {};
-
-  if (isBaseProblemData(problem, "partial")) {
-    const FIELDS: (keyof BaseProblemData)[] = [
-      "slug",
-      "title",
-      "description",
-      "difficulty",
-    ];
-
-    for (const field of FIELDS) {
-      const value = problem[field as keyof BaseProblemData];
-      if (value !== undefined) {
-        assignField(field, value, updateData);
-      }
-    }
-  }
-
-  if (isAdditionalProblemData(problem, "partial")) {
-    const FIELDS: (keyof AdditionalProblemData)[] = [
-      "constraints",
-      "editorial",
-      "input_format",
-      "output_format",
-    ] as const;
-
-    for (const field of FIELDS) {
-      const value = problem[field as keyof AdditionalProblemData];
-      if (value !== undefined) {
-        assignField(field, value, updateData);
-      }
-    }
-  }
+  const updateData = buildProblemPayload(problemPayload, "partial");
 
   const slug = params.identifier;
 
-  const find = (await Problem.findBySlug(slug)) as FullProblemData[];
+  const problem = await getProblemByLookup(slug, "slug");
 
-  if (!find.length || !find[0]) {
-    throw new AppError(
-      `The problem you're trying to update does not exist.`,
-      StatusCodes.NOT_FOUND,
-    );
-  }
-
-  const id = find[0].id;
-
-  const updated = await Problem.update(id, updateData);
+  const updated = await Problem.update(problem.id, updateData);
 
   if (!updated) {
     throw new AppError(
@@ -199,9 +128,9 @@ export const update = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({
-    success: !!updated,
-    data: { message: `${updateData.title} has been updated.` },
+  return res.status(StatusCodes.OK).json({
+    success: true,
+    data: { message: `Problem has been updated.` },
   });
 };
 
@@ -217,45 +146,11 @@ export const destroy = async (req: Request, res: Response) => {
     throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
   }
 
-  let problemId: number;
-  let problem: FullProblemData[] | null;
+  const problem = await getProblemByLookup(params.identifier, query.lookup);
 
-  if (query.lookup === "slug") {
-    problem = (await Problem.findBySlug(
-      params.identifier,
-    )) as FullProblemData[];
+  const updateData = buildDeleteProblemPayload(problem.slug);
 
-    if (!problem || !problem[0]) {
-      throw new AppError(
-        `The problem you are trying to delete does not exist.`,
-        StatusCodes.BAD_REQUEST,
-      );
-    }
-
-    problemId = problem[0].id;
-  } else {
-    problemId = Number(params.identifier);
-
-    if (Number.isNaN(problemId)) {
-      throw new AppError(`Invalid delete request.`, StatusCodes.BAD_REQUEST);
-    }
-
-    problem = (await Problem.findById(problemId)) as FullProblemData[];
-
-    if (!problem || !problem[0]) {
-      throw new AppError(
-        `The problem you are trying to delete does not exist.`,
-        StatusCodes.BAD_REQUEST,
-      );
-    }
-  }
-
-  const updateData: Pick<FullProblemData, "slug" | "deleted_at"> = {
-    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
-    slug: problem[0].slug + "_" + randomUUID(),
-  };
-
-  const deleted = await Problem.update(problemId, updateData);
+  const deleted = await Problem.update(problem.id, updateData);
 
   if (!deleted) {
     throw new AppError(
@@ -264,10 +159,8 @@ export const destroy = async (req: Request, res: Response) => {
     );
   }
 
-  return res
-    .status(!!deleted ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
-    .json({
-      success: !!deleted,
-      data: { message: "Problem deleted successfully." },
-    });
+  return res.status(StatusCodes.OK).json({
+    success: true,
+    data: { message: "Problem deleted successfully." },
+  });
 };

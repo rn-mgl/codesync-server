@@ -60,26 +60,20 @@ import type {
   BaseAchievementData,
 } from "@src/interface/achievement.interface";
 
-const validateFields = <T extends object>(
+export type ValidationType = "full" | "partial";
+
+export const validateFields = <T extends object>(
   data: T,
   fields: readonly string[],
   type: "full" | "partial",
 ) => {
-  const VALID_TYPES = ["string", "number", "boolean"];
-
   if (type === "full") {
     return fields.every(
-      (field) =>
-        field in data &&
-        data[field as keyof T] !== undefined &&
-        VALID_TYPES.includes(typeof data[field as keyof T]),
+      (field) => field in data && data[field as keyof T] !== undefined,
     );
   } else {
     return fields.some(
-      (field) =>
-        field in data &&
-        data[field as keyof T] !== undefined &&
-        VALID_TYPES.includes(typeof data[field as keyof T]),
+      (field) => field in data && data[field as keyof T] !== undefined,
     );
   }
 };
@@ -122,11 +116,16 @@ export const isValidLookupQuery = (
     typeof data === "object" &&
     data !== null &&
     "lookup" in data &&
+    data.lookup !== undefined &&
     typeof data.lookup === "string"
   );
 };
 
-type validationType = "full" | "partial";
+export const isValidObject = (
+  data: unknown,
+): data is Record<string, unknown> => {
+  return typeof data === "object" && data !== null;
+};
 
 export function isBaseUserData(
   data: unknown,
@@ -140,7 +139,7 @@ export function isBaseUserData(
 
 export function isBaseUserData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -152,62 +151,6 @@ export function isBaseUserData(
     "last_name",
     "password",
     "username",
-  ];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isBaseProblemData(
-  data: unknown,
-  type?: "full",
-): data is BaseProblemData;
-
-export function isBaseProblemData(
-  data: unknown,
-  type: "partial",
-): data is Partial<BaseProblemData>;
-
-export function isBaseProblemData(
-  data: unknown,
-  type: validationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: readonly (keyof BaseProblemData)[] = [
-    "title",
-    "slug",
-    "description",
-    "difficulty",
-  ];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isAdditionalProblemData(
-  data: unknown,
-  type?: "full",
-): data is AdditionalProblemData;
-
-export function isAdditionalProblemData(
-  data: unknown,
-  type: "partial",
-): data is Partial<AdditionalProblemData>;
-
-export function isAdditionalProblemData(
-  data: unknown,
-  type: validationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: readonly (keyof AdditionalProblemData)[] = [
-    "constraints",
-    "editorial",
-    "input_format",
-    "output_format",
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
@@ -225,7 +168,7 @@ export function isBaseTopicData(
 
 export function isBaseTopicData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -252,7 +195,7 @@ export function isAdditionalTopicData(
 
 export function isAdditionalTopicData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -275,7 +218,7 @@ export function isBaseTestCaseData(
 
 export function isBaseTestCaseData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -306,7 +249,7 @@ export function isAdditionalTestCaseData(
 
 export function isAdditionalTestCaseData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -331,7 +274,7 @@ export function isBaseHintData(
 
 export function isBaseHintData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -358,7 +301,7 @@ export function isAdditionalHintData(
 
 export function isAdditionalHintData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -383,7 +326,7 @@ export function isBaseSubmissionData(
 
 export function isBaseSubmissionData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -412,7 +355,7 @@ export function isAdditionalSubmissionData(
 
 export function isAdditionalSubmissionData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -469,7 +412,7 @@ export function isBaseAttemptData(
 
 export function isBaseAttemptData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -498,7 +441,7 @@ export function isAdditionalAttemptData(
 
 export function isAdditionalAttemptData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -523,7 +466,7 @@ export function isBaseSessionData(
 
 export function isBaseSessionData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -555,7 +498,7 @@ export function isAdditionalSessionData(
 
 export function isAdditionalSessionData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -582,7 +525,7 @@ export function isBaseSessionParticipantData(
 
 export function isBaseSessionParticipantData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -609,7 +552,7 @@ export function isAdditionalSessionParticipantData(
 
 export function isAdditionalSessionParticipantData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -637,7 +580,7 @@ export function isBaseCodeSnapshotData(
 
 export function isBaseCodeSnapshotData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -667,7 +610,7 @@ export function isAdditionalCodeSnapshotData(
 
 export function isAdditionalCodeSnapshotData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -690,7 +633,7 @@ export function isBaseChatMessageData(
 
 export function isBaseChatMessageData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -718,7 +661,7 @@ export function isAdditionalChatMessageData(
 
 export function isAdditionalChatMessageData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -741,7 +684,7 @@ export function isBaseUserProgressData(
 
 export function isBaseUserProgressData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -767,7 +710,7 @@ export function isAdditionalUserProgressData(
 
 export function isAdditionalUserProgressData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -795,7 +738,7 @@ export function isBaseFriendshipData(
 
 export function isBaseFriendshipData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -822,7 +765,7 @@ export function isAdditionalFriendshipData(
 
 export function isAdditionalFriendshipData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -848,7 +791,7 @@ export function isBaseStudyGroupData(
 
 export function isBaseStudyGroupData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -876,7 +819,7 @@ export function isAdditionalStudyGroupData(
 
 export function isAdditionalStudyGroupData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -902,7 +845,7 @@ export function isBaseStudyGroupMemberData(
 
 export function isBaseStudyGroupMemberData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -929,7 +872,7 @@ export function isAdditionalStudyGroupMemberData(
 
 export function isAdditionalStudyGroupMemberData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -954,7 +897,7 @@ export function isBaseAchievementData(
 
 export function isBaseAchievementData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -986,7 +929,7 @@ export function isAdditionalAchievementData(
 
 export function isAdditionalAchievementData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -1009,7 +952,7 @@ export function isBaseUserAchievementData(
 
 export function isBaseUserAchievementData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;
@@ -1035,7 +978,7 @@ export function isAdditionalUserAchievementData(
 
 export function isAdditionalUserAchievementData(
   data: unknown,
-  type: validationType = "full",
+  type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {
     return false;

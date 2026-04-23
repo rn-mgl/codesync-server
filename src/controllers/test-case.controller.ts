@@ -1,8 +1,5 @@
 import AppError from "@src/errors/app.error";
-import type {
-  BaseProblemData,
-  FullProblemData,
-} from "@src/interface/problem.interface";
+import type { BaseProblemData } from "@src/interface/problem.interface";
 import type {
   AdditionalTestCaseData,
   BaseTestCaseData,
@@ -37,7 +34,7 @@ export const create = async (req: Request, res: Response) => {
 
   const problem = (await Problem.findBySlug(
     testCase.problem,
-  )) as FullProblemData[];
+  )) as BaseProblemData[];
 
   if (!problem || !problem[0]) {
     throw new AppError(
@@ -96,7 +93,7 @@ export const all = async (req: Request, res: Response) => {
   const slug: string = typeof query.problem === "string" ? query.problem : "";
 
   if (slug) {
-    const problem = (await Problem.findBySlug(slug)) as FullProblemData[];
+    const problem = (await Problem.findBySlug(slug)) as BaseProblemData[];
 
     if (!problem || !problem[0]) {
       throw new AppError(
@@ -111,7 +108,7 @@ export const all = async (req: Request, res: Response) => {
 
     testCases.set(problem[0].title, problemTestCases);
   } else {
-    const problems = (await Problem.all()) as FullProblemData[];
+    const problems = (await Problem.all()) as BaseProblemData[];
 
     for (const p of problems) {
       const testCase = (await TestCase.findByProblem(
@@ -184,7 +181,7 @@ export const update = async (req: Request, res: Response) => {
 
   const slug = testCase.problem;
 
-  const problem = (await Problem.findBySlug(slug)) as FullProblemData[];
+  const problem = (await Problem.findBySlug(slug)) as BaseProblemData[];
 
   if (!problem || !problem[0]) {
     throw new AppError(

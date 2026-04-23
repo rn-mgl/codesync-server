@@ -1,5 +1,5 @@
 import { env } from "@src/configs/env.config";
-import type { FullProblemData } from "@src/interface/problem.interface";
+import type { BaseProblemData } from "@src/interface/problem.interface";
 import type {
   JudgeOutput,
   SandboxData,
@@ -22,7 +22,7 @@ import { promisify } from "node:util";
 class SandboxService implements SandboxServiceData {
   code: string;
   language: SupportedLanguages;
-  problem: FullProblemData;
+  problem: BaseProblemData;
   testCases: FullTestCaseData[];
 
   private file: string | null = null;

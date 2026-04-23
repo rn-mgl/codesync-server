@@ -1,5 +1,5 @@
 import AppError from "@src/errors/app.error";
-import type { FullProblemData } from "@src/interface/problem.interface";
+import type { BaseProblemData } from "@src/interface/problem.interface";
 import type {
   JudgeOutput,
   SandboxServiceData,
@@ -22,10 +22,10 @@ import { SandboxService } from "./sandbox.service";
 
 export const loadExecutionContext = async (
   submission: PostSubmissionData & SubmissionType,
-): Promise<{ problem: FullProblemData; testCases: FullTestCaseData[] }> => {
+): Promise<{ problem: BaseProblemData; testCases: FullTestCaseData[] }> => {
   const problems = (await Problem.findBySlug(
     submission.problem,
-  )) as FullProblemData[];
+  )) as BaseProblemData[];
 
   if (!problems.length || !problems[0]) {
     throw new AppError(

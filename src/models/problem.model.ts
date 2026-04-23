@@ -1,14 +1,13 @@
 import { createConnection } from "@src/database/database";
 import type {
-  AdditionalProblemData,
   BaseProblemData,
-  FullProblemData,
   InputFormat,
   OutputFormat,
+  ProblemPayload,
 } from "@src/interface/problem.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
-class Problem implements FullProblemData {
+class Problem implements BaseProblemData {
   id: number;
   title: string;
   slug: string;
@@ -24,7 +23,7 @@ class Problem implements FullProblemData {
   updated_at: string;
   deleted_at: string | null;
 
-  constructor(data: FullProblemData) {
+  constructor(data: BaseProblemData) {
     this.id = data.id;
     this.title = data.title;
     this.slug = data.slug;
@@ -41,7 +40,7 @@ class Problem implements FullProblemData {
     this.deleted_at = data.deleted_at;
   }
 
-  static async create(data: BaseProblemData & Partial<AdditionalProblemData>) {
+  static async create(data: ProblemPayload) {
     try {
       const db = createConnection();
 
@@ -60,7 +59,7 @@ class Problem implements FullProblemData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred while performing the action.");
     }
   }
 
@@ -76,7 +75,7 @@ class Problem implements FullProblemData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred while performing the action.");
     }
   }
 
@@ -93,7 +92,7 @@ class Problem implements FullProblemData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred while performing the action.");
     }
   }
 
@@ -110,14 +109,11 @@ class Problem implements FullProblemData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred while performing the action.");
     }
   }
 
-  static async update(
-    id: number,
-    updates: Partial<BaseProblemData & AdditionalProblemData>,
-  ) {
+  static async update(id: number, updates: Partial<ProblemPayload>) {
     try {
       const db = createConnection();
 
@@ -137,7 +133,7 @@ class Problem implements FullProblemData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred while performing the action.");
     }
   }
 }

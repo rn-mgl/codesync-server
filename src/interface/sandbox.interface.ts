@@ -1,4 +1,4 @@
-import type { FullProblemData } from "./problem.interface";
+import type { BaseProblemData } from "./problem.interface";
 import type {
   SubmissionStatus,
   SupportedLanguages,
@@ -14,7 +14,7 @@ export interface SandboxData {
 export interface SandboxServiceData {
   code: string;
   language: SupportedLanguages;
-  problem: FullProblemData;
+  problem: BaseProblemData;
   testCases: FullTestCaseData[];
 }
 

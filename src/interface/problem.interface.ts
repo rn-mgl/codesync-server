@@ -12,13 +12,11 @@ export interface OutputFormat {
 }
 
 export interface BaseProblemData {
+  id: number;
   title: string;
   slug: string;
   description: string;
   difficulty: "easy" | "medium" | "hard";
-}
-
-export interface AdditionalProblemData {
   input_format: InputFormat;
   output_format: OutputFormat;
   constraints: string;
@@ -30,7 +28,14 @@ export interface AdditionalProblemData {
   deleted_at: string | null;
 }
 
-export interface FullProblemData
-  extends BaseProblemData, AdditionalProblemData {
-  id: number;
-}
+export type ProblemPayload = Omit<
+  BaseProblemData,
+  | "id"
+  | "acceptance_rate"
+  | "total_submissions"
+  | "created_at"
+  | "updated_at"
+  | "deleted_at"
+>;
+
+export interface AdditionalProblemData {}
