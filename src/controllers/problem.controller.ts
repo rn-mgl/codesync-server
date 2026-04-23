@@ -19,7 +19,7 @@ import { StatusCodes } from "http-status-codes";
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (isValidObject(body)) {
+  if (!isValidObject(body)) {
     throw new AppError(
       `Invalid Problem data. Missing values.`,
       StatusCodes.BAD_REQUEST,
@@ -92,7 +92,7 @@ export const update = async (req: Request, res: Response) => {
   const body = req.body;
   const params = req.params;
 
-  if (isValidObject(body)) {
+  if (!isValidObject(body)) {
     throw new AppError(
       `Invalid Problem data. Missing values.`,
       StatusCodes.BAD_REQUEST,
