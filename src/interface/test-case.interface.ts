@@ -11,4 +11,14 @@ export interface BaseTestCaseData {
   deleted_at: string | null;
 }
 
-export type TestCasePayload = Omit<BaseTestCaseData, "id" | "deleted_at">;
+export type TestCasePayload = Pick<
+  BaseTestCaseData,
+  | "problem_id"
+  | "input"
+  | "expected_output"
+  | "time_limit_ms"
+  | "memory_limit_mb"
+  | "is_sample"
+  | "is_hidden"
+  | "order_index"
+>;

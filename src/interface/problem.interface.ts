@@ -28,14 +28,14 @@ export interface BaseProblemData {
   deleted_at: string | null;
 }
 
-export type ProblemPayload = Omit<
+export type ProblemPayload = Pick<
   BaseProblemData,
-  | "id"
-  | "acceptance_rate"
-  | "total_submissions"
-  | "created_at"
-  | "updated_at"
-  | "deleted_at"
+  | "title"
+  | "slug"
+  | "description"
+  | "difficulty"
+  | "input_format"
+  | "output_format"
+  | "constraints"
+  | "editorial"
 >;
-
-export interface AdditionalProblemData {}
