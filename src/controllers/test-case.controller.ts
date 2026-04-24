@@ -1,13 +1,11 @@
 import AppError from "@src/errors/app.error";
 import { isValidTestCasePayload } from "@src/guard/test-case.guard";
-import type { BaseProblemData } from "@src/interface/problem.interface";
-import type { BaseTestCaseData } from "@src/interface/test-case.interface";
-import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
 import { getProblemByLookup } from "@src/services/problem.service";
 import {
   buildDeleteTestCasePayload,
   buildTestCasePayload,
+  getAllTestCases,
   getTestCaseByLookup,
 } from "@src/services/test-case.service";
 import {
@@ -75,33 +73,13 @@ export const create = async (req: Request, res: Response) => {
 export const all = async (req: Request, res: Response) => {
   const query = req.query;
 
-  const testCases: Map<string, BaseTestCaseData[]> = new Map();
-
-  let slug: string | null = null;
+  let slug: string = "";
 
   if (isValidObject(query) && isValidString(query.problem)) {
     slug = query.problem;
   }
 
-  if (slug) {
-    const problem = await getProblemByLookup(slug, "slug");
-
-    const problemTestCases = (await TestCase.findByProblem(
-      problem.id,
-    )) as BaseTestCaseData[];
-
-    testCases.set(problem.title, problemTestCases);
-  } else {
-    const problems = (await Problem.all()) as BaseProblemData[];
-
-    for (const p of problems) {
-      const testCase = (await TestCase.findByProblem(
-        p.id,
-      )) as BaseTestCaseData[];
-
-      testCases.set(p.title, testCase);
-    }
-  }
+  const testCases = await getAllTestCases(slug);
 
   return res.status(StatusCodes.OK).json({
     success: true,

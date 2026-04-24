@@ -1,13 +1,16 @@
 import AppError from "@src/errors/app.error";
+import type { BaseProblemData } from "@src/interface/problem.interface";
 import type {
   BaseTestCaseData,
   SoftDeleteTestCasePayload,
   TestCasePayload,
 } from "@src/interface/test-case.interface";
+import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
 import { assignField, type ValidationType } from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
+import { getProblemByLookup } from "./problem.service";
 
 export function buildTestCasePayload(
   testCase: TestCasePayload,
@@ -61,12 +64,6 @@ export async function getTestCaseByLookup(
 
 export async function getTestCaseByLookup(
   identifier: number,
-  lookup: "problem",
-  withProblem: boolean,
-): Promise<BaseTestCaseData[]>;
-
-export async function getTestCaseByLookup(
-  identifier: number,
   lookup: string,
 ): Promise<BaseTestCaseData | BaseTestCaseData[]>;
 
@@ -107,4 +104,32 @@ export function buildDeleteTestCasePayload(): SoftDeleteTestCasePayload {
   };
 
   return updateData;
+}
+
+export async function getAllTestCases(
+  problemSlug?: string,
+): Promise<Map<string, BaseTestCaseData[]>> {
+  const testCases: Map<string, BaseTestCaseData[]> = new Map();
+
+  if (problemSlug) {
+    const problem = await getProblemByLookup(problemSlug, "slug");
+
+    const problemTestCases = (await TestCase.findByProblem(
+      problem.id,
+    )) as BaseTestCaseData[];
+
+    testCases.set(problem.title, problemTestCases);
+  } else {
+    const problems = (await Problem.all()) as BaseProblemData[];
+
+    for (const p of problems) {
+      const testCase = (await TestCase.findByProblem(
+        p.id,
+      )) as BaseTestCaseData[];
+
+      testCases.set(p.title, testCase);
+    }
+  }
+
+  return testCases;
 }
