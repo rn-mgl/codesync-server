@@ -150,7 +150,7 @@ export const destroy = async (req: Request, res: Response) => {
 
   const updateData = buildDeleteProblemPayload(problem.slug);
 
-  const deleted = await Problem.update(problem.id, updateData);
+  const deleted = await Problem.destroy(problem.id, updateData);
 
   if (!deleted) {
     throw new AppError(

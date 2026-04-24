@@ -22,3 +22,5 @@ export type TestCasePayload = Pick<
   | "is_hidden"
   | "order_index"
 >;
+
+export type SoftDeleteTestCasePayload = Pick<BaseTestCaseData, "deleted_at">;

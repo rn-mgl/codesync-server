@@ -1,6 +1,7 @@
 import { createConnection } from "@src/database/database";
 import type {
   BaseTestCaseData,
+  SoftDeleteTestCasePayload,
   TestCasePayload,
 } from "@src/interface/test-case.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
@@ -162,6 +163,29 @@ class TestCase implements BaseTestCaseData {
         .map((column) => `${column} = ?`)
         .join(", ");
       const values = Object.values(updates);
+
+      const query = `UPDATE test_cases SET ${update} WHERE id = ?;`;
+
+      const [result, fields] = await db.execute<ResultSetHeader>(query, [
+        ...values,
+        id,
+      ]);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error(`An error occurred during the operation.`);
+    }
+  }
+
+  static async destroy(id: number, data: SoftDeleteTestCasePayload) {
+    try {
+      const db = createConnection();
+
+      const update = Object.keys(data)
+        .map((key) => `${key} = ?`)
+        .join(", ");
+      const values = Object.values(data);
 
       const query = `UPDATE test_cases SET ${update} WHERE id = ?;`;
 

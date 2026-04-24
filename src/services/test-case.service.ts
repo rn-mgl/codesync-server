@@ -1,6 +1,7 @@
 import AppError from "@src/errors/app.error";
 import type {
   BaseTestCaseData,
+  SoftDeleteTestCasePayload,
   TestCasePayload,
 } from "@src/interface/test-case.interface";
 import TestCase from "@src/models/test-case.model";
@@ -100,8 +101,8 @@ export async function getTestCaseByLookup(identifier: number, lookup: string) {
   return testCase;
 }
 
-export function buildDeleteTestCasePayload() {
-  const updateData = {
+export function buildDeleteTestCasePayload(): SoftDeleteTestCasePayload {
+  const updateData: SoftDeleteTestCasePayload = {
     deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
   };
 

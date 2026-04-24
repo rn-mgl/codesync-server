@@ -2,6 +2,7 @@ import AppError from "@src/errors/app.error";
 import type {
   BaseProblemData,
   ProblemPayload,
+  SoftDeleteProblemPayload,
 } from "@src/interface/problem.interface";
 import Problem from "@src/models/problem.model";
 import { assignField, type ValidationType } from "@src/utils/type.util";
@@ -77,8 +78,10 @@ export async function getProblemByLookup(
   return problem[0];
 }
 
-export function buildDeleteProblemPayload(slug: string) {
-  const updateData: Pick<BaseProblemData, "slug" | "deleted_at"> = {
+export function buildDeleteProblemPayload(
+  slug: string,
+): SoftDeleteProblemPayload {
+  const updateData: SoftDeleteProblemPayload = {
     deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
     slug: slug + "_" + randomUUID(),
   };

@@ -212,7 +212,7 @@ export const destroy = async (req: Request, res: Response) => {
 
   const updateData = buildDeleteTestCasePayload();
 
-  const deleted = await TestCase.update(testCase.id, updateData);
+  const deleted = await TestCase.destroy(testCase.id, updateData);
 
   if (!deleted) {
     throw new AppError(

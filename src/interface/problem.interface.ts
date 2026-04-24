@@ -39,3 +39,8 @@ export type ProblemPayload = Pick<
   | "constraints"
   | "editorial"
 >;
+
+export type SoftDeleteProblemPayload = Pick<
+  BaseProblemData,
+  "slug" | "deleted_at"
+>;
