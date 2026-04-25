@@ -1,29 +1,35 @@
 import AppError from "@src/errors/app.error";
-import type {
-  AdditionalAchievementData,
-  BaseAchievementData,
-  FullAchievementData,
-} from "@src/interface/achievement.interface";
+import { isValidAchievementPayload } from "@src/guard/achievement.guard";
 import Achievement from "@src/models/achievement.model";
 import {
-  assignField,
-  isAdditionalAchievementData,
-  isBaseAchievementData,
+  buildAchievementPayload,
+  buildDeleteAchievementPayload,
+  getAchievementByLookup,
+} from "@src/services/achievement.service";
+import { uploadFile } from "@src/services/cloudinary.service";
+import {
   isValidIdentifierParam,
   isValidLookupQuery,
-  isValidPostSubmissionData,
+  isValidObject,
+  isValidString,
 } from "@src/utils/type.util";
-import { v2 as cloudinary } from "cloudinary";
-import { randomUUID } from "crypto";
 import { type Request, type Response } from "express";
-import fs from "fs";
 import { StatusCodes } from "http-status-codes";
-import { DateTime } from "luxon";
-import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
   const file = req.file;
+
+  if (!isValidObject(file)) {
+    throw new AppError(
+      `File could not be found in the server.`,
+      StatusCodes.FAILED_DEPENDENCY,
+    );
+  }
+
+  if (!isValidObject(body)) {
+    throw new AppError(`Invalid achievement data.`, StatusCodes.BAD_REQUEST);
+  }
 
   if (!file?.path) {
     throw new AppError(
@@ -32,22 +38,10 @@ export const create = async (req: Request, res: Response) => {
     );
   }
 
-  const uploaded = await cloudinary.uploader.upload(file.path, {
-    folder: "codesync-uploads",
-  });
+  const uploaded = await uploadFile(file.path);
 
-  const unlink = fs.unlink(file.path, (e) => {
-    console.log("Unlink Error: " + e);
-  });
-
-  if (!uploaded) {
-    throw new AppError(
-      `An error occurred during file upload.`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
-
-  const achievement = {
+  // need to hand pick fields because details are passed as form data instead of nested json
+  const achievementPayload = {
     badge_color: body.badge_color,
     category: body.category,
     description: body.description,
@@ -58,20 +52,11 @@ export const create = async (req: Request, res: Response) => {
     unlock_criteria: body.unlock_criteria,
   };
 
-  if (!isBaseAchievementData(achievement)) {
+  if (!isValidAchievementPayload(achievementPayload)) {
     throw new AppError(`Invalid achievement data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const createData: BaseAchievementData = {
-    badge_color: achievement.badge_color,
-    category: achievement.category,
-    description: achievement.description,
-    icon: achievement.icon,
-    name: achievement.name,
-    points: achievement.points,
-    slug: achievement.slug,
-    unlock_criteria: achievement.unlock_criteria,
-  };
+  const createData = buildAchievementPayload(achievementPayload);
 
   const created = await Achievement.create(createData);
 
@@ -82,8 +67,8 @@ export const create = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({
-    success: !!created,
+  return res.status(StatusCodes.CREATED).json({
+    success: true,
     data: { message: `${createData.name} created successfully.` },
   });
 };
@@ -100,62 +85,51 @@ export const find = async (req: Request, res: Response) => {
   const params = req.params;
   const query = req.query;
 
-  if (!isValidLookupQuery(query) || !isValidIdentifierParam(params)) {
+  if (!isValidLookupQuery(query)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  let achievement: RowDataPacket[] | null = null;
-
-  switch (query.lookup) {
-    case "id":
-      const id = parseInt(params.identifier);
-
-      achievement = await Achievement.findById(id);
-
-      if (!achievement.length || !achievement[0]) {
-        throw new AppError(
-          `The achievement you're trying to get does not exist.`,
-          StatusCodes.NOT_FOUND,
-        );
-      }
-
-      return res
-        .status(
-          achievement ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR,
-        )
-        .json({
-          success: !!achievement,
-          data: { achievement: achievement[0] },
-        });
-
-    case "slug":
-      const slug = params.identifier;
-
-      achievement = await Achievement.findBySlug(slug);
-
-      if (!achievement.length || !achievement[0]) {
-        throw new AppError(
-          `The achievement you're trying to get does not exist.`,
-          StatusCodes.NOT_FOUND,
-        );
-      }
-
-      return res
-        .status(
-          achievement ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR,
-        )
-        .json({
-          success: !!achievement,
-          data: { achievement: achievement[0] },
-        });
-    default:
-      throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
+  if (!isValidIdentifierParam(params)) {
+    throw new AppError(`Invalid request.`, StatusCodes.BAD_REQUEST);
   }
+
+  const achievement = await getAchievementByLookup(
+    params.identifier,
+    query.lookup,
+  );
+
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { achievement } });
 };
 
 export const update = async (req: Request, res: Response) => {
   const params = req.params;
   const body = req.body;
+  const file = req.file;
+
+  if (!isValidObject(body)) {
+    throw new AppError(`Invalid request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  // if there's no url for the icon and there's no new raw file
+  if (!isValidString(body.icon) && !isValidObject(file)) {
+    throw new AppError(`Invalid request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!isValidLookupQuery(body)) {
+    throw new AppError(`Invalid lookup request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!isValidIdentifierParam(params)) {
+    throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (file?.path) {
+    const uploaded = await uploadFile(file.path);
+
+    body.icon = uploaded.secure_url;
+  }
 
   const achievementPayload = {
     badge_color: body.badge_color,
@@ -168,102 +142,18 @@ export const update = async (req: Request, res: Response) => {
     unlock_criteria: body.unlock_criteria,
   };
 
-  const file = req.file;
-
-  if (file?.path) {
-    const uploaded = await cloudinary.uploader.upload(file.path, {
-      folder: "codesync-uploads",
-    });
-
-    const unlink = fs.unlink(file.path, (e) => {
-      console.log(`Unlink Error : ` + e);
-    });
-
-    achievementPayload.icon = uploaded.secure_url;
-
-    if (!uploaded) {
-      throw new AppError(
-        `An error occurred during upload.`,
-        StatusCodes.FAILED_DEPENDENCY,
-      );
-    }
-  }
-
-  if (!isValidLookupQuery(body)) {
-    throw new AppError(`Invalid lookup request.`, StatusCodes.BAD_REQUEST);
-  }
-
-  if (!isValidIdentifierParam(params)) {
-    throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
-  }
-
-  if (!isBaseAchievementData(achievementPayload, "partial")) {
+  if (!isValidAchievementPayload(achievementPayload, "partial")) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<FullAchievementData> = {};
+  const updateData = buildAchievementPayload(achievementPayload, "partial");
 
-  if (isBaseAchievementData(achievementPayload, "partial")) {
-    const FIELDS: (keyof BaseAchievementData)[] = [
-      "badge_color",
-      "category",
-      "description",
-      "icon",
-      "name",
-      "points",
-      "slug",
-      "unlock_criteria",
-    ];
+  const achievement = await getAchievementByLookup(
+    params.identifier,
+    body.lookup,
+  );
 
-    for (const field of FIELDS) {
-      const value = achievementPayload[field as keyof BaseAchievementData];
-
-      if (value !== undefined) {
-        assignField(field, value, updateData);
-      }
-    }
-  }
-
-  if (isAdditionalAchievementData(achievementPayload, "partial")) {
-    const FIELDS: (keyof AdditionalAchievementData)[] = ["deleted_at"];
-
-    for (const field of FIELDS) {
-      const value =
-        achievementPayload[field as keyof AdditionalAchievementData];
-
-      if (value !== undefined) {
-        assignField(field, value, updateData);
-      }
-    }
-  }
-
-  let achievementId: number;
-
-  if (body.lookup === "slug") {
-    const achievement = (await Achievement.findBySlug(
-      params.identifier,
-    )) as FullAchievementData[];
-
-    if (!achievement || !achievement[0]) {
-      throw new AppError(
-        `The record you are trying to update does not exist.`,
-        StatusCodes.NOT_FOUND,
-      );
-    }
-
-    achievementId = achievement[0].id;
-  } else {
-    achievementId = Number(params.identifier);
-
-    if (Number.isNaN(achievementId)) {
-      throw new AppError(
-        `Invalid achievement record.`,
-        StatusCodes.BAD_REQUEST,
-      );
-    }
-  }
-
-  const updated = await Achievement.update(achievementId, updateData);
+  const updated = await Achievement.update(achievement.id, updateData);
 
   if (!updated) {
     throw new AppError(
@@ -272,12 +162,10 @@ export const update = async (req: Request, res: Response) => {
     );
   }
 
-  return res
-    .status(updated ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
-    .json({
-      success: !!updated,
-      data: { message: `${updateData.name} has been updated successfully.` },
-    });
+  return res.status(StatusCodes.OK).json({
+    success: true,
+    data: { message: `${updateData.name} has been updated successfully.` },
+  });
 };
 
 export const destroy = async (req: Request, res: Response) => {
@@ -292,44 +180,14 @@ export const destroy = async (req: Request, res: Response) => {
     throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
   }
 
-  let achievement: FullAchievementData[] | null = null;
+  const achievement = await getAchievementByLookup(
+    params.identifier,
+    query.lookup,
+  );
 
-  if (query.lookup === "slug") {
-    achievement = (await Achievement.findBySlug(
-      params.identifier,
-    )) as FullAchievementData[];
+  const updateData = buildDeleteAchievementPayload(achievement.slug);
 
-    if (!achievement || !achievement[0]) {
-      throw new AppError(
-        `The achievement you're trying to delete does not exist.`,
-        StatusCodes.NOT_FOUND,
-      );
-    }
-  } else {
-    const achievementId = Number(params.identifier);
-
-    if (Number.isNaN(achievementId)) {
-      throw new AppError(`Invalid identfier.`, StatusCodes.BAD_REQUEST);
-    }
-
-    achievement = (await Achievement.findById(
-      achievementId,
-    )) as FullAchievementData[];
-
-    if (!achievement || !achievement[0]) {
-      throw new AppError(
-        `The achievement you're trying to delete does not exist.`,
-        StatusCodes.NOT_FOUND,
-      );
-    }
-  }
-
-  const updateData: Pick<FullAchievementData, "slug" | "deleted_at"> = {
-    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
-    slug: achievement[0].slug + "_" + randomUUID(),
-  };
-
-  const deleted = await Achievement.update(achievement[0].id, updateData);
+  const deleted = await Achievement.destroy(achievement.id, updateData);
 
   if (!deleted) {
     throw new AppError(
@@ -338,12 +196,10 @@ export const destroy = async (req: Request, res: Response) => {
     );
   }
 
-  return res
-    .status(deleted ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
-    .json({
-      success: !!deleted,
-      data: {
-        message: `${achievement[0].name} has been deleted successfully.`,
-      },
-    });
+  return res.status(StatusCodes.OK).json({
+    success: true,
+    data: {
+      message: `Achievement has been deleted successfully.`,
+    },
+  });
 };

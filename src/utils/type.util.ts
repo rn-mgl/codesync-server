@@ -1,9 +1,5 @@
 import { type BaseUserData } from "@interface/user.interface";
 import type {
-  AdditionalAchievementData,
-  BaseAchievementData,
-} from "@src/interface/achievement.interface";
-import type {
   AdditionalAttemptData,
   BaseAttemptData,
 } from "@src/interface/attempt.interface";
@@ -70,7 +66,9 @@ export const validateFields = <T extends object>(
   }
 };
 
-export const isValidIdParam = (data: unknown): data is Record<"id", string> => {
+export const isValidIdParam = <T>(
+  data: T,
+): data is Extract<T, object> & Record<"id", string> => {
   return (
     typeof data === "object" &&
     data !== null &&
@@ -79,9 +77,9 @@ export const isValidIdParam = (data: unknown): data is Record<"id", string> => {
   );
 };
 
-export const isValidIdentifierParam = (
-  data: unknown,
-): data is Record<"identifier", string> => {
+export const isValidIdentifierParam = <T>(
+  data: T,
+): data is Extract<T, object> & Record<"identifier", string> => {
   return (
     typeof data === "object" &&
     data !== null &&
@@ -90,9 +88,9 @@ export const isValidIdentifierParam = (
   );
 };
 
-export const isValidSlugParam = (
-  data: unknown,
-): data is Record<"slug", string> => {
+export const isValidSlugParam = <T>(
+  data: T,
+): data is Extract<T, object> & Record<"slug", string> => {
   return (
     typeof data === "object" &&
     data !== null &&
@@ -101,9 +99,9 @@ export const isValidSlugParam = (
   );
 };
 
-export const isValidLookupQuery = (
-  data: unknown,
-): data is object & Record<"lookup", string> => {
+export const isValidLookupQuery = <T>(
+  data: T,
+): data is Extract<T, object> & Record<"lookup", string> => {
   return (
     typeof data === "object" &&
     data !== null &&
@@ -821,61 +819,6 @@ export function isAdditionalStudyGroupMemberData(
   const REQUIRED_FIELDS: (keyof AdditionalStudyGroupMemberData)[] = [
     "joined_at",
   ];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isBaseAchievementData(
-  data: unknown,
-  type?: "full",
-): data is BaseAchievementData;
-
-export function isBaseAchievementData(
-  data: unknown,
-  type: "partial",
-): data is Partial<BaseAchievementData>;
-
-export function isBaseAchievementData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: (keyof BaseAchievementData)[] = [
-    "badge_color",
-    "category",
-    "description",
-    "icon",
-    "name",
-    "points",
-    "slug",
-    "unlock_criteria",
-  ];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isAdditionalAchievementData(
-  data: unknown,
-  type?: "full",
-): data is AdditionalAchievementData;
-
-export function isAdditionalAchievementData(
-  data: unknown,
-  type: "partial",
-): data is Partial<AdditionalAchievementData>;
-
-export function isAdditionalAchievementData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: (keyof AdditionalAchievementData)[] = ["deleted_at"];
 
   return validateFields(data, REQUIRED_FIELDS, type);
 }

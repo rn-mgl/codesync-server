@@ -20,6 +20,7 @@ export interface UnlockCriteria {
 }
 
 export interface BaseAchievementData {
+  id: number;
   name: string;
   slug: string;
   description: string;
@@ -28,16 +29,25 @@ export interface BaseAchievementData {
   category: ACHIEVEMENT_CATEGORIES;
   unlock_criteria: UnlockCriteria;
   points: number;
-}
-
-export interface AdditionalAchievementData {
   deleted_at: string | null;
 }
 
-export interface FullAchievementData
-  extends BaseAchievementData, AdditionalAchievementData {
-  id: number;
-}
+export type AchievementPayload = Pick<
+  BaseAchievementData,
+  | "name"
+  | "slug"
+  | "description"
+  | "icon"
+  | "badge_color"
+  | "category"
+  | "unlock_criteria"
+  | "points"
+>;
+
+export type SoftDeleteAchievementPayload = Pick<
+  BaseAchievementData,
+  "slug" | "deleted_at"
+>;
 
 type BADGE_COLORS = "diamond" | "gold" | "silver" | "bronze";
 

@@ -1,12 +1,13 @@
 import { createConnection } from "@src/database/database";
 import type {
+  AchievementPayload,
   BaseAchievementData,
-  FullAchievementData,
+  SoftDeleteAchievementPayload,
   UnlockCriteria,
 } from "@src/interface/achievement.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
-class Achievement implements FullAchievementData {
+class Achievement implements BaseAchievementData {
   id: number;
   badge_color: "diamond" | "gold" | "silver" | "bronze";
   category: "problems" | "streak" | "social" | "skill" | "special";
@@ -18,7 +19,7 @@ class Achievement implements FullAchievementData {
   unlock_criteria: UnlockCriteria;
   deleted_at: string | null;
 
-  constructor(data: FullAchievementData) {
+  constructor(data: BaseAchievementData) {
     this.id = data.id;
     this.badge_color = data.badge_color;
     this.category = data.category;
@@ -31,7 +32,7 @@ class Achievement implements FullAchievementData {
     this.deleted_at = data.deleted_at;
   }
 
-  static async create(data: BaseAchievementData) {
+  static async create(data: AchievementPayload) {
     try {
       const db = createConnection();
 
@@ -47,7 +48,7 @@ class Achievement implements FullAchievementData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -62,7 +63,7 @@ class Achievement implements FullAchievementData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -79,7 +80,7 @@ class Achievement implements FullAchievementData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -96,11 +97,11 @@ class Achievement implements FullAchievementData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
-  static async update(id: number, updates: Partial<FullAchievementData>) {
+  static async update(id: number, updates: Partial<AchievementPayload>) {
     try {
       const db = createConnection();
 
@@ -118,7 +119,29 @@ class Achievement implements FullAchievementData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
+    }
+  }
+
+  static async destroy(id: number, data: SoftDeleteAchievementPayload) {
+    try {
+      const db = createConnection();
+
+      const update = Object.keys(data)
+        .map((key) => `${key} = ?`)
+        .join(", ");
+      const values = Object.values(data);
+
+      const query = `UPDATE achievements SET ${update} WHERE id = ?;`;
+      const [result, fields] = await db.execute<ResultSetHeader>(query, [
+        ...values,
+        id,
+      ]);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error("An error occurred during the operation.");
     }
   }
 }
