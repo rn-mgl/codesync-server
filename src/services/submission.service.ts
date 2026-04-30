@@ -139,7 +139,7 @@ export function analyzeResult(
   }, 0);
 
   const sumRunTime = Object.values(codeOutput).reduce((count, output) => {
-    return output.run_time + count;
+    return output.runtime + count;
   }, 0);
 
   const averageMemoryUsed = Number((sumMemoryUsed / totalTestCases).toFixed(2));

@@ -262,7 +262,7 @@ class SandboxService implements SandboxServiceData {
       judgedOutput.output[testCaseId] = {
         matched: isMatched,
         memory: totalMemoryUsed,
-        run_time: totalCpuUsage,
+        runtime: totalCpuUsage,
         result: functionOutput ?? null,
         logs: testCaseResult.logs,
       };

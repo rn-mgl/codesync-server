@@ -41,7 +41,7 @@ export type JudgeSuccessOutput = Record<
   {
     matched: boolean;
     memory: number;
-    run_time: number;
+    runtime: number;
     result: unknown;
     logs: unknown[];
   }
@@ -49,7 +49,7 @@ export type JudgeSuccessOutput = Record<
 
 export type JudgeErrorOutput = Record<
   string,
-  { matched: boolean; memory: number; run_time: number; result: unknown }
+  { matched: boolean; memory: number; runtime: number; result: unknown }
 >;
 
 export type JudgeOutput =
