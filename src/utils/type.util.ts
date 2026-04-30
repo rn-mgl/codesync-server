@@ -32,12 +32,6 @@ import type {
   BaseStudyGroupMemberData,
 } from "@src/interface/study-group.interface";
 import type {
-  AdditionalSubmissionData,
-  BaseSubmissionData,
-  PostSubmissionData,
-  SubmissionType,
-} from "@src/interface/submission.interface";
-import type {
   AdditionalTopicData,
   BaseTopicData,
 } from "@src/interface/topic.interface";
@@ -250,92 +244,6 @@ export function isAdditionalHintData(
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isBaseSubmissionData(
-  data: unknown,
-  type?: "full",
-): data is BaseSubmissionData;
-
-export function isBaseSubmissionData(
-  data: unknown,
-  type: "partial",
-): data is Partial<BaseSubmissionData>;
-
-export function isBaseSubmissionData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: readonly (keyof BaseSubmissionData)[] = [
-    "code",
-    "language",
-    "problem_id",
-    "status",
-    "user_id",
-  ] as const;
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isAdditionalSubmissionData(
-  data: unknown,
-  type?: "full",
-): data is AdditionalSubmissionData;
-
-export function isAdditionalSubmissionData(
-  data: unknown,
-  type: "partial",
-): data is Partial<AdditionalSubmissionData>;
-
-export function isAdditionalSubmissionData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: readonly (keyof AdditionalSubmissionData)[] = [
-    "error_message",
-    "execution_time_ms",
-    "memory_used_mb",
-    "test_results",
-  ] as const;
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isValidSubmissionType(data: unknown): data is SubmissionType {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  return (
-    "type" in data &&
-    typeof data.type === "string" &&
-    data.type !== undefined &&
-    ["run", "test"].includes(data.type)
-  );
-}
-
-export function isValidPostSubmissionData(
-  data: unknown,
-): data is PostSubmissionData {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: (keyof PostSubmissionData)[] = [
-    "code",
-    "language",
-    "problem",
-  ];
-
-  return validateFields(data, REQUIRED_FIELDS, "full");
 }
 
 export function isBaseAttemptData(

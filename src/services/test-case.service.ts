@@ -55,19 +55,26 @@ export function buildTestCasePayload(
 export async function getTestCaseByLookup(
   identifier: number,
   lookup: "id",
+  options?: Partial<BaseTestCaseData>,
 ): Promise<BaseTestCaseData>;
 
 export async function getTestCaseByLookup(
   identifier: number,
   lookup: "problem",
+  options?: Partial<BaseTestCaseData>,
 ): Promise<BaseTestCaseData[]>;
 
 export async function getTestCaseByLookup(
   identifier: number,
   lookup: string,
+  options?: Partial<BaseTestCaseData>,
 ): Promise<BaseTestCaseData | BaseTestCaseData[]>;
 
-export async function getTestCaseByLookup(identifier: number, lookup: string) {
+export async function getTestCaseByLookup(
+  identifier: number,
+  lookup: string,
+  options?: Partial<BaseTestCaseData>,
+) {
   let testCase: BaseTestCaseData | BaseTestCaseData[] | null = null;
 
   switch (lookup) {
@@ -87,6 +94,7 @@ export async function getTestCaseByLookup(identifier: number, lookup: string) {
     case "problem":
       testCase = (await TestCase.findByProblem(
         identifier,
+        options,
       )) as BaseTestCaseData[];
 
       break;

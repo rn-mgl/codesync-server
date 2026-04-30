@@ -1,14 +1,13 @@
 import { createConnection } from "@src/database/database";
 import type {
-  AdditionalSubmissionData,
   BaseSubmissionData,
-  FullSubmissionData,
+  SubmissionPayload,
   SubmissionStatus,
   SupportedLanguages,
 } from "@src/interface/submission.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
-class Submission implements FullSubmissionData {
+class Submission implements BaseSubmissionData {
   id: number;
   code: string;
   error_message: string | null;
@@ -21,7 +20,7 @@ class Submission implements FullSubmissionData {
   user_id: number;
   deleted_at: string | null;
 
-  constructor(data: FullSubmissionData) {
+  constructor(data: BaseSubmissionData) {
     this.id = data.id;
     this.code = data.code;
     this.error_message = data.error_message;
@@ -35,9 +34,7 @@ class Submission implements FullSubmissionData {
     this.deleted_at = data.deleted_at;
   }
 
-  static async create(
-    data: BaseSubmissionData & Partial<AdditionalSubmissionData>,
-  ) {
+  static async create(data: SubmissionPayload) {
     try {
       const db = createConnection();
 
@@ -59,7 +56,7 @@ class Submission implements FullSubmissionData {
   }
 
   static async all(
-    options?: Partial<Pick<FullSubmissionData, "status" | "problem_id">>,
+    options?: Partial<Pick<BaseSubmissionData, "status" | "problem_id">>,
   ) {
     try {
       const db = createConnection();

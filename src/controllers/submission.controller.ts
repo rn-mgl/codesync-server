@@ -1,26 +1,27 @@
 import AppError from "@src/errors/app.error";
+import {
+  isValidCreateSubmissionPayload,
+  isValidSubmissionPayload,
+  isValidSubmissionType,
+} from "@src/guard/submission.guard";
 import type { UserMiddleware } from "@src/interface/auth.interface";
 import type { JudgeOutput } from "@src/interface/sandbox.interface";
 import type {
-  AdditionalSubmissionData,
-  BaseSubmissionData,
+  SubmissionPayload,
   SubmissionStatistics,
 } from "@src/interface/submission.interface";
 import Submission from "@src/models/submission.model";
 import {
   analyzeResult,
+  buildSubmissionPayload,
   buildSubmissionStatistics,
   executeSubmission,
   loadExecutionContext,
 } from "@src/services/submission.service";
 import {
-  assignField,
-  isAdditionalSubmissionData,
-  isBaseSubmissionData,
   isValidIdentifierParam,
   isValidLookupQuery,
-  isValidPostSubmissionData,
-  isValidSubmissionType,
+  isValidObject,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -30,30 +31,37 @@ export const create = async (req: Request, res: Response) => {
   const body = req.body;
   const user = req.app.get("user") as UserMiddleware;
 
-  if (!("submission" in body) || typeof body.submission !== "object") {
+  if (!isValidObject(body)) {
     throw new AppError(
-      `Invalid Problem data. Missing values.`,
+      `Invalid Submission data. Missing values.`,
       StatusCodes.BAD_REQUEST,
     );
   }
 
-  const { submission } = body;
+  const submissionPayload = body.submission;
 
-  if (!isValidSubmissionType(submission)) {
+  if (!isValidObject(submissionPayload)) {
+    throw new AppError(
+      `Invalid Submission data. Missing values.`,
+      StatusCodes.BAD_REQUEST,
+    );
+  }
+
+  if (!isValidSubmissionType(submissionPayload)) {
     throw new AppError(`Invalid submission type.`, StatusCodes.BAD_REQUEST);
   }
 
-  const type = submission.type;
+  const type = submissionPayload.type;
 
-  if (!isValidPostSubmissionData(submission)) {
+  if (!isValidCreateSubmissionPayload(submissionPayload)) {
     throw new AppError(`Invalid submission type.`, StatusCodes.BAD_REQUEST);
   }
 
-  const { problem, testCases } = await loadExecutionContext(submission);
+  const { problem, testCases } = await loadExecutionContext(submissionPayload);
 
   const processedCode: JudgeOutput = await executeSubmission({
-    code: submission.code,
-    language: submission.language,
+    code: submissionPayload.code,
+    language: submissionPayload.language,
     problem: problem,
     testCases: testCases,
   });
@@ -62,12 +70,11 @@ export const create = async (req: Request, res: Response) => {
     case "run":
       const analysis = analyzeResult(processedCode, testCases);
 
-      const createSubmission: BaseSubmissionData &
-        Partial<AdditionalSubmissionData> = {
+      const createSubmission: SubmissionPayload = {
         user_id: user.id,
         problem_id: problem.id,
-        code: submission.code,
-        language: submission.language,
+        code: submissionPayload.code,
+        language: submissionPayload.language,
         status: analysis.status,
         memory_used_mb: analysis.success ? analysis.memoryUsedMb : 0,
         execution_time_ms: analysis.success ? analysis.executionTimeMs : 0,
@@ -77,35 +84,11 @@ export const create = async (req: Request, res: Response) => {
         error_message: !analysis.success ? analysis.message : null,
       };
 
-      if (!isBaseSubmissionData(createSubmission)) {
+      if (!isValidSubmissionPayload(createSubmission)) {
         throw new AppError(`Invalid submission data.`, StatusCodes.BAD_REQUEST);
       }
 
-      const createData: BaseSubmissionData & Partial<AdditionalSubmissionData> =
-        {
-          code: createSubmission.code,
-          language: createSubmission.language,
-          problem_id: createSubmission.problem_id,
-          status: createSubmission.status,
-          user_id: createSubmission.user_id,
-        };
-
-      if (isAdditionalSubmissionData(createSubmission, "partial")) {
-        const FIELDS: (keyof AdditionalSubmissionData)[] = [
-          "error_message",
-          "execution_time_ms",
-          "memory_used_mb",
-          "test_results",
-        ];
-
-        for (const field of FIELDS) {
-          const value =
-            createSubmission[field as keyof AdditionalSubmissionData];
-          if (value !== undefined) {
-            assignField(field, value, createData);
-          }
-        }
-      }
+      const createData = buildSubmissionPayload(createSubmission);
 
       const created = await Submission.create(createData);
 

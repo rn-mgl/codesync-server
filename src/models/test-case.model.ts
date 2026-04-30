@@ -113,7 +113,7 @@ class TestCase implements BaseTestCaseData {
 
   static async findByProblem(
     problemId: number,
-    type?: Partial<Pick<BaseTestCaseData, "is_sample" | "is_hidden">>,
+    options?: Partial<BaseTestCaseData>,
   ) {
     try {
       const db = createConnection();
@@ -126,11 +126,22 @@ class TestCase implements BaseTestCaseData {
 
       const values: (string | number | boolean)[] = [problemId];
 
-      if (type) {
-        const VALID_TYPES: (keyof typeof type)[] = ["is_sample", "is_hidden"];
+      if (options) {
+        const VALID_TYPES: (keyof typeof options)[] = [
+          "id",
+          "problem_id",
+          "input",
+          "expected_output",
+          "time_limit_ms",
+          "memory_limit_mb",
+          "is_sample",
+          "is_hidden",
+          "order_index",
+          "deleted_at",
+        ];
 
         for (const option of VALID_TYPES) {
-          const value = type[option as keyof typeof type];
+          const value = options[option as keyof typeof options];
 
           if (typeof value === "boolean") {
             conditions.push(`tc.${option} = ?`);

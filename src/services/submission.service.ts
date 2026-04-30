@@ -1,4 +1,3 @@
-import AppError from "@src/errors/app.error";
 import type { BaseProblemData } from "@src/interface/problem.interface";
 import type {
   JudgeOutput,
@@ -6,48 +5,79 @@ import type {
 } from "@src/interface/sandbox.interface";
 import type {
   AnalysisResult,
-  FullSubmissionData,
-  PostSubmissionData,
+  BaseSubmissionData,
+  CreateSubmissionPayload,
+  SubmissionPayload,
   SubmissionStatistics,
   SubmissionStatus,
   SubmissionType,
   SupportedLanguages,
 } from "@src/interface/submission.interface";
 import type { BaseTestCaseData } from "@src/interface/test-case.interface";
-import Problem from "@src/models/problem.model";
 import Submission from "@src/models/submission.model";
-import TestCase from "@src/models/test-case.model";
-import { StatusCodes } from "http-status-codes";
+import { assignField, type ValidationType } from "@src/utils/type.util";
+import { getProblemByLookup } from "./problem.service";
 import { SandboxService } from "./sandbox.service";
+import { getTestCaseByLookup } from "./test-case.service";
 
-export const loadExecutionContext = async (
-  submission: PostSubmissionData & SubmissionType,
-): Promise<{ problem: BaseProblemData; testCases: BaseTestCaseData[] }> => {
-  const problems = (await Problem.findBySlug(
-    submission.problem,
-  )) as BaseProblemData[];
+export function buildSubmissionPayload(
+  submission: SubmissionPayload,
+  type?: "full",
+): SubmissionPayload;
 
-  if (!problems.length || !problems[0]) {
-    throw new AppError(
-      `The problem ${submission.problem} does not exist.`,
-      StatusCodes.NOT_FOUND,
-    );
+export function buildSubmissionPayload(
+  submission: Partial<SubmissionPayload>,
+  type: "partial",
+): Partial<SubmissionPayload>;
+
+export function buildSubmissionPayload(
+  submission: SubmissionPayload | Partial<SubmissionPayload>,
+  type: ValidationType = "full",
+): typeof type extends "full" ? SubmissionPayload : Partial<SubmissionPayload> {
+  const payload: SubmissionPayload | Partial<SubmissionPayload> = {};
+
+  const FIELDS: (keyof SubmissionPayload)[] = [
+    "code",
+    "error_message",
+    "execution_time_ms",
+
+    "language",
+    "memory_used_mb",
+    "problem_id",
+    "status",
+    "test_results",
+    "user_id",
+  ];
+
+  for (const field of FIELDS) {
+    const value = submission[field as keyof SubmissionPayload];
+
+    if (value !== undefined) {
+      assignField(field, value, payload);
+    }
   }
 
-  const problem = problems[0];
+  return payload;
+}
+
+export async function loadExecutionContext(
+  submission: CreateSubmissionPayload & SubmissionType,
+): Promise<{ problem: BaseProblemData; testCases: BaseTestCaseData[] }> {
+  const problem = await getProblemByLookup(submission.problem, "slug");
 
   const testCaseOptions =
     submission.type === "test" ? { is_sample: true } : { is_hidden: true };
 
-  const testCases = (await TestCase.findByProblem(
+  const testCases = await getTestCaseByLookup(
     problem.id,
+    "problem",
     testCaseOptions,
-  )) as BaseTestCaseData[];
+  );
 
   return { problem, testCases };
-};
+}
 
-const normalizeSubmittedCode = (language: SupportedLanguages, code: string) => {
+function normalizeSubmittedCode(language: SupportedLanguages, code: string) {
   let normalized = code;
 
   switch (language) {
@@ -61,9 +91,9 @@ const normalizeSubmittedCode = (language: SupportedLanguages, code: string) => {
   }
 
   return normalized;
-};
+}
 
-export const executeSubmission = async (submission: SandboxServiceData) => {
+export async function executeSubmission(submission: SandboxServiceData) {
   const code = normalizeSubmittedCode(submission.language, submission.code);
 
   const sandbox = new SandboxService({ ...submission, code });
@@ -71,12 +101,12 @@ export const executeSubmission = async (submission: SandboxServiceData) => {
   const processedCode: JudgeOutput = await sandbox.compileAndRunCode();
 
   return processedCode;
-};
+}
 
-export const analyzeResult = (
+export function analyzeResult(
   processedCode: JudgeOutput,
   testCases: BaseTestCaseData[],
-): AnalysisResult => {
+): AnalysisResult {
   if (!processedCode.success) {
     return {
       success: false,
@@ -132,13 +162,13 @@ export const analyzeResult = (
       failed: { testCase: failedTestCase, output: firstFailedOutput },
     },
   };
-};
+}
 
-export const buildSubmissionStatistics = async (problemId: number) => {
+export async function buildSubmissionStatistics(problemId: number) {
   const acceptedSubmissions = (await Submission.all({
     status: "accepted",
     problem_id: problemId,
-  })) as FullSubmissionData[];
+  })) as BaseSubmissionData[];
 
   const memoryMap = new Map<number, number>();
   const runtimeMap = new Map<number, number>();
@@ -172,4 +202,4 @@ export const buildSubmissionStatistics = async (problemId: number) => {
   }
 
   return statistics;
-};
+}

@@ -2,20 +2,31 @@ import type { JudgeSuccessOutput } from "./sandbox.interface";
 import type { BaseTestCaseData } from "./test-case.interface";
 
 export interface BaseSubmissionData {
+  id: number;
   user_id: number;
   problem_id: number;
   code: string;
   language: SupportedLanguages;
   status: SubmissionStatus;
-}
-
-export interface AdditionalSubmissionData {
   execution_time_ms: number;
   memory_used_mb: number;
   test_results: string | null;
   error_message: string | null;
   deleted_at: string | null;
 }
+
+export type SubmissionPayload = Pick<
+  BaseSubmissionData,
+  | "user_id"
+  | "problem_id"
+  | "code"
+  | "language"
+  | "status"
+  | "execution_time_ms"
+  | "memory_used_mb"
+  | "test_results"
+  | "error_message"
+>;
 
 export interface SubmissionType {
   type: "test" | "run";
@@ -32,16 +43,11 @@ export type SubmissionStatus =
   | "memory_limit_exceeded"
   | "compilation_error";
 
-export interface PostSubmissionData extends Pick<
+export interface CreateSubmissionPayload extends Pick<
   BaseSubmissionData,
   "code" | "language"
 > {
   problem: string;
-}
-
-export interface FullSubmissionData
-  extends BaseSubmissionData, AdditionalSubmissionData {
-  id: number;
 }
 
 export type SuccessAnalysisResult = {
