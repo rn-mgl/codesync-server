@@ -12,6 +12,7 @@ import type {
   SubmissionStatus,
   SubmissionType,
   SupportedLanguages,
+  ValidSubmissionLookups,
 } from "@src/interface/submission.interface";
 import type { BaseTestCaseData } from "@src/interface/test-case.interface";
 import Submission from "@src/models/submission.model";
@@ -19,6 +20,8 @@ import { assignField, type ValidationType } from "@src/utils/type.util";
 import { getProblemByLookup } from "./problem.service";
 import { SandboxService } from "./sandbox.service";
 import { getTestCaseByLookup } from "./test-case.service";
+import AppError from "@src/errors/app.error";
+import { StatusCodes } from "http-status-codes";
 
 export function buildSubmissionPayload(
   submission: SubmissionPayload,
@@ -208,4 +211,68 @@ export async function getAllSubmissions(options?: Partial<BaseSubmissionData>) {
   const submissions = await Submission.all(options);
 
   return submissions;
+}
+
+export async function getSubmissionByLookup(
+  identifier: string,
+  lookup: "id",
+): Promise<BaseSubmissionData>;
+
+export async function getSubmissionByLookup(
+  identifier: string,
+  lookup: "user" | "problem" | "status",
+): Promise<BaseSubmissionData[]>;
+
+export async function getSubmissionByLookup(
+  identifier: string,
+  lookup: ValidSubmissionLookups,
+): Promise<BaseSubmissionData | BaseSubmissionData[]> {
+  switch (lookup) {
+    case "id":
+      const id = Number(identifier);
+
+      if (Number.isNaN(id)) {
+        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+      }
+
+      const submissions = (await Submission.findById(
+        id,
+      )) as BaseSubmissionData[];
+
+      if (!submissions || !submissions[0]) {
+        throw new AppError(
+          `The submission you're trying to find does not exist.`,
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
+      const submission = submissions[0];
+
+      return submission;
+
+    case "user":
+      const userId = Number(identifier);
+
+      if (Number.isNaN(userId)) {
+        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+      }
+
+      return (await Submission.findByUser(userId)) as BaseSubmissionData[];
+    case "problem":
+      const problemId = Number(identifier);
+
+      if (Number.isNaN(problemId)) {
+        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+      }
+
+      return (await Submission.findByProblem(
+        problemId,
+      )) as BaseSubmissionData[];
+    case "status":
+      const status = identifier;
+
+      return (await Submission.findByStatus(status)) as BaseSubmissionData[];
+    default:
+      throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
+  }
 }

@@ -1,6 +1,7 @@
 import AppError from "@src/errors/app.error";
 import {
   isValidCreateSubmissionPayload,
+  isValidLookupTypes,
   isValidSubmissionPayload,
   isValidSubmissionType,
 } from "@src/guard/submission.guard";
@@ -18,6 +19,7 @@ import {
   buildSubmissionPayload,
   buildSubmissionStatistics,
   executeSubmission,
+  getSubmissionByLookup,
   loadExecutionContext,
 } from "@src/services/submission.service";
 import {
@@ -187,35 +189,25 @@ export const find = async (req: Request, res: Response) => {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  let submission: RowDataPacket[] | null = null;
-
-  switch (query.lookup) {
-    case "id":
-      const id = parseInt(params.identifier);
-
-      submission = await Submission.findById(id);
-
-      return res.json({ submission });
-    case "user":
-      const userId = parseInt(params.identifier);
-
-      submission = await Submission.findByUser(userId);
-
-      return res.json({ submission });
-    case "problem":
-      const problemId = parseInt(params.identifier);
-
-      submission = await Submission.findByProblem(problemId);
-
-      return res.json({ submission });
-    case "status":
-      const status = params.identifier;
-
-      submission = await Submission.findByStatus(status);
-
-      return res.json({ submission });
-
-    default:
-      throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
+  if (!isValidLookupTypes(query.lookup)) {
+    throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
+
+  // for typescript narrowing - to cleanup
+  if (query.lookup === "id") {
+    const submission = await getSubmissionByLookup(params.identifier, "id");
+
+    return res
+      .status(StatusCodes.OK)
+      .json({ success: true, data: { submission } });
+  }
+
+  const submission = await getSubmissionByLookup(
+    params.identifier,
+    query.lookup,
+  );
+
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { submission } });
 };

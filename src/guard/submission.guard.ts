@@ -2,6 +2,7 @@ import type {
   CreateSubmissionPayload,
   SubmissionPayload,
   SubmissionType,
+  ValidSubmissionLookups,
 } from "@src/interface/submission.interface";
 import { validateFields, type ValidationType } from "@src/utils/type.util";
 
@@ -67,4 +68,10 @@ export function isValidCreateSubmissionPayload<T>(
   ];
 
   return validateFields(data, REQUIRED_FIELDS, "full");
+}
+
+export function isValidLookupTypes(
+  lookup: string,
+): lookup is ValidSubmissionLookups {
+  return ["id", "user", "problem", "status"].includes(lookup);
 }

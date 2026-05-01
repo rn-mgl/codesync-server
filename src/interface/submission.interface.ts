@@ -77,3 +77,5 @@ export type SubmissionStatistics = {
   memory: { mb: number; percentage: number }[];
   runtime: { ms: number; percentage: number }[];
 };
+
+export type ValidSubmissionLookups = "id" | "user" | "problem" | "status";
