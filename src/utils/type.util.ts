@@ -105,9 +105,9 @@ export const isValidLookupQuery = <T>(
   );
 };
 
-export const isValidObject = (
-  data: unknown,
-): data is Record<string, unknown> => {
+export const isValidObject = <T>(
+  data: T,
+): data is Extract<T, object> & Record<string, unknown> => {
   return typeof data === "object" && data !== null;
 };
 

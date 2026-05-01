@@ -203,3 +203,9 @@ export async function buildSubmissionStatistics(problemId: number) {
 
   return statistics;
 }
+
+export async function getAllSubmissions(options?: Partial<BaseSubmissionData>) {
+  const submissions = await Submission.all(options);
+
+  return submissions;
+}

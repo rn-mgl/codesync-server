@@ -7,10 +7,12 @@ import {
 import type { UserMiddleware } from "@src/interface/auth.interface";
 import type { JudgeOutput } from "@src/interface/sandbox.interface";
 import type {
+  BaseSubmissionData,
   SubmissionPayload,
   SubmissionStatistics,
 } from "@src/interface/submission.interface";
 import Submission from "@src/models/submission.model";
+import { getProblemByLookup } from "@src/services/problem.service";
 import {
   analyzeResult,
   buildSubmissionPayload,
@@ -22,6 +24,7 @@ import {
   isValidIdentifierParam,
   isValidLookupQuery,
   isValidObject,
+  isValidString,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -147,9 +150,29 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const all = async (req: Request, res: Response) => {
-  const submissions = await Submission.all();
+  const query = req.query;
+  const user = req.app.get("user") as UserMiddleware;
 
-  return res.json({ submissions });
+  if (!isValidObject(query)) {
+    throw new AppError(`Invalid request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!isValidString(query.problem)) {
+    throw new AppError(`Invalid request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const problem = await getProblemByLookup(query.problem, "slug");
+
+  const options: Partial<BaseSubmissionData> = {
+    problem_id: problem.id,
+    user_id: user.id,
+  };
+
+  const submissions = await Submission.all(options);
+
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { submissions } });
 };
 
 export const find = async (req: Request, res: Response) => {

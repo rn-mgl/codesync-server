@@ -55,9 +55,7 @@ class Submission implements BaseSubmissionData {
     }
   }
 
-  static async all(
-    options?: Partial<Pick<BaseSubmissionData, "status" | "problem_id">>,
-  ) {
+  static async all(options?: Partial<BaseSubmissionData>) {
     try {
       const db = createConnection();
 
@@ -66,8 +64,16 @@ class Submission implements BaseSubmissionData {
 
       if (options) {
         const VALID_OPTIONS: (keyof typeof options)[] = [
-          "status",
+          "id",
+          "user_id",
           "problem_id",
+          "code",
+          "language",
+          "status",
+          "execution_time_ms",
+          "memory_used_mb",
+          "test_results",
+          "error_message",
         ];
 
         for (const option of VALID_OPTIONS) {
@@ -81,7 +87,7 @@ class Submission implements BaseSubmissionData {
 
       const mappedConditions = conditions.join(" AND ");
 
-      const query = `SELECT id, execution_time_ms, memory_used_mb FROM submissions WHERE ${mappedConditions};`;
+      const query = `SELECT * FROM submissions WHERE ${mappedConditions};`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 
