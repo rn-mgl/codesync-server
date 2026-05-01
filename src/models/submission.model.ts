@@ -87,7 +87,7 @@ class Submission implements BaseSubmissionData {
 
       const mappedConditions = conditions.join(" AND ");
 
-      const query = `SELECT * FROM submissions WHERE ${mappedConditions};`;
+      const query = `SELECT * FROM submissions WHERE ${mappedConditions} ORDER BY id DESC;`;
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
 
