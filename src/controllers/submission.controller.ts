@@ -211,6 +211,7 @@ export const find = async (req: Request, res: Response) => {
     const testCases = await getTestCaseByLookup(
       submission.problem_id,
       "problem",
+      { is_hidden: true },
     );
 
     const analysis = analyzeResult(payload, testCases);
