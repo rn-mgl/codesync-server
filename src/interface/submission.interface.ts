@@ -10,7 +10,7 @@ export interface BaseSubmissionData {
   status: SubmissionStatus;
   execution_time_ms: number;
   memory_used_mb: number;
-  test_results: string | null;
+  test_results: JudgeSuccessOutput | null;
   error_message: string | null;
   deleted_at: string | null;
 }

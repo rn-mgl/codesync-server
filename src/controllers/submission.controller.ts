@@ -1,7 +1,7 @@
 import AppError from "@src/errors/app.error";
 import {
   isValidCreateSubmissionPayload,
-  isValidLookupTypes,
+  isValidSubmissionLookupTypes,
   isValidSubmissionPayload,
   isValidSubmissionType,
 } from "@src/guard/submission.guard";
@@ -11,6 +11,7 @@ import type {
   BaseSubmissionData,
   SubmissionPayload,
   SubmissionStatistics,
+  SubmissionStatus,
 } from "@src/interface/submission.interface";
 import Submission from "@src/models/submission.model";
 import { getProblemByLookup } from "@src/services/problem.service";
@@ -22,6 +23,7 @@ import {
   getSubmissionByLookup,
   loadExecutionContext,
 } from "@src/services/submission.service";
+import { getTestCaseByLookup } from "@src/services/test-case.service";
 import {
   isValidIdentifierParam,
   isValidLookupQuery,
@@ -30,7 +32,6 @@ import {
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
@@ -83,9 +84,7 @@ export const create = async (req: Request, res: Response) => {
         status: analysis.status,
         memory_used_mb: analysis.success ? analysis.memoryUsedMb : 0,
         execution_time_ms: analysis.success ? analysis.executionTimeMs : 0,
-        test_results: analysis.success
-          ? JSON.stringify(analysis.testResults)
-          : null,
+        test_results: analysis.success ? analysis.testResults : null,
         error_message: !analysis.success ? analysis.message : null,
       };
 
@@ -189,7 +188,7 @@ export const find = async (req: Request, res: Response) => {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!isValidLookupTypes(query.lookup)) {
+  if (!isValidSubmissionLookupTypes(query.lookup)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
@@ -197,9 +196,51 @@ export const find = async (req: Request, res: Response) => {
   if (query.lookup === "id") {
     const submission = await getSubmissionByLookup(params.identifier, "id");
 
-    return res
-      .status(StatusCodes.OK)
-      .json({ success: true, data: { submission } });
+    const payload: JudgeOutput =
+      submission.error_message || !submission.test_results
+        ? {
+            success: false,
+            error: submission.status as Exclude<
+              SubmissionStatus,
+              "processing" | "accepted" | "wrong_answer"
+            >,
+            message: submission.error_message as string,
+          }
+        : { success: true, output: submission.test_results };
+
+    const testCases = await getTestCaseByLookup(
+      submission.problem_id,
+      "problem",
+    );
+
+    const analysis = analyzeResult(payload, testCases);
+
+    if (!analysis.success) {
+      throw new AppError(analysis.message, StatusCodes.BAD_REQUEST);
+    }
+
+    let statistics = null;
+
+    if (payload.success) {
+      statistics = await buildSubmissionStatistics(submission.problem_id);
+    }
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      data: {
+        judge: analysis.testResults,
+        statistics: statistics,
+        summary: {
+          total: analysis.summary.total,
+          passed: analysis.summary.passed,
+          memory: analysis.summary.memory,
+          runtime: analysis.summary.runtime,
+          failed: analysis.summary.failed,
+          code: submission.code,
+          language: submission.language,
+        },
+      },
+    });
   }
 
   const submission = await getSubmissionByLookup(

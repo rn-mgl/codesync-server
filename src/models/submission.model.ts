@@ -1,4 +1,5 @@
 import { createConnection } from "@src/database/database";
+import type { JudgeSuccessOutput } from "@src/interface/sandbox.interface";
 import type {
   BaseSubmissionData,
   SubmissionPayload,
@@ -16,7 +17,7 @@ class Submission implements BaseSubmissionData {
   memory_used_mb: number;
   problem_id: number;
   status: SubmissionStatus;
-  test_results: string | null;
+  test_results: JudgeSuccessOutput | null;
   user_id: number;
   deleted_at: string | null;
 

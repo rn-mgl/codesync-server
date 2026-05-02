@@ -70,7 +70,7 @@ export function isValidCreateSubmissionPayload<T>(
   return validateFields(data, REQUIRED_FIELDS, "full");
 }
 
-export function isValidLookupTypes(
+export function isValidSubmissionLookupTypes(
   lookup: string,
 ): lookup is ValidSubmissionLookups {
   return ["id", "user", "problem", "status"].includes(lookup);
