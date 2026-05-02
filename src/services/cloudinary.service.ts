@@ -4,7 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import fs from "fs";
 
 export const uploadFile = async (path: string) => {
-  const uploaded = cloudinary.uploader.upload(path, {
+  const uploaded = await cloudinary.uploader.upload(path, {
     folder: "codesync-uploads",
   });
 
