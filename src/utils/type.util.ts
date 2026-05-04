@@ -32,10 +32,6 @@ import type {
   BaseStudyGroupMemberData,
 } from "@src/interface/study-group.interface";
 import type {
-  AdditionalTopicData,
-  BaseTopicData,
-} from "@src/interface/topic.interface";
-import type {
   AdditionalUserAchievementData,
   AdditionalUserProgressData,
   BaseUserAchievementData,
@@ -140,56 +136,6 @@ export function isBaseUserData(
     "password",
     "username",
   ];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isBaseTopicData(
-  data: unknown,
-  type?: "full",
-): data is BaseTopicData;
-
-export function isBaseTopicData(
-  data: unknown,
-  type: "partial",
-): data is Partial<BaseTopicData>;
-
-export function isBaseTopicData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: readonly (keyof BaseTopicData)[] = [
-    "name",
-    "slug",
-    "description",
-  ];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isAdditionalTopicData(
-  data: unknown,
-  type?: "full",
-): data is AdditionalTopicData;
-
-export function isAdditionalTopicData(
-  data: unknown,
-  type: "partial",
-): data is Partial<AdditionalTopicData>;
-
-export function isAdditionalTopicData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: readonly (keyof AdditionalTopicData)[] = ["icon"];
 
   return validateFields(data, REQUIRED_FIELDS, type);
 }

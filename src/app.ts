@@ -55,7 +55,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/problem", authMiddleware, problemRouter);
-app.use("/topic", authMiddleware, topicRouter);
+app.use("/topic", [authMiddleware, upload.single("icon")], topicRouter);
 app.use("/test-case", authMiddleware, testCaseRouter);
 app.use("/hint", authMiddleware, hintRouter);
 app.use("/submission", authMiddleware, submissionRouter);

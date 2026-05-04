@@ -1,14 +1,13 @@
 export interface BaseTopicData {
+  id: number;
   name: string;
   slug: string;
   description: string;
-}
-
-export interface AdditionalTopicData {
   icon: string;
   deleted_at: string | null;
 }
 
-export interface FullTopicData extends BaseTopicData, AdditionalTopicData {
-  id: number;
-}
+export type TopicPayload = Pick<
+  BaseTopicData,
+  "name" | "slug" | "description" | "icon"
+>;

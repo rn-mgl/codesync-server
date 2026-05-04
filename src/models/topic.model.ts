@@ -1,12 +1,11 @@
 import { createConnection } from "@src/database/database";
 import type {
-  AdditionalTopicData,
   BaseTopicData,
-  FullTopicData,
+  TopicPayload,
 } from "@src/interface/topic.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
-class Topic implements FullTopicData {
+class Topic implements BaseTopicData {
   id: number;
   name: string;
   description: string;
@@ -14,7 +13,7 @@ class Topic implements FullTopicData {
   icon: string;
   deleted_at: string | null;
 
-  constructor(data: FullTopicData) {
+  constructor(data: BaseTopicData) {
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;
@@ -23,7 +22,7 @@ class Topic implements FullTopicData {
     this.deleted_at = data.deleted_at;
   }
 
-  static async create(data: BaseTopicData & Partial<AdditionalTopicData>) {
+  static async create(data: TopicPayload) {
     try {
       const db = createConnection();
 
@@ -40,7 +39,7 @@ class Topic implements FullTopicData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error(`An error occurred during the operation.`);
     }
   }
 
@@ -57,7 +56,7 @@ class Topic implements FullTopicData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error(`An error occurred during the operation.`);
     }
   }
 
@@ -74,7 +73,7 @@ class Topic implements FullTopicData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error(`An error occurred during the operation.`);
     }
   }
 
@@ -89,14 +88,11 @@ class Topic implements FullTopicData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error(`An error occurred during the operation.`);
     }
   }
 
-  static async update(
-    id: number,
-    updates: Partial<BaseTopicData & AdditionalTopicData>,
-  ) {
+  static async update(id: number, updates: Partial<TopicPayload>) {
     try {
       const db = createConnection();
 
@@ -115,7 +111,7 @@ class Topic implements FullTopicData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error(`An error occurred during the operation.`);
     }
   }
 }

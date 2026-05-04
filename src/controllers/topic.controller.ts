@@ -1,16 +1,14 @@
 import AppError from "@src/errors/app.error";
-import type {
-  AdditionalTopicData,
-  BaseTopicData,
-} from "@src/interface/topic.interface";
+import { isValidTopicPayload } from "@src/guard/topic.guard";
 import Topic from "@src/models/topic.model";
+import { uploadFile } from "@src/services/cloudinary.service";
+import { buildTopicPayload } from "@src/services/topic.service";
 import {
-  assignField,
-  isAdditionalTopicData,
-  isBaseTopicData,
   isValidIdentifierParam,
   isValidIdParam,
   isValidLookupQuery,
+  isValidObject,
+  isValidString,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -18,27 +16,39 @@ import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
+  const file = req.file;
 
-  if (!isBaseTopicData(body)) {
+  if (!isValidObject(body)) {
     throw new AppError(`Invalid topic data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseTopicData & Partial<AdditionalTopicData> = {
+  if (!isValidObject(file)) {
+    throw new AppError(`Invalid file upload.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!file.path) {
+    throw new AppError(
+      `File could not be found in the server.`,
+      StatusCodes.FAILED_DEPENDENCY,
+    );
+  }
+
+  const uploaded = await uploadFile(file.path);
+
+  const payload = {
     name: body.name,
     description: body.description,
     slug: body.slug,
+    icon: uploaded.secure_url,
   };
 
-  if (isAdditionalTopicData(body, "partial")) {
-    const FIELDS: (keyof AdditionalTopicData)[] = ["icon"];
-
-    for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalTopicData];
-      if (value !== undefined) {
-        assignField(field, value, createData);
-      }
-    }
+  if (!isValidTopicPayload(payload)) {
+    throw new AppError(`Invalid topic data.`, StatusCodes.BAD_REQUEST);
   }
+
+  const createData = buildTopicPayload(payload);
+
+  console.log(createData);
 
   const created = await Topic.create(createData);
 
@@ -49,7 +59,9 @@ export const create = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ success: !!created });
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { message: `Topic created successfully.` } });
 };
 
 export const all = async (req: Request, res: Response) => {
@@ -94,44 +106,44 @@ export const find = async (req: Request, res: Response) => {
 export const update = async (req: Request, res: Response) => {
   const params = req.params;
   const body = req.body;
+  const file = req.file;
 
-  if (typeof params !== "object" || params === null || !("id" in params)) {
+  if (!isValidIdParam(params)) {
     throw new AppError(`Invalid parameter.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (
-    !isBaseTopicData(body, "partial") &&
-    !isAdditionalTopicData(body, "partial")
-  ) {
-    throw new AppError(`Invalid topic data.`, StatusCodes.BAD_REQUEST);
+  if (!isValidObject(body)) {
+    throw new AppError(`Invalid request data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<BaseTopicData & AdditionalTopicData> = {};
-
-  if (isBaseTopicData(body, "partial")) {
-    const FIELDS: (keyof BaseTopicData)[] = ["name", "slug", "description"];
-
-    for (const field of FIELDS) {
-      const value = body[field as keyof BaseTopicData];
-      if (value !== undefined) {
-        assignField(field, value, updateData);
-      }
-    }
+  if (!file && !isValidString(body.icon)) {
+    throw new AppError(`Invalid request data.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (isAdditionalTopicData(body, "partial")) {
-    const FIELDS: (keyof AdditionalTopicData)[] = ["icon"];
+  const payload = {
+    name: body.name,
+    description: body.description,
+    slug: body.slug,
+    icon: body.icon,
+  };
 
-    for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalTopicData];
+  if (file && isValidString(file.path)) {
+    const uploaded = await uploadFile(file.path);
 
-      if (value !== undefined) {
-        assignField(field, value, updateData);
-      }
-    }
+    payload.icon = uploaded.secure_url;
   }
 
-  const id = parseInt(params.id);
+  if (!isValidTopicPayload(payload, "partial")) {
+    throw new AppError(`Invalid request data.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const updateData = buildTopicPayload(payload);
+
+  const id = Number(params.id);
+
+  if (Number.isNaN(id)) {
+    throw new AppError(`Invalid parameter.`, StatusCodes.BAD_REQUEST);
+  }
 
   const updated = await Topic.update(id, updateData);
 
