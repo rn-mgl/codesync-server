@@ -67,7 +67,7 @@ export const create = async (req: Request, res: Response) => {
 export const all = async (req: Request, res: Response) => {
   const topics = await Topic.all();
 
-  return res.json({ topics });
+  return res.status(StatusCodes.OK).json({ success: true, data: { topics } });
 };
 
 export const find = async (req: Request, res: Response) => {
