@@ -94,13 +94,18 @@ export const update = async (req: Request, res: Response) => {
   const params = req.params;
   const body = req.body;
   const file = req.file;
+  const query = req.query;
 
-  if (!isValidIdParam(params)) {
+  if (!isValidIdentifierParam(params)) {
     throw new AppError(`Invalid parameter.`, StatusCodes.BAD_REQUEST);
   }
 
   if (!isValidObject(body)) {
     throw new AppError(`Invalid request data.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!isValidLookupQuery(query)) {
+    throw new AppError(`Invalid query data.`, StatusCodes.BAD_REQUEST);
   }
 
   if (!file && !isValidString(body.icon)) {
@@ -126,13 +131,9 @@ export const update = async (req: Request, res: Response) => {
 
   const updateData = buildTopicPayload(payload);
 
-  const id = Number(params.id);
+  const topic = await getTopicByLookup(params.identifier, query.lookup);
 
-  if (Number.isNaN(id)) {
-    throw new AppError(`Invalid parameter.`, StatusCodes.BAD_REQUEST);
-  }
-
-  const updated = await Topic.update(id, updateData);
+  const updated = await Topic.update(topic.id, updateData);
 
   if (!updated) {
     throw new AppError(
@@ -141,7 +142,9 @@ export const update = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ success: !!updated });
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { message: `Topic updated successfully.` } });
 };
 
 export const destroy = async (req: Request, res: Response) => {

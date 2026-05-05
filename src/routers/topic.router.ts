@@ -12,7 +12,7 @@ const router = Router();
 router.post("/", create);
 router.get("/", all);
 router.get("/:identifier", find);
-router.patch("/:id", update);
+router.patch("/:identifier", update);
 router.delete("/:identifier", destroy);
 
 export default router;
