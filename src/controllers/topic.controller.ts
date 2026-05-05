@@ -3,6 +3,7 @@ import { isValidTopicPayload } from "@src/guard/topic.guard";
 import Topic from "@src/models/topic.model";
 import { uploadFile } from "@src/services/cloudinary.service";
 import {
+  buildDeleteTopicPayload,
   buildTopicPayload,
   getTopicByLookup,
 } from "@src/services/topic.service";
@@ -141,4 +142,34 @@ export const update = async (req: Request, res: Response) => {
   }
 
   return res.json({ success: !!updated });
+};
+
+export const destroy = async (req: Request, res: Response) => {
+  const params = req.params;
+  const query = req.query;
+
+  if (!isValidIdentifierParam(params)) {
+    throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!isValidLookupQuery(query)) {
+    throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const topic = await getTopicByLookup(params.identifier, query.lookup);
+
+  const payload = buildDeleteTopicPayload(topic.slug);
+
+  const deleted = await Topic.destroy(topic.id, payload);
+
+  if (!deleted) {
+    throw new AppError(
+      `An error occurred during deletion.`,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { message: "Topic deleted successfully." } });
 };

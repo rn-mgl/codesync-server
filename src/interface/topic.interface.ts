@@ -11,3 +11,5 @@ export type TopicPayload = Pick<
   BaseTopicData,
   "name" | "slug" | "description" | "icon"
 >;
+
+export type SoftDeleteTopicPayload = Pick<BaseTopicData, "slug" | "deleted_at">;

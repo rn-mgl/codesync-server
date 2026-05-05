@@ -1,6 +1,7 @@
 import { createConnection } from "@src/database/database";
 import type {
   BaseTopicData,
+  SoftDeleteTopicPayload,
   TopicPayload,
 } from "@src/interface/topic.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
@@ -101,6 +102,28 @@ class Topic implements BaseTopicData {
         .join(", ");
 
       const values = Object.values(updates);
+
+      const query = `UPDATE topics SET ${update} WHERE id = ?;`;
+      const [result, fields] = await db.execute<ResultSetHeader>(query, [
+        ...values,
+        id,
+      ]);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error(`An error occurred during the operation.`);
+    }
+  }
+
+  static async destroy(id: number, data: SoftDeleteTopicPayload) {
+    try {
+      const db = createConnection();
+
+      const update = Object.keys(data)
+        .map((key) => `${key} = ?`)
+        .join(", ");
+      const values = Object.values(data);
 
       const query = `UPDATE topics SET ${update} WHERE id = ?;`;
       const [result, fields] = await db.execute<ResultSetHeader>(query, [

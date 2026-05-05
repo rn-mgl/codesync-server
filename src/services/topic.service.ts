@@ -1,11 +1,14 @@
 import AppError from "@src/errors/app.error";
 import type {
   BaseTopicData,
+  SoftDeleteTopicPayload,
   TopicPayload,
 } from "@src/interface/topic.interface";
 import Topic from "@src/models/topic.model";
 import { assignField, type ValidationType } from "@src/utils/type.util";
+import { randomUUID } from "crypto";
 import { StatusCodes } from "http-status-codes";
+import { DateTime } from "luxon";
 
 export function buildTopicPayload(
   topic: TopicPayload,
@@ -78,4 +81,13 @@ export async function getTopicByLookup(
   }
 
   return topic[0];
+}
+
+export function buildDeleteTopicPayload(slug: string) {
+  const payload: SoftDeleteTopicPayload = {
+    slug: `${slug}_${randomUUID()}`,
+    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
+  };
+
+  return payload;
 }
