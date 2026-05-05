@@ -2,7 +2,10 @@ import AppError from "@src/errors/app.error";
 import { isValidTopicPayload } from "@src/guard/topic.guard";
 import Topic from "@src/models/topic.model";
 import { uploadFile } from "@src/services/cloudinary.service";
-import { buildTopicPayload } from "@src/services/topic.service";
+import {
+  buildTopicPayload,
+  getTopicByLookup,
+} from "@src/services/topic.service";
 import {
   isValidIdentifierParam,
   isValidIdParam,
@@ -12,7 +15,6 @@ import {
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
@@ -82,25 +84,9 @@ export const find = async (req: Request, res: Response) => {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  const lookup = query.lookup;
-  let topic: RowDataPacket[] | null = null;
+  const topic = await getTopicByLookup(params.identifier, query.lookup);
 
-  switch (lookup) {
-    case "id":
-      const id = parseInt(params.identifier);
-      topic = await Topic.findById(id);
-
-      return res.json({ topic });
-
-    case "slug":
-      const slug = params.identifier;
-      topic = await Topic.findBySlug(slug);
-
-      return res.json({ topic });
-
-    default:
-      throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
-  }
+  return res.status(StatusCodes.OK).json({ success: true, data: { topic } });
 };
 
 export const update = async (req: Request, res: Response) => {
