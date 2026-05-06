@@ -61,6 +61,23 @@ class Topic implements BaseTopicData {
     }
   }
 
+  static async findByIds(ids: number[]) {
+    try {
+      const db = createConnection();
+
+      const preparedValues = ids.map((id) => "?").join(", ");
+
+      const query = `SELECT * FROM topics WHERE id IN (${preparedValues}) AND deleted_at IS NULL;`;
+
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, ids);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error(`An error occurred during the operation.`);
+    }
+  }
+
   static async findBySlug(slug: string) {
     try {
       const db = createConnection();
@@ -70,6 +87,23 @@ class Topic implements BaseTopicData {
       const values = [slug];
 
       const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error(`An error occurred during the operation.`);
+    }
+  }
+
+  static async findBySlugs(slugs: string[]) {
+    try {
+      const db = createConnection();
+
+      const preparedValues = slugs.map((slug) => "?").join(", ");
+
+      const query = `SELECT * FROM topics WHERE slug IN (${preparedValues}) AND deleted_at IS NULL;`;
+
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, slugs);
 
       return result;
     } catch (error) {

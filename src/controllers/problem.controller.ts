@@ -1,8 +1,11 @@
 import AppError from "@src/errors/app.error";
 import { isValidProblemPayload } from "@src/guard/problem.guard";
 import type { BaseTestCaseData } from "@src/interface/test-case.interface";
+import type { BaseTopicData } from "@src/interface/topic.interface";
+import ProblemTopic from "@src/models/problem-topic.model";
 import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
+import Topic from "@src/models/topic.model";
 import {
   buildDeleteProblemPayload,
   buildProblemPayload,
@@ -45,6 +48,20 @@ export const create = async (req: Request, res: Response) => {
   const createData = buildProblemPayload(problemPayload);
 
   const created = await Problem.create(createData);
+
+  if ("topics" in problemPayload && Array.isArray(problemPayload.topics)) {
+    const topics = problemPayload.topics;
+
+    const payload = ((await Topic.findBySlugs(topics)) as BaseTopicData[]).map(
+      (topic) => {
+        return { problem_id: created.insertId, topic_id: topic.id };
+      },
+    );
+
+    const joined = await ProblemTopic.create(payload);
+
+    console.log(joined);
+  }
 
   if (!created) {
     throw new AppError(
