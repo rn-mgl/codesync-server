@@ -9,22 +9,19 @@ class ProblemTopic {
 
       const db = createConnection();
 
-      const keys = Object.keys(data[0]);
-      const columns = keys.join(", ");
+      const columns = [
+        "problem_id",
+        "topic_id",
+      ] as const satisfies readonly (keyof ProblemTopicPayload)[];
 
-      const nestedValues = Object.values(data).map((value) => {
-        return [value.problem_id, value.topic_id];
-      });
+      const preparedValues = data
+        .map(() => `(${columns.map(() => "?").join(", ")})`) // (?, ?)
+        .join(", "); // (?, ?), (?, ?) ...
 
-      const preparedValues = nestedValues
-        .map((value) => {
-          const mapped = `(${value.map((v) => "?").join(", ")})`; // (?, ?, ...)
-
-          return mapped;
-        })
-        .join(", "); // (?, ?), (?, ?)...
-
-      const values = nestedValues.flat();
+      // follow positional rule: problem_id, topic_id
+      const values = data.flatMap((row) =>
+        columns.map((column) => row[column]),
+      );
 
       const query = `INSERT INTO problem_topics (${columns}) VALUES ${preparedValues};`;
       const [result, fields] = await db.execute<ResultSetHeader>(query, values);
