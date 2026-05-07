@@ -1,16 +1,18 @@
 import AppError from "@src/errors/app.error";
-import { isValidProblemPayload } from "@src/guard/problem.guard";
+import {
+  isValidCreateProblemPayload,
+  isValidProblemPayload,
+} from "@src/guard/problem.guard";
 import type { BaseTestCaseData } from "@src/interface/test-case.interface";
-import type { BaseTopicData } from "@src/interface/topic.interface";
 import ProblemTopic from "@src/models/problem-topic.model";
 import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
-import Topic from "@src/models/topic.model";
 import {
   buildDeleteProblemPayload,
   buildProblemPayload,
   getProblemByLookup,
 } from "@src/services/problem.service";
+import { getTopicsByLookup } from "@src/services/topic.service";
 import {
   isValidIdentifierParam,
   isValidLookupQuery,
@@ -38,7 +40,7 @@ export const create = async (req: Request, res: Response) => {
 
   const problemPayload = body.problem;
 
-  if (!isValidProblemPayload(problemPayload)) {
+  if (!isValidCreateProblemPayload(problemPayload)) {
     throw new AppError(
       `Invalid Problem data. Missing values.`,
       StatusCodes.BAD_REQUEST,
@@ -49,18 +51,15 @@ export const create = async (req: Request, res: Response) => {
 
   const created = await Problem.create(createData);
 
-  if ("topics" in problemPayload && Array.isArray(problemPayload.topics)) {
+  if (problemPayload.topics?.length) {
     const topics = problemPayload.topics;
 
-    const payload = ((await Topic.findBySlugs(topics)) as BaseTopicData[]).map(
-      (topic) => {
-        return { problem_id: created.insertId, topic_id: topic.id };
-      },
-    );
+    const payload = (await getTopicsByLookup(topics, "slugs")).map((topic) => ({
+      problem_id: created.insertId,
+      topic_id: topic.id,
+    }));
 
-    const joined = await ProblemTopic.create(payload);
-
-    console.log(joined);
+    await ProblemTopic.create(payload);
   }
 
   if (!created) {

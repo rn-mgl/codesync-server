@@ -5,7 +5,12 @@ import type {
   TopicPayload,
 } from "@src/interface/topic.interface";
 import Topic from "@src/models/topic.model";
-import { assignField, type ValidationType } from "@src/utils/type.util";
+import {
+  assignField,
+  isArrayNumber,
+  isArrayString,
+  type ValidationType,
+} from "@src/utils/type.util";
 import { randomUUID } from "crypto";
 import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
@@ -81,6 +86,37 @@ export async function getTopicByLookup(
   }
 
   return topic[0];
+}
+
+export async function getTopicsByLookup(
+  identifiers: (string | number)[],
+  lookup: string,
+): Promise<BaseTopicData[]> {
+  let topics: BaseTopicData[] | null = null;
+
+  switch (lookup) {
+    case "ids":
+      if (!isArrayNumber(identifiers)) {
+        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+      }
+
+      topics = (await Topic.findByIds(identifiers)) as BaseTopicData[];
+
+      break;
+    case "slugs":
+      if (!isArrayString(identifiers)) {
+        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+      }
+
+      topics = (await Topic.findBySlugs(identifiers)) as BaseTopicData[];
+
+      break;
+
+    default:
+      throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
+  }
+
+  return topics;
 }
 
 export function buildDeleteTopicPayload(slug: string) {

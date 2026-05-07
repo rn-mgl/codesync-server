@@ -1,5 +1,12 @@
-import type { ProblemPayload } from "@src/interface/problem.interface";
-import { validateFields, type ValidationType } from "@src/utils/type.util";
+import type {
+  CreateProblemPayload,
+  ProblemPayload,
+} from "@src/interface/problem.interface";
+import {
+  isArrayString,
+  validateFields,
+  type ValidationType,
+} from "@src/utils/type.util";
 
 export function isValidProblemPayload(
   data: unknown,
@@ -31,4 +38,14 @@ export function isValidProblemPayload(
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
+}
+
+export function isValidCreateProblemPayload(
+  data: unknown,
+): data is CreateProblemPayload {
+  if (!isValidProblemPayload(data)) return false;
+
+  const payload = data as ProblemPayload & { topics?: unknown };
+
+  return payload.topics === undefined || isArrayString(payload.topics);
 }

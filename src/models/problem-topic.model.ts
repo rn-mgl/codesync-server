@@ -9,26 +9,22 @@ class ProblemTopic {
 
       const db = createConnection();
 
-      // cleanup/standardize
-      const columns = Object.keys(data[0])
-        .map((key) => key)
-        .join(", ");
+      const keys = Object.keys(data[0]);
+      const columns = keys.join(", ");
 
-      const values = Object.entries(data)
-        .map(([key, value]) => {
-          return [value.problem_id, value.topic_id];
+      const nestedValues = Object.values(data).map((value) => {
+        return [value.problem_id, value.topic_id];
+      });
+
+      const preparedValues = nestedValues
+        .map((value) => {
+          const mapped = `(${value.map((v) => "?").join(", ")})`; // (?, ?, ...)
+
+          return mapped;
         })
-        .flat();
+        .join(", "); // (?, ?), (?, ?)...
 
-      // cleanup/standardize
-      const preparedValues = Object.values(data)
-        .map(
-          (payload) =>
-            `(${Object.keys(payload)
-              .map((key) => "?")
-              .join(", ")})`,
-        )
-        .join(", ");
+      const values = nestedValues.flat();
 
       const query = `INSERT INTO problem_topics (${columns}) VALUES ${preparedValues};`;
       const [result, fields] = await db.execute<ResultSetHeader>(query, values);

@@ -735,3 +735,11 @@ export const assignField = <T extends object, K extends keyof T>(
 ) => {
   fields[key] = value;
 };
+
+export function isArrayString(data: unknown): data is string[] {
+  return Array.isArray(data) && data.every((d) => typeof d === "string");
+}
+
+export function isArrayNumber(data: unknown): data is number[] {
+  return Array.isArray(data) && data.every((d) => typeof d === "number");
+}
