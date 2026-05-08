@@ -1,6 +1,9 @@
 import { createConnection } from "@src/database/database";
-import type { ProblemTopicPayload } from "@src/interface/problem-topic.interface";
-import type { ResultSetHeader } from "mysql2";
+import type {
+  ProblemTopicPayload,
+  SoftDeleteProblemTopicPayload,
+} from "@src/interface/problem-topic.interface";
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class ProblemTopic {
   static async create(data: ProblemTopicPayload[]) {
@@ -25,6 +28,61 @@ class ProblemTopic {
 
       const query = `INSERT INTO problem_topics (${columns}) VALUES ${preparedValues};`;
       const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error("An error occurred during the operation.");
+    }
+  }
+
+  static async findByProblem(id: number) {
+    try {
+      const db = createConnection();
+      const values = [id];
+
+      const query = `SELECT * FROM problem_topics WHERE problem_id = ?;`;
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error("An error occurred during the operation.");
+    }
+  }
+
+  static async findByTopic(id: number) {
+    try {
+      const db = createConnection();
+      const values = [id];
+
+      const query = `SELECT * FROM problem_topics WHERE topic_id = ?;`;
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error("An error occurred during the operation.");
+    }
+  }
+
+  static async destroy(ids: number[], data: SoftDeleteProblemTopicPayload) {
+    try {
+      if (!ids.length) return;
+
+      const db = createConnection();
+
+      const columns = Object.keys(data);
+      const values = Object.values(data);
+      const preparedIds = ids.map(() => "?").join(", ");
+
+      const update = columns.map((column) => `${column} = ?`).join(", ");
+
+      const query = `UPDATE problem_topics SET ${update} WHERE id IN (${preparedIds});`;
+      const [result, fields] = await db.execute<ResultSetHeader>(query, [
+        ...values,
+        ...ids,
+      ]);
 
       return result;
     } catch (error) {

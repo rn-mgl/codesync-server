@@ -1,6 +1,7 @@
 import type {
   CreateProblemPayload,
   ProblemPayload,
+  UpdateProblemPayload,
 } from "@src/interface/problem.interface";
 import {
   isArrayString,
@@ -46,6 +47,16 @@ export function isValidCreateProblemPayload(
   if (!isValidProblemPayload(data)) return false;
 
   const payload = data as ProblemPayload & { topics?: unknown };
+
+  return payload.topics === undefined || isArrayString(payload.topics);
+}
+
+export function isValidUpdateProblemPayload(
+  data: unknown,
+): data is UpdateProblemPayload {
+  if (!isValidProblemPayload(data, "partial")) return false;
+
+  const payload = data as Partial<ProblemPayload> & { topics?: unknown };
 
   return payload.topics === undefined || isArrayString(payload.topics);
 }

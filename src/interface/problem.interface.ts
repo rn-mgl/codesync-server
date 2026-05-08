@@ -42,6 +42,10 @@ export type ProblemPayload = Pick<
 
 export type CreateProblemPayload = ProblemPayload & { topics?: string[] };
 
+export type UpdateProblemPayload = Partial<ProblemPayload> & {
+  topics?: string[];
+};
+
 export type SoftDeleteProblemPayload = Pick<
   BaseProblemData,
   "slug" | "deleted_at"
