@@ -94,7 +94,9 @@ export const find = async (req: Request, res: Response) => {
 
   const problem = await getProblemByLookup(param, lookup);
 
-  const testCases = await getTestCaseByLookup(problem.id, "problem");
+  const testCases = await getTestCaseByLookup(problem.id, "problem", {
+    is_sample: true,
+  });
 
   const topics = await getTopicsByLookup(problem.id, "problem");
 
