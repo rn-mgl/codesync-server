@@ -177,8 +177,8 @@ export async function buildSubmissionStatistics(problemId: number) {
   const runtimeMap = new Map<number, number>();
 
   for (const accepted of acceptedSubmissions) {
-    const roundedMemory = accepted.memory_used_mb;
-    const roundedRuntime = accepted.execution_time_ms;
+    const roundedMemory = Math.round(accepted.memory_used_mb);
+    const roundedRuntime = Math.round(accepted.execution_time_ms);
 
     memoryMap.set(roundedMemory, (memoryMap.get(roundedMemory) ?? 0) + 1);
     runtimeMap.set(roundedRuntime, (runtimeMap.get(roundedRuntime) ?? 0) + 1);
