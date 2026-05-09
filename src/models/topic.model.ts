@@ -120,6 +120,30 @@ class Topic implements BaseTopicData {
     }
   }
 
+  static async findByProblem(problemId: number) {
+    try {
+      const db = createConnection();
+
+      const query = `SELECT t.* 
+                    FROM topics t
+                    INNER JOIN problem_topics pt ON
+                    pt.topic_id = t.id
+                    WHERE 
+                      pt.problem_id = ? AND 
+                      pt.deleted_at IS NULL AND 
+                      t.deleted_at IS NULL;`;
+
+      const values = [problemId];
+
+      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error(`An error occurred during the operation.`);
+    }
+  }
+
   static async all() {
     try {
       const db = createConnection();

@@ -52,7 +52,17 @@ export function buildTopicPayload(
 }
 
 export async function getTopicByLookup(
+  identifier: number,
+  lookup: "id",
+): Promise<BaseTopicData>;
+
+export async function getTopicByLookup(
   identifier: string,
+  lookup: "slug",
+): Promise<BaseTopicData>;
+
+export async function getTopicByLookup(
+  identifier: string | number,
   lookup: string,
 ): Promise<BaseTopicData> {
   let topic: BaseTopicData[] | null = null;
@@ -70,6 +80,11 @@ export async function getTopicByLookup(
       break;
     case "slug":
       const slug = identifier;
+
+      if (typeof slug !== "string") {
+        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+      }
+
       topic = (await Topic.findBySlug(slug)) as BaseTopicData[];
 
       break;
@@ -89,7 +104,22 @@ export async function getTopicByLookup(
 }
 
 export async function getTopicsByLookup(
-  identifiers: (string | number)[],
+  identifier: number[],
+  lookup: "ids",
+): Promise<BaseTopicData[]>;
+
+export async function getTopicsByLookup(
+  identifier: string[],
+  lookup: "slugs",
+): Promise<BaseTopicData[]>;
+
+export async function getTopicsByLookup(
+  identifier: number,
+  lookup: "problem",
+): Promise<BaseTopicData[]>;
+
+export async function getTopicsByLookup(
+  identifiers: (string | number)[] | number,
   lookup: string,
 ): Promise<BaseTopicData[]> {
   let topics: BaseTopicData[] | null = null;
@@ -109,6 +139,17 @@ export async function getTopicsByLookup(
       }
 
       topics = (await Topic.findBySlugs(identifiers)) as BaseTopicData[];
+
+      break;
+
+    case "problem":
+      const problem = Number(identifiers);
+
+      if (Number.isNaN(problem)) {
+        throw new AppError(`Invalid problem.`, StatusCodes.BAD_REQUEST);
+      }
+
+      topics = (await Topic.findByProblem(problem)) as BaseTopicData[];
 
       break;
 

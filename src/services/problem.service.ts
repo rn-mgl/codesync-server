@@ -58,7 +58,11 @@ export async function getProblemByLookup(
 
   switch (lookup) {
     case "id":
-      const id = parseInt(identifier);
+      const id = Number(identifier);
+
+      if (Number.isNaN(id)) {
+        throw new AppError(`Invalid id.`, StatusCodes.BAD_REQUEST);
+      }
 
       problem = (await Problem.findById(id)) as BaseProblemData[];
 
