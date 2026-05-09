@@ -126,7 +126,7 @@ export async function getAllTestCases(
       problem.id,
     )) as BaseTestCaseData[];
 
-    testCases.set(problem.title, problemTestCases);
+    testCases.set(problem.slug, problemTestCases);
   } else {
     const problems = (await Problem.all()) as BaseProblemData[];
 
@@ -135,7 +135,7 @@ export async function getAllTestCases(
         p.id,
       )) as BaseTestCaseData[];
 
-      testCases.set(p.title, testCase);
+      testCases.set(p.slug, testCase);
     }
   }
 
