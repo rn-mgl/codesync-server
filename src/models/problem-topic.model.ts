@@ -1,21 +1,24 @@
 import { createConnection } from "@src/database/database";
 import type {
-  ProblemTopicPayload,
+  CreateProblemTopicPayload,
   SoftDeleteProblemTopicPayload,
+  UpdateProblemTopicPayload,
 } from "@src/interface/problem-topic.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class ProblemTopic {
-  static async create(data: ProblemTopicPayload[]) {
+  static async create(data: CreateProblemTopicPayload[]) {
     try {
-      if (!data || !data[0]) return;
+      if (!data || !data[0]) {
+        throw new Error(`Invalid data.`);
+      }
 
       const db = createConnection();
 
       const columns = [
         "problem_id",
         "topic_id",
-      ] as const satisfies readonly (keyof ProblemTopicPayload)[];
+      ] as const satisfies readonly (keyof CreateProblemTopicPayload)[];
 
       const preparedValues = data
         .map(() => `(${columns.map(() => "?").join(", ")})`) // (?, ?)
@@ -66,9 +69,42 @@ class ProblemTopic {
     }
   }
 
+  static async update(
+    ids: number[],
+    updates: Partial<UpdateProblemTopicPayload>,
+  ) {
+    try {
+      if (!ids.length) {
+        throw new Error(`Invalid data.`);
+      }
+
+      const db = createConnection();
+
+      const update = Object.keys(updates)
+        .map((key) => `${key} = ?`)
+        .join(", ");
+      const values = Object.values(updates);
+
+      const preparedIds = ids.map(() => "?").join(", ");
+
+      const query = `UPDATE problem_topics SET ${update} WHERE id IN (${preparedIds});`;
+      const [result, fields] = await db.execute<ResultSetHeader>(query, [
+        ...values,
+        ...ids,
+      ]);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error("An error occurred during the operation.");
+    }
+  }
+
   static async destroy(ids: number[], data: SoftDeleteProblemTopicPayload) {
     try {
-      if (!ids.length) return;
+      if (!ids.length) {
+        throw new Error(`Invalid data.`);
+      }
 
       const db = createConnection();
 

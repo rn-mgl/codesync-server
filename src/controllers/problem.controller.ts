@@ -2,11 +2,19 @@ import AppError from "@src/errors/app.error";
 import {
   isValidCreateProblemPayload,
   isValidProblemPayload,
+  isValidUpdateProblemPayload,
 } from "@src/guard/problem.guard";
+import type {
+  BaseProblemTopicData,
+  SoftDeleteProblemTopicPayload,
+  UpdateProblemTopicPayload,
+} from "@src/interface/problem-topic.interface";
 import type { BaseTestCaseData } from "@src/interface/test-case.interface";
+import type { BaseTopicData } from "@src/interface/topic.interface";
 import ProblemTopic from "@src/models/problem-topic.model";
 import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
+import Topic from "@src/models/topic.model";
 import {
   buildDeleteProblemPayload,
   buildProblemPayload,
@@ -20,6 +28,7 @@ import {
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import { DateTime } from "luxon";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
@@ -125,7 +134,7 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid request`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!isValidProblemPayload(problemPayload, "partial")) {
+  if (!isValidUpdateProblemPayload(problemPayload)) {
     throw new AppError(`Invalid problem data.`, StatusCodes.BAD_REQUEST);
   }
 
@@ -136,6 +145,66 @@ export const update = async (req: Request, res: Response) => {
   const problem = await getProblemByLookup(slug, "slug");
 
   const updated = await Problem.update(problem.id, updateData);
+
+  const problemTopics = (await ProblemTopic.findByProblem(
+    problem.id,
+  )) as BaseProblemTopicData[];
+
+  // pivot problem-topic, keyed by {topic_id : primary_key}
+  const pivotTopics = Object.fromEntries(
+    problemTopics.map((pt) => [
+      pt.topic_id,
+      { id: pt.id, deleted_at: pt.deleted_at },
+    ]),
+  );
+
+  const topicsBySlug = problemPayload.topics?.length
+    ? ((await Topic.findBySlugs(problemPayload.topics)) as BaseTopicData[])
+    : [];
+
+  // selected topics, ids only
+  const selectedTopics = topicsBySlug.map((topic) => topic.id);
+
+  // check if each pivot topics is not in selected
+  const topicsToDelete = Object.entries(pivotTopics)
+    .filter(
+      ([topic, data]) =>
+        !selectedTopics.includes(Number(topic)) && data.deleted_at === null,
+    )
+    .map(([topic, data]) => data.id);
+
+  const deletePayload: SoftDeleteProblemTopicPayload = {
+    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
+  };
+
+  if (topicsToDelete.length) {
+    await ProblemTopic.destroy(topicsToDelete, deletePayload);
+  }
+
+  // check if each pivot topics is in selected but is deleted in db
+  const topicsToRecover = Object.entries(pivotTopics)
+    .filter(
+      ([topic, data]) =>
+        selectedTopics.includes(Number(topic)) && data.deleted_at !== null,
+    )
+    .map(([topic, data]) => data.id);
+
+  const recoverPayload: UpdateProblemTopicPayload = {
+    deleted_at: null,
+  };
+
+  if (topicsToRecover.length) {
+    await ProblemTopic.update(topicsToRecover, recoverPayload); //logic to undelete pivot rows using topicsToRecover;
+  }
+
+  // check if each selected topic is not yet in pivot
+  const topicsToAdd = selectedTopics
+    .filter((topic) => !pivotTopics[String(topic)])
+    .map((topic) => ({ problem_id: problem.id, topic_id: topic }));
+
+  if (topicsToAdd.length) {
+    await ProblemTopic.create(topicsToAdd);
+  }
 
   if (!updated) {
     throw new AppError(

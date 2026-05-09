@@ -63,6 +63,10 @@ class Topic implements BaseTopicData {
 
   static async findByIds(ids: number[]) {
     try {
+      if (!ids.length) {
+        throw new Error(`Invalid data.`);
+      }
+
       const db = createConnection();
 
       const preparedValues = ids.map((id) => "?").join(", ");
@@ -97,6 +101,10 @@ class Topic implements BaseTopicData {
 
   static async findBySlugs(slugs: string[]) {
     try {
+      if (!slugs.length) {
+        throw new Error(`Invalid data.`);
+      }
+
       const db = createConnection();
 
       const preparedValues = slugs.map((slug) => "?").join(", ");
