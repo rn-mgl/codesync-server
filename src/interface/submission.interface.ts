@@ -61,7 +61,7 @@ export type SuccessAnalysisResult = {
     passed: number;
     memory: number;
     runtime: number;
-    failed: { testCase: BaseTestCaseData | null; output: unknown | null };
+    failed: { testCase: BaseTestCaseData | null; output: unknown };
   };
 };
 

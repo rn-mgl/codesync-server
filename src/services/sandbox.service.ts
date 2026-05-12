@@ -19,6 +19,13 @@ import { exec } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { promisify } from "node:util";
 
+type ExecError = {
+  code?: number;
+  signal?: string;
+  stderr?: string;
+  stdout?: string;
+};
+
 class SandboxService implements SandboxServiceData {
   code: string;
   language: SupportedLanguages;
@@ -112,11 +119,14 @@ class SandboxService implements SandboxServiceData {
       executedCode.stdout = output.stdout;
       executedCode.stderr = output.stderr;
       executedCode.exitCode = 0;
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
-      executedCode.signal = error?.signal ?? "";
-      executedCode.stderr = error?.stderr ?? error?.stdout ?? "Execution error";
-      executedCode.exitCode = error?.code ?? 1;
+      const execError = error as ExecError;
+
+      executedCode.signal = execError.signal ?? "";
+      executedCode.stderr =
+        execError.stderr ?? execError.stdout ?? "Execution error";
+      executedCode.exitCode = execError.code ?? 1;
     }
 
     return executedCode;

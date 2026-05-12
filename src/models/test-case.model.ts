@@ -39,7 +39,7 @@ class TestCase implements BaseTestCaseData {
         .map((column) => `${column}`)
         .join(", ");
       const values = Object.values(data);
-      const preparedValues = values.map((value) => `?`).join(", ");
+      const preparedValues = values.map(() => `?`).join(", ");
 
       const query = `INSERT INTO test_cases (${columns}) VALUES (${preparedValues});`;
 
