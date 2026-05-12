@@ -51,13 +51,13 @@ class Problem implements BaseProblemData {
 
       const values = Object.values(data);
 
-      const preparedValues = values.map((value) => `?`).join(", ");
+      const preparedValues = values.map(() => `?`).join(", ");
 
       const query = `INSERT INTO problems (${columns}) VALUES (${preparedValues});`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -71,9 +71,9 @@ class Problem implements BaseProblemData {
       const query = `SELECT id, title, slug, difficulty, acceptance_rate FROM problems 
                     WHERE deleted_at IS NULL;`;
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query);
+      const result = await db.execute<RowDataPacket[]>(query);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -88,9 +88,9 @@ class Problem implements BaseProblemData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -105,9 +105,9 @@ class Problem implements BaseProblemData {
 
       const values = [slug];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -126,12 +126,9 @@ class Problem implements BaseProblemData {
 
       const query = `UPDATE problems SET ${update} WHERE id = ?;`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        id,
-      ]);
+      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -149,12 +146,9 @@ class Problem implements BaseProblemData {
 
       const query = `UPDATE problems SET ${update} WHERE id = ?;`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        id,
-      ]);
+      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");

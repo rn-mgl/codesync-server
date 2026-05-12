@@ -33,12 +33,12 @@ class StudyGroupMember implements FullStudyGroupMemberData {
         .map((column) => column)
         .join(", ");
       const values = Object.values(data);
-      const preparedValues = values.map((value) => "?").join(", ");
+      const preparedValues = values.map(() => "?").join(", ");
 
       const query = `INSERT INTO study_group_members (${columns}) VALUES (${preparedValues});`;
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -52,9 +52,9 @@ class StudyGroupMember implements FullStudyGroupMemberData {
       const query = `SELECT * FROM study_group_members WHERE id = ? AND deleted_at IS NULL;`;
       const values = [id];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -68,9 +68,9 @@ class StudyGroupMember implements FullStudyGroupMemberData {
       const query = `SELECT * FROM study_group_members WHERE group_id = ? AND deleted_at IS NULL;`;
       const values = [groupId];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -84,9 +84,9 @@ class StudyGroupMember implements FullStudyGroupMemberData {
       const query = `SELECT * FROM study_group_members WHERE user_id = ? AND deleted_at IS NULL;`;
       const values = [userId];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -100,9 +100,9 @@ class StudyGroupMember implements FullStudyGroupMemberData {
       const query = `SELECT * FROM study_group_members WHERE role = ? AND deleted_at IS NULL;`;
       const values = [role];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -120,9 +120,9 @@ class StudyGroupMember implements FullStudyGroupMemberData {
 
       const query = `UPDATE study_group_members SET ${update} WHERE id = ?;`;
 
-      const [result, fields] = await db.execute(query, [...values, id]);
+      const result = await db.execute(query, [...values, id]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];

@@ -23,7 +23,7 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid progress data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseUserProgressData & Partial<AdditionalUserProgressData> = {
+  const createData: BaseUserProgressData & Partial<AdditionalUserProgressData> = {
     progress_data: body.progress_data,
     user_id: body.user_id,
   };
@@ -37,7 +37,7 @@ export const create = async (req: Request, res: Response) => {
     ] as const;
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalUserProgressData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, createData);
       }
@@ -107,13 +107,13 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<FullUserProgressData> = {};
+  const updateData: Partial<FullUserProgressData> = {};
 
   if (isBaseUserProgressData(body, "partial")) {
     const FIELDS: (keyof BaseUserProgressData)[] = ["progress_data", "user_id"];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof BaseUserProgressData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }
@@ -129,7 +129,7 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalUserProgressData];
+      const value = body[field];
 
       if (value !== undefined) {
         assignField(field, value, updateData);

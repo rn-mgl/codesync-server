@@ -23,6 +23,8 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
     "paths": {
       "@src/*": ["./src/*"],
       "@controllers/*": ["./src/controllers/*"],

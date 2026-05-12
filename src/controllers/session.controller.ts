@@ -22,7 +22,7 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid session data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseSessionData & Partial<AdditionalSessionData> = {
+  const createData: BaseSessionData & Partial<AdditionalSessionData> = {
     code: body.code,
     host_id: body.host_id,
     language: body.language,
@@ -41,7 +41,7 @@ export const create = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalSessionData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, createData);
       }
@@ -118,7 +118,7 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<BaseSessionData & AdditionalSessionData> = {};
+  const updateData: Partial<BaseSessionData & AdditionalSessionData> = {};
 
   if (isBaseSessionData(body, "partial")) {
     const FIELDS: (keyof BaseSessionData)[] = [
@@ -133,7 +133,7 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof BaseSessionData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }
@@ -148,7 +148,7 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalSessionData];
+      const value = body[field];
 
       if (value !== undefined) {
         assignField(field, value, updateData);

@@ -45,13 +45,13 @@ class User implements FullUserData {
 
       const values = Object.values(data);
 
-      const preparedValues = values.map((value) => "?").join(", ");
+      const preparedValues = values.map(() => "?").join(", ");
 
       const query = `INSERT INTO users (${columns}) VALUES (${preparedValues});`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -64,9 +64,9 @@ class User implements FullUserData {
 
       const query = `SELECT * FROM users WHERE deleted_at IS NULL;`;
 
-      const [result, fields] = await db.execute(query);
+      const result = await db.execute(query);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -81,9 +81,9 @@ class User implements FullUserData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -98,9 +98,9 @@ class User implements FullUserData {
 
       const values = [email];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -117,9 +117,9 @@ class User implements FullUserData {
       const values = Object.values(data);
 
       const query = `SELECT * FROM users WHERE ${mappedWhere} AND deleted_at IS NULL;`;
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -140,12 +140,9 @@ class User implements FullUserData {
 
       const query = `UPDATE users SET ${update} WHERE id = ?;`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        id,
-      ]);
+      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -160,9 +157,9 @@ class User implements FullUserData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];

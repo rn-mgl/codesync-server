@@ -29,7 +29,9 @@ export const authMiddleware = (
     );
   }
 
-  const [_, token] = header.authorization.split(" ");
+  const auth = header.authorization.split(" ");
+
+  const token = auth[1];
 
   if (!token) {
     throw new AppError(

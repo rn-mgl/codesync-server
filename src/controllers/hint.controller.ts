@@ -1,6 +1,9 @@
+import AppError from "@src/errors/app.error";
+import type {
+  AdditionalHintData,
+  BaseHintData,
+} from "@src/interface/hint.interface";
 import Hint from "@src/models/hint.model";
-import { StatusCodes } from "http-status-codes";
-import { type Request, type Response } from "express";
 import {
   assignField,
   isAdditionalHintData,
@@ -8,12 +11,8 @@ import {
   isValidIdentifierParam,
   isValidLookupQuery,
 } from "@src/utils/type.util";
-import AppError from "@src/errors/app.error";
-import type {
-  AdditionalHintData,
-  BaseHintData,
-  FullHintData,
-} from "@src/interface/hint.interface";
+import { type Request, type Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
@@ -23,7 +22,7 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid hint data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseHintData & Partial<AdditionalHintData> = {
+  const createData: BaseHintData & Partial<AdditionalHintData> = {
     hint_level: body.hint_level,
     hint_text: body.hint_text,
     problem_id: body.problem_id,
@@ -33,7 +32,7 @@ export const create = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalHintData)[] = ["order_index"];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalHintData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, createData);
       }
@@ -102,7 +101,7 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<BaseHintData & AdditionalHintData> = {};
+  const updateData: Partial<BaseHintData & AdditionalHintData> = {};
 
   if (isBaseHintData(body, "partial")) {
     const FIELDS: (keyof BaseHintData)[] = [
@@ -112,7 +111,7 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof BaseHintData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }
@@ -123,7 +122,7 @@ export const update = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalHintData)[] = ["order_index"];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalHintData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }

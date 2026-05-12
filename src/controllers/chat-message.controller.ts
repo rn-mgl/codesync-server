@@ -23,7 +23,7 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid chat message data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseChatMessageData & Partial<AdditionalChatMessageData> = {
+  const createData: BaseChatMessageData & Partial<AdditionalChatMessageData> = {
     message: body.message,
     message_type: body.message_type,
     sender_id: body.sender_id,
@@ -101,7 +101,7 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<FullChatMessageData> = {};
+  const updateData: Partial<FullChatMessageData> = {};
 
   if (isBaseChatMessageData(body, "partial")) {
     const FIELDS: (keyof BaseChatMessageData)[] = [
@@ -112,7 +112,7 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof BaseChatMessageData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }

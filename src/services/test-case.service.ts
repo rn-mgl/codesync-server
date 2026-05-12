@@ -42,10 +42,12 @@ export function buildTestCasePayload(
   ];
 
   for (const field of FIELDS) {
-    const value = testCase[field as keyof TestCasePayload];
+    const value = testCase[field];
 
     if (value !== undefined) {
       assignField(field, value, payload);
+    } else if (value === undefined && type === "full") {
+      throw new AppError(`All values are required.`, StatusCodes.BAD_REQUEST);
     }
   }
 

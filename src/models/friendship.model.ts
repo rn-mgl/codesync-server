@@ -1,7 +1,6 @@
 import { createConnection } from "@src/database/database";
 import type {
   BaseFriendshipData,
-  FRIENDSHIP_STATUS,
   FullFriendshipData,
 } from "@src/interface/friendship.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
@@ -33,12 +32,12 @@ class Friendship implements FullFriendshipData {
         .map((column) => column)
         .join(", ");
       const values = Object.values(data);
-      const preparedValues = values.map((value) => "?").join(", ");
+      const preparedValues = values.map(() => "?").join(", ");
 
       const query = `INSERT INTO friendships (${columns}) VALUES (${preparedValues});`;
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -53,9 +52,9 @@ class Friendship implements FullFriendshipData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -70,9 +69,9 @@ class Friendship implements FullFriendshipData {
 
       const values = [userId];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -87,9 +86,9 @@ class Friendship implements FullFriendshipData {
 
       const values = [status];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -107,12 +106,9 @@ class Friendship implements FullFriendshipData {
 
       const query = `UPDATE friendships ${update} WHERE id = ?;`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        id,
-      ]);
+      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];

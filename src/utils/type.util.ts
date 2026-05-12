@@ -571,18 +571,18 @@ export function isAdditionalFriendshipData(
   return validateFields(data, REQUIRED_FIELDS, type);
 }
 
-export function isBaseStudyGroupData(
-  data: unknown,
+export function isBaseStudyGroupData<T>(
+  data: T,
   type?: "full",
-): data is BaseStudyGroupData;
+): data is Extract<T, object> & BaseStudyGroupData;
 
-export function isBaseStudyGroupData(
-  data: unknown,
+export function isBaseStudyGroupData<T>(
+  data: T,
   type: "partial",
-): data is Partial<BaseStudyGroupData>;
+): data is Extract<T, object> & Partial<BaseStudyGroupData>;
 
-export function isBaseStudyGroupData(
-  data: unknown,
+export function isBaseStudyGroupData<T>(
+  data: T,
   type: ValidationType = "full",
 ): boolean {
   if (typeof data !== "object" || data === null) {

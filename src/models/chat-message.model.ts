@@ -33,11 +33,11 @@ class ChatMessages implements FullChatMessageData {
         .map((column) => column)
         .join(", ");
       const values = Object.values(data);
-      const preparedValues = values.map((value) => "?").join(", ");
+      const preparedValues = values.map(() => "?").join(", ");
 
       const query = `INSERT INTO chat_messages (${columns}) VALUES (${preparedValues});`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
       return result;
     } catch (error) {
@@ -54,7 +54,7 @@ class ChatMessages implements FullChatMessageData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
       return result;
     } catch (error) {
@@ -71,7 +71,7 @@ class ChatMessages implements FullChatMessageData {
 
       const values = [sessionId];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
       return result;
     } catch (error) {
@@ -89,9 +89,9 @@ class ChatMessages implements FullChatMessageData {
         .join(", ");
       const values = Object.values(updates);
 
-      const query = `UPDATE chat_messages SET ${updates} WHERE id = ?;`;
+      const query = `UPDATE chat_messages SET ${update} WHERE id = ?;`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
       return result;
     } catch (error) {

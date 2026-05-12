@@ -22,14 +22,15 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid code snapshot data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseCodeSnapshotData & Partial<AdditionalCodeSnapshotData> = {
-    change_type: body.change_type,
-    code_content: body.code_content,
-    cursor_pointer: body.cursor_pointer,
-    line_number: body.line_number,
-    session_id: body.session_id,
-    user_id: body.user_id,
-  };
+  const createData: BaseCodeSnapshotData & Partial<AdditionalCodeSnapshotData> =
+    {
+      change_type: body.change_type,
+      code_content: body.code_content,
+      cursor_pointer: body.cursor_pointer,
+      line_number: body.line_number,
+      session_id: body.session_id,
+      user_id: body.user_id,
+    };
 
   if (isAdditionalCodeSnapshotData(body, "partial")) {
     const FIELDS: (keyof AdditionalCodeSnapshotData)[] = [];

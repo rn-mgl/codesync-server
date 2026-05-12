@@ -7,7 +7,6 @@ import type {
 import SessionParticipant from "@src/models/session-participant.model";
 import {
   assignField,
-  isAdditionalAttemptData,
   isAdditionalSessionParticipantData,
   isBaseSessionParticipantData,
   isValidIdentifierParam,
@@ -24,7 +23,7 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid session participant.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseSessionParticipantData &
+  const createData: BaseSessionParticipantData &
     Partial<AdditionalSessionParticipantData> = {
     joined_at: body.joined_at,
     role: body.role,
@@ -41,7 +40,7 @@ export const create = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalSessionParticipantData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, createData);
       }
@@ -109,13 +108,13 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<FullSessionParticipantData> = {};
+  const updateData: Partial<FullSessionParticipantData> = {};
 
   if (isBaseSessionParticipantData(body, "partial")) {
     const FIELDS: (keyof BaseSessionParticipantData)[] = ["role"];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof BaseSessionParticipantData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }
@@ -131,7 +130,7 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalSessionParticipantData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }

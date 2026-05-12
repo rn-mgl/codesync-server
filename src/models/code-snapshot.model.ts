@@ -35,13 +35,13 @@ class CodeSnapshot implements FullCodeSnapshotData {
         .map((column) => column)
         .join(", ");
       const values = Object.values(data);
-      const preparedValues = values.map((value) => "?");
+      const preparedValues = values.map(() => "?").join(", ");
 
       const query = `INSERT INTO code_snapshots (${columns}) VALUES (${preparedValues});`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -56,9 +56,9 @@ class CodeSnapshot implements FullCodeSnapshotData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -73,9 +73,9 @@ class CodeSnapshot implements FullCodeSnapshotData {
 
       const values = [sessionId];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -90,9 +90,9 @@ class CodeSnapshot implements FullCodeSnapshotData {
 
       const values = [userId];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];

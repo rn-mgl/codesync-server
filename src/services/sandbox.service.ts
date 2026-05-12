@@ -77,7 +77,7 @@ class SandboxService implements SandboxServiceData {
 
     const sandbox = this.SANDBOXES[this.language];
 
-    let executedCode: {
+    const executedCode: {
       stderr: string;
       stdout: string;
       signal: string;
@@ -382,6 +382,7 @@ class SandboxService implements SandboxServiceData {
     try {
       stdoutData = JSON.parse(executedCode.stdout);
     } catch (error) {
+      console.log(error);
       throw new Error("Output could not be validated.");
     }
 

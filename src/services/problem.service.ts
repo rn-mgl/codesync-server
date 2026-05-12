@@ -40,10 +40,12 @@ export function buildProblemPayload(
   ];
 
   for (const field of FIELDS) {
-    const value = problem[field as keyof ProblemPayload];
+    const value = problem[field];
 
     if (value !== undefined) {
       assignField(field, value, payload);
+    } else if (value === undefined && type === "full") {
+      throw new AppError(`All values are required.`, StatusCodes.BAD_REQUEST);
     }
   }
 

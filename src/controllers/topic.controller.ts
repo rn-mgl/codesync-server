@@ -9,7 +9,6 @@ import {
 } from "@src/services/topic.service";
 import {
   isValidIdentifierParam,
-  isValidIdParam,
   isValidLookupQuery,
   isValidObject,
   isValidString,

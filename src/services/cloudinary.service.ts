@@ -22,6 +22,6 @@ export const uploadFile = async (path: string) => {
 
 export const unlinkFile = (path: string) => {
   return fs.unlink(path, (e) => {
-    console.log(`Unlink File: ` + e);
+    console.log(`Unlink File: ` + JSON.stringify(e));
   });
 };

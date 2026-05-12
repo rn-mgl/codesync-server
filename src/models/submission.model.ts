@@ -43,13 +43,13 @@ class Submission implements BaseSubmissionData {
         .map((column) => column)
         .join(", ");
       const values = Object.values(data);
-      const preparedValues = values.map((value) => "?").join(", ");
+      const preparedValues = values.map(() => "?").join(", ");
 
       const query = `INSERT INTO submissions (${columns}) VALUES (${preparedValues});`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -78,7 +78,7 @@ class Submission implements BaseSubmissionData {
         ];
 
         for (const option of VALID_OPTIONS) {
-          const value = options[option as keyof typeof options];
+          const value = options[option];
           if (value !== undefined) {
             conditions.push(`${option} = ?`);
             values.push(value);
@@ -90,9 +90,9 @@ class Submission implements BaseSubmissionData {
 
       const query = `SELECT * FROM submissions WHERE ${mappedConditions} ORDER BY id DESC;`;
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -107,9 +107,9 @@ class Submission implements BaseSubmissionData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -124,9 +124,9 @@ class Submission implements BaseSubmissionData {
 
       const values = [userId];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -141,9 +141,9 @@ class Submission implements BaseSubmissionData {
 
       const values = [problemId];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -158,9 +158,9 @@ class Submission implements BaseSubmissionData {
 
       const values = [status];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];

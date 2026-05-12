@@ -33,13 +33,13 @@ class Attempt implements FullAttemptData {
         .map((column) => column)
         .join(", ");
       const values = Object.values(data);
-      const preparedValues = values.map((value) => "?").join(", ");
+      const preparedValues = values.map(() => "?").join(", ");
 
       const query = `INSERT INTO attempts (${columns}) VALUES (${preparedValues});`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -52,9 +52,9 @@ class Attempt implements FullAttemptData {
 
       const query = `SELECT * FROM attempts WHERE deleted_at IS NULL;`;
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query);
+      const result = await db.execute<RowDataPacket[]>(query);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -69,9 +69,9 @@ class Attempt implements FullAttemptData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -86,9 +86,9 @@ class Attempt implements FullAttemptData {
 
       const values = [userId];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -103,9 +103,9 @@ class Attempt implements FullAttemptData {
 
       const values = [problemId];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];

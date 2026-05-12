@@ -20,6 +20,8 @@ class ProblemTopic {
         "topic_id",
       ] as const satisfies readonly (keyof CreateProblemTopicPayload)[];
 
+      const preparedColumns = columns.join(", ");
+
       const preparedValues = data
         .map(() => `(${columns.map(() => "?").join(", ")})`) // (?, ?)
         .join(", "); // (?, ?), (?, ?) ...
@@ -29,10 +31,10 @@ class ProblemTopic {
         columns.map((column) => row[column]),
       );
 
-      const query = `INSERT INTO problem_topics (${columns}) VALUES ${preparedValues};`;
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const query = `INSERT INTO problem_topics (${preparedColumns}) VALUES ${preparedValues};`;
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -45,9 +47,9 @@ class ProblemTopic {
       const values = [id];
 
       const query = `SELECT * FROM problem_topics WHERE problem_id = ?;`;
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -60,9 +62,9 @@ class ProblemTopic {
       const values = [id];
 
       const query = `SELECT * FROM problem_topics WHERE topic_id = ?;`;
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -88,12 +90,12 @@ class ProblemTopic {
       const preparedIds = ids.map(() => "?").join(", ");
 
       const query = `UPDATE problem_topics SET ${update} WHERE id IN (${preparedIds});`;
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
+      const result = await db.execute<ResultSetHeader>(query, [
         ...values,
         ...ids,
       ]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -115,12 +117,12 @@ class ProblemTopic {
       const update = columns.map((column) => `${column} = ?`).join(", ");
 
       const query = `UPDATE problem_topics SET ${update} WHERE id IN (${preparedIds});`;
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
+      const result = await db.execute<ResultSetHeader>(query, [
         ...values,
         ...ids,
       ]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");

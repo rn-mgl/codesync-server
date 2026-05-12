@@ -12,7 +12,7 @@ import {
   isValidLookupQuery,
 } from "@src/utils/type.util";
 
-import { Router, type Request, type Response } from "express";
+import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
 
@@ -23,7 +23,7 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid attempt data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseAttemptData & Partial<AdditionalAttemptData> = {
+  const createData: BaseAttemptData & Partial<AdditionalAttemptData> = {
     attempt_count: body.attempt_count,
     hints_used: body.hints_used,
     problem_id: body.problem_id,
@@ -35,7 +35,7 @@ export const create = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalAttemptData)[] = ["is_solved"];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalAttemptData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, createData);
       }

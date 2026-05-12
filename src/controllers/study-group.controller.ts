@@ -23,7 +23,7 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid study group data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseStudyGroupData & Partial<AdditionalStudyGroupData> = {
+  const createData: BaseStudyGroupData & Partial<AdditionalStudyGroupData> = {
     invite_code: body.invite_code,
     name: body.name,
     owner_id: body.owner_id,
@@ -37,7 +37,7 @@ export const create = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalStudyGroupData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, createData);
       }
@@ -111,7 +111,7 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<FullStudyGroupData> = {};
+  const updateData: Partial<FullStudyGroupData> = {};
 
   if (isBaseStudyGroupData(body, "partial")) {
     const FIELDS: (keyof BaseStudyGroupData)[] = [
@@ -121,7 +121,7 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof BaseStudyGroupData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }
@@ -135,7 +135,7 @@ export const update = async (req: Request, res: Response) => {
     ];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalStudyGroupData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }

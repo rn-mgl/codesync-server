@@ -1,3 +1,4 @@
+import AppError from "@src/errors/app.error";
 import type { BaseProblemData } from "@src/interface/problem.interface";
 import type {
   JudgeOutput,
@@ -9,7 +10,6 @@ import type {
   CreateSubmissionPayload,
   SubmissionPayload,
   SubmissionStatistics,
-  SubmissionStatus,
   SubmissionType,
   SupportedLanguages,
   ValidSubmissionLookups,
@@ -17,11 +17,10 @@ import type {
 import type { BaseTestCaseData } from "@src/interface/test-case.interface";
 import Submission from "@src/models/submission.model";
 import { assignField, type ValidationType } from "@src/utils/type.util";
+import { StatusCodes } from "http-status-codes";
 import { getProblemByLookup } from "./problem.service";
 import { SandboxService } from "./sandbox.service";
 import { getTestCaseByLookup } from "./test-case.service";
-import AppError from "@src/errors/app.error";
-import { StatusCodes } from "http-status-codes";
 
 export function buildSubmissionPayload(
   submission: SubmissionPayload,
@@ -53,10 +52,12 @@ export function buildSubmissionPayload(
   ];
 
   for (const field of FIELDS) {
-    const value = submission[field as keyof SubmissionPayload];
+    const value = submission[field];
 
     if (value !== undefined) {
       assignField(field, value, payload);
+    } else if (value === undefined && type === "full") {
+      throw new AppError(`All values are required.`, StatusCodes.BAD_REQUEST);
     }
   }
 
@@ -122,7 +123,7 @@ export function analyzeResult(
   const totalTestCases = testCases.length;
 
   const firstFailedTestCase = Object.entries(codeOutput).find(
-    ([id, output]) => !output.matched,
+    (data) => !data[1].matched,
   )?.[0];
 
   const failedTestCase = firstFailedTestCase
@@ -151,9 +152,7 @@ export function analyzeResult(
 
   return {
     success: true,
-    status: failedTestCase
-      ? "wrong_answer"
-      : ("accepted" as Extract<SubmissionStatus, "wrong_answer" | "accepted">),
+    status: failedTestCase ? "wrong_answer" : "accepted",
     memoryUsedMb: averageMemoryUsed,
     executionTimeMs: averageRunTime,
     testResults: codeOutput,

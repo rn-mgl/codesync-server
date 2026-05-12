@@ -34,7 +34,7 @@ export async function syncProblemTopic(problemId: number, topics: string[]) {
       ([topic, data]) =>
         !selectedTopics.includes(Number(topic)) && data.deleted_at === null,
     )
-    .map(([topic, data]) => data.id);
+    .map((data) => data[1].id);
 
   const deletePayload: SoftDeleteProblemTopicPayload = {
     deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
@@ -55,7 +55,7 @@ export async function syncProblemTopic(problemId: number, topics: string[]) {
       ([topic, data]) =>
         selectedTopics.includes(Number(topic)) && data.deleted_at !== null,
     )
-    .map(([topic, data]) => data.id);
+    .map((data) => data[1].id);
 
   const recoverPayload: UpdateProblemTopicPayload = {
     deleted_at: null,

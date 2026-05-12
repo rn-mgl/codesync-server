@@ -1,20 +1,19 @@
-import Friendship from "@src/models/friendship.model";
-import { StatusCodes } from "http-status-codes";
-import { type Request, type Response } from "express";
-import {
-  assignField,
-  isAdditionalFriendshipData,
-  isBaseFriendshipData,
-  isValidLookupQuery,
-  isValidIdentifierParam,
-} from "@src/utils/type.util";
 import AppError from "@src/errors/app.error";
 import type {
   AdditionalFriendshipData,
   BaseFriendshipData,
-  FRIENDSHIP_STATUS,
   FullFriendshipData,
 } from "@src/interface/friendship.interface";
+import Friendship from "@src/models/friendship.model";
+import {
+  assignField,
+  isAdditionalFriendshipData,
+  isBaseFriendshipData,
+  isValidIdentifierParam,
+  isValidLookupQuery,
+} from "@src/utils/type.util";
+import { type Request, type Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
@@ -24,7 +23,7 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid friendship data.`, StatusCodes.BAD_REQUEST);
   }
 
-  let createData: BaseFriendshipData = {
+  const createData: BaseFriendshipData = {
     friend_id: body.friend_id,
     status: body.status,
     user_id: body.user_id,
@@ -94,13 +93,13 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<FullFriendshipData> = {};
+  const updateData: Partial<FullFriendshipData> = {};
 
   if (isBaseFriendshipData(body, "partial")) {
     const FIELDS: (keyof BaseFriendshipData)[] = ["status"];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof BaseFriendshipData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }
@@ -111,7 +110,7 @@ export const update = async (req: Request, res: Response) => {
     const FIELDS: (keyof AdditionalFriendshipData)[] = ["accepted_at"];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalFriendshipData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }

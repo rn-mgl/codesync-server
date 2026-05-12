@@ -37,13 +37,13 @@ class StudyGroup implements FullStudyGroupData {
         .map((column) => column)
         .join(", ");
       const values = Object.values(data);
-      const preparedValues = values.map((value) => "?").join(", ");
+      const preparedValues = values.map(() => "?").join(", ");
 
       const query = `INSERT INTO study_groups (${columns}) VALUES (${preparedValues});`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -58,9 +58,9 @@ class StudyGroup implements FullStudyGroupData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -75,9 +75,9 @@ class StudyGroup implements FullStudyGroupData {
 
       const values = [ownerId];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -92,9 +92,9 @@ class StudyGroup implements FullStudyGroupData {
 
       const values = [code];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -109,9 +109,9 @@ class StudyGroup implements FullStudyGroupData {
 
       const values = [slug];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];
@@ -129,12 +129,9 @@ class StudyGroup implements FullStudyGroupData {
 
       const query = `UPDATE study_groups SET ${columns} WHERE id = ?;`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        id,
-      ]);
+      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       return [];

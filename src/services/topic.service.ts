@@ -41,10 +41,12 @@ export function buildTopicPayload(
   ];
 
   for (const field of FIELDS) {
-    const value = topic[field as keyof TopicPayload];
+    const value = topic[field];
 
     if (value !== undefined) {
       assignField(field, value, payload);
+    } else if (value === undefined && type === "full") {
+      throw new AppError(`All values are required.`, StatusCodes.BAD_REQUEST);
     }
   }
 
@@ -59,6 +61,11 @@ export async function getTopicByLookup(
 export async function getTopicByLookup(
   identifier: string,
   lookup: "slug",
+): Promise<BaseTopicData>;
+
+export async function getTopicByLookup(
+  identifier: string,
+  lookup: string,
 ): Promise<BaseTopicData>;
 
 export async function getTopicByLookup(

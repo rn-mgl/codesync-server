@@ -40,10 +40,12 @@ export function buildAchievementPayload(
   ];
 
   for (const field of FIELDS) {
-    const value = achievement[field as keyof AchievementPayload];
+    const value = achievement[field];
 
     if (value !== undefined) {
       assignField(field, value, payload);
+    } else if (value === undefined && type === "full") {
+      throw new AppError(`All values are required.`, StatusCodes.BAD_REQUEST);
     }
   }
 

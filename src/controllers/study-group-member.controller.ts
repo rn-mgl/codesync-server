@@ -94,13 +94,13 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid request.`, StatusCodes.BAD_REQUEST);
   }
 
-  let updateData: Partial<BaseStudyGroupMemberData> = {};
+  const updateData: Partial<BaseStudyGroupMemberData> = {};
 
   if (isBaseStudyGroupMemberData(body, "partial")) {
     const FIELDS: (keyof BaseStudyGroupMemberData)[] = ["role"];
 
     for (const field of FIELDS) {
-      const value = body[field as keyof BaseStudyGroupMemberData];
+      const value = body[field];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }

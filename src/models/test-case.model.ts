@@ -43,9 +43,9 @@ class TestCase implements BaseTestCaseData {
 
       const query = `INSERT INTO test_cases (${columns}) VALUES (${preparedValues});`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error(`An error occurred during the operation.`);
@@ -66,7 +66,7 @@ class TestCase implements BaseTestCaseData {
         const VALID_TYPES: (keyof typeof type)[] = ["is_hidden", "is_sample"];
 
         for (const option of VALID_TYPES) {
-          const value = type[option as keyof typeof type];
+          const value = type[option];
 
           if (typeof value === "boolean") {
             conditions.push(`tc.${option} = ?`);
@@ -82,9 +82,9 @@ class TestCase implements BaseTestCaseData {
                       INNER JOIN problems AS p ON tc.problem_id = p.id
                      WHERE ${mappedConditions};`;
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error(`An error occurred during the operation.`);
@@ -102,9 +102,9 @@ class TestCase implements BaseTestCaseData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error(`An error occurred during the operation.`);
@@ -141,7 +141,7 @@ class TestCase implements BaseTestCaseData {
         ];
 
         for (const option of VALID_TYPES) {
-          const value = options[option as keyof typeof options];
+          const value = options[option];
 
           if (typeof value === "boolean") {
             conditions.push(`tc.${option} = ?`);
@@ -157,9 +157,9 @@ class TestCase implements BaseTestCaseData {
                       INNER JOIN problems AS p ON tc.problem_id = p.id
                      WHERE ${mappedConditions};`;
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error(`An error occurred during the operation.`);
@@ -177,12 +177,9 @@ class TestCase implements BaseTestCaseData {
 
       const query = `UPDATE test_cases SET ${update} WHERE id = ?;`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        id,
-      ]);
+      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error(`An error occurred during the operation.`);
@@ -200,12 +197,9 @@ class TestCase implements BaseTestCaseData {
 
       const query = `UPDATE test_cases SET ${update} WHERE id = ?;`;
 
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        id,
-      ]);
+      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error(`An error occurred during the operation.`);

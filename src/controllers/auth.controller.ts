@@ -58,7 +58,7 @@ export const login = async (req: Request, res: Response) => {
   if (!is_verified) {
     const secret = env.JWT_REGISTER_TOKEN;
     const algorithm = env.JWT_AUTH_ALGO as jwt.Algorithm;
-    const expiresIn = env.JWT_REGISTER_TTL as string;
+    const expiresIn = env.JWT_REGISTER_TTL;
 
     const options = { algorithm, expiresIn } as jwt.SignOptions;
 
@@ -69,10 +69,12 @@ export const login = async (req: Request, res: Response) => {
     );
 
     const sendVerification = await accountVerificationEmail(email, token);
+
+    console.log(sendVerification);
   } else {
     const secret = env.JWT_LOGIN_TOKEN;
     const algorithm = env.JWT_AUTH_ALGO as jwt.Algorithm;
-    const expiresIn = env.JWT_LOGIN_TTL as string;
+    const expiresIn = env.JWT_LOGIN_TTL;
 
     const options = { algorithm, expiresIn } as jwt.SignOptions;
 
@@ -127,7 +129,7 @@ export const register = async (req: Request, res: Response) => {
 
   const secret = env.JWT_REGISTER_TOKEN;
   const algorithm = env.JWT_AUTH_ALGO as jwt.Algorithm;
-  const expiresIn = env.JWT_REGISTER_TTL as string;
+  const expiresIn = env.JWT_REGISTER_TTL;
 
   const options = { algorithm, expiresIn } as jwt.SignOptions;
 
@@ -138,6 +140,8 @@ export const register = async (req: Request, res: Response) => {
   );
 
   const sendVerification = await accountVerificationEmail(email, token);
+
+  console.log(sendVerification);
 
   return res.json({ success: true, data: { token } });
 };

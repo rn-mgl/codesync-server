@@ -40,12 +40,12 @@ class Achievement implements BaseAchievementData {
         .map((column) => column)
         .join(", ");
       const values = Object.values(data);
-      const preparedValues = values.map((value) => "?").join(", ");
+      const preparedValues = values.map(() => "?").join(", ");
 
       const query = `INSERT INTO achievements (${columns}) VALUES (${preparedValues});`;
-      const [result, fields] = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -58,9 +58,9 @@ class Achievement implements BaseAchievementData {
 
       const query = `SELECT id, name, slug, description, icon, badge_color, category, points FROM achievements WHERE deleted_at IS NULL;`;
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query);
+      const result = await db.execute<RowDataPacket[]>(query);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -75,9 +75,9 @@ class Achievement implements BaseAchievementData {
 
       const values = [id];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -92,9 +92,9 @@ class Achievement implements BaseAchievementData {
 
       const values = [slug];
 
-      const [result, fields] = await db.execute<RowDataPacket[]>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -111,12 +111,9 @@ class Achievement implements BaseAchievementData {
       const values = Object.values(updates);
 
       const query = `UPDATE achievements SET ${update} WHERE id = ?;`;
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        id,
-      ]);
+      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -133,12 +130,9 @@ class Achievement implements BaseAchievementData {
       const values = Object.values(data);
 
       const query = `UPDATE achievements SET ${update} WHERE id = ?;`;
-      const [result, fields] = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        id,
-      ]);
+      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");

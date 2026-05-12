@@ -12,6 +12,7 @@ const errorMiddleware = (
   next: NextFunction,
 ) => {
   console.log(err);
+  console.log(next);
 
   let message = "An error in the server occurred. Please try again.";
   let statusCode = 500;
