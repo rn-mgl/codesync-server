@@ -15,8 +15,12 @@ RUN if [ "$NODE_ENV" = "production" ];\
 
 COPY . .
 
+RUN if [ "$NODE_ENV" = "production" ];\
+    then npm run build;\
+    fi
+
 ENV PORT=8000
 
 EXPOSE $PORT
 
-CMD [ "node", "src/server.js" ]
+CMD [ "npm", "run", "start" ]
