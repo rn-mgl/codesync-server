@@ -39,6 +39,14 @@ services:
     profiles:
       - sandbox
 
+  java-sandbox:
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile.java
+    image: java-sandbox-image
+    profiles:
+      - sandbox
+
 volumes:
   sandbox-data:
   database:
