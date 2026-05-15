@@ -588,6 +588,9 @@ class SandboxService implements SandboxServiceData {
     // execute the said file
     const executedCode = await this.executeSandboxCode();
 
+    // cleanup sandbox
+    await this.cleanupSandbox();
+
     // throw errors if necessary
     if (executedCode.stderr || executedCode.exitCode > 0) {
       const mappedExitCode = mapExitCode(executedCode.exitCode);
@@ -613,9 +616,6 @@ class SandboxService implements SandboxServiceData {
       console.log(error);
       throw new Error("Output could not be validated.");
     }
-
-    // cleanup sandbox
-    await this.cleanupSandbox();
 
     // validate result
     const judged = this.judgeOutput(stdoutData);
