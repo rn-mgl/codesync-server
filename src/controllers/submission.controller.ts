@@ -111,7 +111,10 @@ export const create = async (req: Request, res: Response) => {
       let statistics: SubmissionStatistics | null = null;
 
       if (createData.status === "accepted") {
-        statistics = await buildSubmissionStatistics(problem.id);
+        statistics = await buildSubmissionStatistics(
+          problem.id,
+          createData.language,
+        );
       }
 
       return res
@@ -223,7 +226,10 @@ export const find = async (req: Request, res: Response) => {
     let statistics = null;
 
     if (payload.success) {
-      statistics = await buildSubmissionStatistics(submission.problem_id);
+      statistics = await buildSubmissionStatistics(
+        submission.problem_id,
+        submission.language,
+      );
     }
 
     return res.status(StatusCodes.OK).json({

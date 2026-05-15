@@ -166,10 +166,14 @@ export function analyzeResult(
   };
 }
 
-export async function buildSubmissionStatistics(problemId: number) {
+export async function buildSubmissionStatistics(
+  problemId: number,
+  language: SupportedLanguages,
+) {
   const acceptedSubmissions = (await Submission.all({
     status: "accepted",
     problem_id: problemId,
+    language: language,
   })) as BaseSubmissionData[];
 
   const memoryMap = new Map<number, number>();
