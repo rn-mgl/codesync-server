@@ -47,6 +47,11 @@ class SandboxService implements SandboxServiceData {
       image: "php-sandbox-image",
       extension: "php",
     },
+    java: {
+      command: "java -cp libs/gson.jar",
+      image: "java-sandbox-image",
+      extension: "java",
+    },
   } as const;
 
   constructor(data: SandboxServiceData) {
@@ -353,6 +358,192 @@ class SandboxService implements SandboxServiceData {
     return;
   }
 
+  private javaTemplate(): void {
+    const functionName = this.problem.input_format.name;
+    const parameters = this.problem.input_format.params
+      .map(
+        (param) =>
+          `gson.fromJson(tc.input.get("${param.name}"), ${this.javaTypeReference(param.type)})`,
+      )
+      .join(", ");
+
+    const codeLines = [
+      `import com.google.gson.Gson;`,
+      `import com.google.gson.JsonElement;`,
+      `import com.google.gson.reflect.TypeToken;`,
+      `import java.io.ByteArrayOutputStream;`,
+      `import java.io.PrintStream;`,
+      `import java.lang.management.ManagementFactory;`,
+      `import java.lang.management.ThreadMXBean;`,
+      `import java.util.ArrayList;`,
+      `import java.util.LinkedHashMap;`,
+      `import java.util.List;`,
+      `import java.util.Map;`,
+      ``,
+      `class Main {`,
+      `\tprivate static final Gson gson = new Gson();`,
+      `\tprivate static final Runtime runtime = Runtime.getRuntime();`,
+      `\tprivate static final ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();`,
+      ``,
+      `\tstatic class TestCase {`,
+      `\t\tint id;`,
+      `\t\tMap<String, JsonElement> input;`,
+      `\t}`,
+      ``,
+      `\tprivate static long usedMemory() {`,
+      `\t\treturn runtime.totalMemory() - runtime.freeMemory();`,
+      `\t}`,
+      ``,
+      `\tprivate static long usedCpu() {`,
+      `\t\tif (threadBean.isCurrentThreadCpuTimeSupported()) {`,
+      `\t\t\treturn threadBean.getCurrentThreadCpuTime() / 1000;`,
+      `\t\t}`,
+      ``,
+      `\t\treturn System.nanoTime() / 1000;`,
+      `\t}`,
+      ``,
+      this.code,
+      ``,
+      `\tpublic static void main(String[] args) {`,
+      `\t\tMap<Integer, Object> output = new LinkedHashMap<>();`,
+      `\t\tTestCase[] testCases = gson.fromJson("""`,
+      JSON.stringify(this.testCases).replaceAll(`"""`, `\\"""`),
+      `\t\t""", TestCase[].class);`,
+      `\t\tPrintStream logger = System.out;`,
+      ``,
+      `\t\tfor (TestCase tc : testCases) {`,
+      `\t\t\tMap<String, Object> result = new LinkedHashMap<>();`,
+      `\t\t\tMap<String, Long> memory = new LinkedHashMap<>();`,
+      `\t\t\tMap<String, Long> cpu = new LinkedHashMap<>();`,
+      `\t\t\tList<String> logs = new ArrayList<>();`,
+      ``,
+      `\t\t\tmemory.put("before", usedMemory());`,
+      `\t\t\tcpu.put("before", usedCpu());`,
+      ``,
+      `\t\t\tByteArrayOutputStream buffer = new ByteArrayOutputStream();`,
+      `\t\t\tPrintStream capture = new PrintStream(buffer);`,
+      `\t\t\tSystem.setOut(capture);`,
+      `\t\t\tObject functionOutput;`,
+      ``,
+      `\t\t\ttry {`,
+      `\t\t\t\tfunctionOutput = ${functionName}(${parameters});`,
+      `\t\t\t} finally {`,
+      `\t\t\t\tcapture.flush();`,
+      `\t\t\t\tSystem.setOut(logger);`,
+      `\t\t\t}`,
+      ``,
+      `\t\t\tString capturedLogs = buffer.toString();`,
+      `\t\t\tif (!capturedLogs.isEmpty()) {`,
+      `\t\t\t\tlogs.add(capturedLogs);`,
+      `\t\t\t}`,
+      ``,
+      `\t\t\tcpu.put("after", usedCpu());`,
+      `\t\t\tmemory.put("after", usedMemory());`,
+      ``,
+      `\t\t\tresult.put("memory", memory);`,
+      `\t\t\tresult.put("cpu", cpu);`,
+      `\t\t\tresult.put("result", functionOutput);`,
+      `\t\t\tresult.put("logs", logs);`,
+      `\t\t\toutput.put(tc.id, result);`,
+      `\t\t}`,
+      ``,
+      `\t\tlogger.println(gson.toJson(output));`,
+      `\t}`,
+      `}`,
+    ];
+
+    this.code = codeLines.join("\n");
+
+    return;
+  }
+
+  private javaTypeReference(type: string): string {
+    const normalized = type.toLowerCase().replace(/\s+/g, "");
+
+    const primitiveTypes: Record<string, string> = {
+      int: "Integer.class",
+      integer: "Integer.class",
+      long: "Long.class",
+      number: "Double.class",
+      double: "Double.class",
+      float: "Float.class",
+      boolean: "Boolean.class",
+      bool: "Boolean.class",
+      string: "String.class",
+      char: "Character.class",
+      character: "Character.class",
+      object: "Object.class",
+    };
+
+    const arrayTypes: Record<string, string> = {
+      "int[]": "int[].class",
+      "integer[]": "Integer[].class",
+      "long[]": "long[].class",
+      "number[]": "double[].class",
+      "double[]": "double[].class",
+      "float[]": "float[].class",
+      "boolean[]": "boolean[].class",
+      "bool[]": "Boolean[].class",
+      "string[]": "String[].class",
+      "char[]": "char[].class",
+      "character[]": "Character[].class",
+    };
+
+    if (primitiveTypes[normalized]) {
+      return primitiveTypes[normalized];
+    }
+
+    if (arrayTypes[normalized]) {
+      return arrayTypes[normalized];
+    }
+
+    if (normalized.startsWith("list<") || normalized.startsWith("array<")) {
+      const itemType = normalized.slice(normalized.indexOf("<") + 1, -1);
+      const listType = this.javaCollectionType(itemType);
+
+      return `new TypeToken<List<${listType}>>() {}.getType()`;
+    }
+
+    return "Object.class";
+  }
+
+  private javaCollectionType(type: string): string {
+    const normalized = type.toLowerCase().replace(/\s+/g, "");
+
+    const collectionTypes: Record<string, string> = {
+      int: "Integer",
+      integer: "Integer",
+      long: "Long",
+      number: "Double",
+      double: "Double",
+      float: "Float",
+      boolean: "Boolean",
+      bool: "Boolean",
+      string: "String",
+      char: "Character",
+      character: "Character",
+      object: "Object",
+    };
+
+    if (collectionTypes[normalized]) {
+      return collectionTypes[normalized];
+    }
+
+    if (normalized.endsWith("[]")) {
+      const itemType = normalized.slice(0, -2);
+
+      return `${this.javaCollectionType(itemType)}[]`;
+    }
+
+    if (normalized.startsWith("list<") || normalized.startsWith("array<")) {
+      const itemType = normalized.slice(normalized.indexOf("<") + 1, -1);
+
+      return `List<${this.javaCollectionType(itemType)}>`;
+    }
+
+    return "Object";
+  }
+
   async compileAndRunCode(): Promise<JudgeOutput> {
     // generate code template
     switch (this.language) {
@@ -361,6 +552,9 @@ class SandboxService implements SandboxServiceData {
         break;
       case "php":
         this.phpTemplate();
+        break;
+      case "java":
+        this.javaTemplate();
         break;
     }
 

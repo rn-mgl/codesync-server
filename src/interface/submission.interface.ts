@@ -32,7 +32,7 @@ export interface SubmissionType {
   type: "test" | "run";
 }
 
-export type SupportedLanguages = "javascript" | "php";
+export type SupportedLanguages = "javascript" | "php" | "java";
 
 export type SubmissionStatus =
   | "processing"
