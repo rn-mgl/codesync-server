@@ -366,8 +366,9 @@ class SandboxService implements SandboxServiceData {
           `gson.fromJson(tc.input.get("${param.name}"), ${this.javaTypeReference(param.type)})`,
       )
       .join(", ");
+    const { imports, code } = this.extractJavaImports(this.code);
 
-    const codeLines = [
+    const importLines = [
       `import com.google.gson.Gson;`,
       `import com.google.gson.JsonElement;`,
       `import com.google.gson.reflect.TypeToken;`,
@@ -379,6 +380,11 @@ class SandboxService implements SandboxServiceData {
       `import java.util.LinkedHashMap;`,
       `import java.util.List;`,
       `import java.util.Map;`,
+      ...imports,
+    ];
+
+    const codeLines = [
+      ...new Set(importLines),
       ``,
       `class Main {`,
       `\tprivate static final Gson gson = new Gson();`,
@@ -402,7 +408,7 @@ class SandboxService implements SandboxServiceData {
       `\t\treturn System.nanoTime() / 1000;`,
       `\t}`,
       ``,
-      this.code,
+      code,
       ``,
       `\tpublic static void main(String[] args) {`,
       `\t\tMap<Integer, Object> output = new LinkedHashMap<>();`,
@@ -455,6 +461,24 @@ class SandboxService implements SandboxServiceData {
     this.code = codeLines.join("\n");
 
     return;
+  }
+
+  private extractJavaImports(code: string): { imports: string[]; code: string } {
+    const imports: string[] = [];
+    const codeLines: string[] = [];
+
+    for (const line of code.split("\n")) {
+      const trimmedLine = line.trim();
+
+      if (/^import\s+(?:static\s+)?[\w.*]+;$/.test(trimmedLine)) {
+        imports.push(trimmedLine);
+        continue;
+      }
+
+      codeLines.push(line);
+    }
+
+    return { imports, code: codeLines.join("\n").trim() };
   }
 
   private javaTypeReference(type: string): string {
