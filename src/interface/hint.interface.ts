@@ -1,7 +1,7 @@
 export interface BaseHintData {
   problem_id: number;
-  hint_text: string;
-  hint_level: number;
+  text: string;
+  level: number;
 }
 
 export interface AdditionalHintData {

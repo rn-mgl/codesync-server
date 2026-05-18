@@ -159,8 +159,8 @@ export function isBaseHintData(
   }
 
   const REQUIRED_FIELDS: readonly (keyof BaseHintData)[] = [
-    "hint_level",
-    "hint_text",
+    "level",
+    "text",
     "problem_id",
   ];
 

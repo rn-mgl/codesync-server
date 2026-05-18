@@ -23,8 +23,8 @@ export const create = async (req: Request, res: Response) => {
   }
 
   const createData: BaseHintData & Partial<AdditionalHintData> = {
-    hint_level: body.hint_level,
-    hint_text: body.hint_text,
+    level: body.level,
+    text: body.text,
     problem_id: body.problem_id,
   };
 
@@ -104,11 +104,7 @@ export const update = async (req: Request, res: Response) => {
   const updateData: Partial<BaseHintData & AdditionalHintData> = {};
 
   if (isBaseHintData(body, "partial")) {
-    const FIELDS: (keyof BaseHintData)[] = [
-      "hint_level",
-      "hint_text",
-      "problem_id",
-    ];
+    const FIELDS: (keyof BaseHintData)[] = ["level", "text", "problem_id"];
 
     for (const field of FIELDS) {
       const value = body[field];
