@@ -19,11 +19,14 @@ export type HintPayload = Pick<
   "hint" | "level" | "order_index" | "problem_id"
 >;
 
-export interface CreateHintPayload extends Pick<
-  BaseHintData,
-  "hint" | "level" | "order_index"
-> {
+export interface CreateHintPayload extends Omit<HintPayload, "problem_id"> {
   problem: string;
+}
+
+export interface UpdateHintPayload extends Partial<
+  Omit<HintPayload, "problem_id">
+> {
+  problem?: string;
 }
 
 export type FullHintData = BaseHintData & AdditionalHintData;

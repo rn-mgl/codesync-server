@@ -1,5 +1,8 @@
 import AppError from "@src/errors/app.error";
-import { isValidCreateHintPayload } from "@src/guard/hint.guard";
+import {
+  isValidCreateHintPayload,
+  isValidUpdateHintPayload,
+} from "@src/guard/hint.guard";
 import type {
   AdditionalHintData,
   BaseHintData,
@@ -12,6 +15,7 @@ import {
   isAdditionalHintData,
   isBaseHintData,
   isValidIdentifierParam,
+  isValidIdParam,
   isValidLookupQuery,
   isValidObject,
 } from "@src/utils/type.util";
@@ -96,39 +100,36 @@ export const update = async (req: Request, res: Response) => {
   const params = req.params;
   const body = req.body;
 
-  if (typeof params !== "object" || params === null || !("id" in params)) {
+  if (!isValidObject(body)) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!isBaseHintData(body) && !isAdditionalHintData(body)) {
+  if (!isValidObject(params)) {
+    throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!isValidIdParam(params)) {
+    throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!("hint" in body) || !isValidObject(body.hint)) {
+    throw new AppError(`Invalid hint request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const hint = body.hint;
+
+  if (!isValidUpdateHintPayload(hint)) {
     throw new AppError(`Invalid update data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const updateData: Partial<BaseHintData & AdditionalHintData> = {};
+  const updateData = buildHintPayload(hint, "partial");
 
-  if (isBaseHintData(body, "partial")) {
-    const FIELDS: (keyof BaseHintData)[] = ["level", "hint", "problem_id"];
+  const id = Number(params.id);
 
-    for (const field of FIELDS) {
-      const value = body[field];
-      if (value !== undefined) {
-        assignField(field, value, updateData);
-      }
-    }
+  if (Number.isNaN(id)) {
+    throw new AppError(`Invalid identfier.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (isAdditionalHintData(body, "partial")) {
-    const FIELDS: (keyof AdditionalHintData)[] = ["order_index"];
-
-    for (const field of FIELDS) {
-      const value = body[field];
-      if (value !== undefined) {
-        assignField(field, value, updateData);
-      }
-    }
-  }
-
-  const id = parseInt(params.id);
   const updated = await Hint.update(id, updateData);
 
   if (!updated) {

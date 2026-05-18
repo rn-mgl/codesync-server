@@ -28,3 +28,18 @@ export function isValidCreateHintPayload(
 
   return validateFields(data, FIELDS, type);
 }
+
+export function isValidUpdateHintPayload(data: unknown) {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+
+  const FIELDS: (keyof CreateHintPayload)[] = [
+    "hint",
+    "level",
+    "order_index",
+    "problem",
+  ];
+
+  return validateFields(data, FIELDS, "partial");
+}
