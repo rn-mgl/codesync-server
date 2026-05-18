@@ -1,15 +1,19 @@
 import AppError from "@src/errors/app.error";
+import { isValidCreateHintPayload } from "@src/guard/hint.guard";
 import type {
   AdditionalHintData,
   BaseHintData,
 } from "@src/interface/hint.interface";
 import Hint from "@src/models/hint.model";
+import { buildHintPayload } from "@src/services/hint.service";
+import { getProblemByLookup } from "@src/services/problem.service";
 import {
   assignField,
   isAdditionalHintData,
   isBaseHintData,
   isValidIdentifierParam,
   isValidLookupQuery,
+  isValidObject,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -18,28 +22,25 @@ import type { RowDataPacket } from "mysql2";
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
 
-  if (!isBaseHintData(body)) {
+  if (!isValidObject(body)) {
+    throw new AppError(`Invalid hint request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!("hint" in body) || !isValidObject(body.hint)) {
     throw new AppError(`Invalid hint data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const createData: BaseHintData & Partial<AdditionalHintData> = {
-    level: body.level,
-    text: body.text,
-    problem_id: body.problem_id,
-  };
+  const hint = body.hint;
 
-  if (isAdditionalHintData(body, "partial")) {
-    const FIELDS: (keyof AdditionalHintData)[] = ["order_index"];
-
-    for (const field of FIELDS) {
-      const value = body[field];
-      if (value !== undefined) {
-        assignField(field, value, createData);
-      }
-    }
+  if (!isValidCreateHintPayload(hint)) {
+    throw new AppError(`Invalid hint payload.`, StatusCodes.BAD_REQUEST);
   }
 
-  const created = await Hint.create(createData);
+  const problem = await getProblemByLookup(hint.problem, "slug");
+
+  const createPaylod = buildHintPayload({ ...hint, problem_id: problem.id });
+
+  const created = await Hint.create(createPaylod);
 
   if (!created) {
     throw new AppError(
@@ -48,7 +49,9 @@ export const create = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ success: !!created });
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { message: `Hint created successfully.` } });
 };
 
 export const all = async (req: Request, res: Response) => {
@@ -104,7 +107,7 @@ export const update = async (req: Request, res: Response) => {
   const updateData: Partial<BaseHintData & AdditionalHintData> = {};
 
   if (isBaseHintData(body, "partial")) {
-    const FIELDS: (keyof BaseHintData)[] = ["level", "text", "problem_id"];
+    const FIELDS: (keyof BaseHintData)[] = ["level", "hint", "problem_id"];
 
     for (const field of FIELDS) {
       const value = body[field];

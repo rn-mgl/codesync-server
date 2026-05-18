@@ -1,27 +1,33 @@
 import { createConnection } from "@src/database/database";
 import type {
-  AdditionalHintData,
   BaseHintData,
   FullHintData,
+  HintPayload,
 } from "@src/interface/hint.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
-class Hint implements FullHintData {
+class Hint implements BaseHintData {
   level: number;
-  text: string;
+  hint: string;
   problem_id: number;
   order_index: number;
   deleted_at: string | null;
+  id: number;
+  created_at: string;
+  updated_at: string;
 
   constructor(data: FullHintData) {
     this.level = data.level;
-    this.text = data.text;
+    this.hint = data.hint;
     this.problem_id = data.problem_id;
     this.order_index = data.order_index;
     this.deleted_at = data.deleted_at;
+    this.id = data.id;
+    this.created_at = data.created_at;
+    this.updated_at = data.updated_at;
   }
 
-  static async create(data: BaseHintData & Partial<AdditionalHintData>) {
+  static async create(data: HintPayload) {
     try {
       const db = createConnection();
 
@@ -38,7 +44,7 @@ class Hint implements FullHintData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -53,7 +59,7 @@ class Hint implements FullHintData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -70,7 +76,7 @@ class Hint implements FullHintData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -87,14 +93,11 @@ class Hint implements FullHintData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
-  static async update(
-    id: number,
-    updates: Partial<BaseHintData & AdditionalHintData>,
-  ) {
+  static async update(id: number, updates: Partial<HintPayload>) {
     try {
       const db = createConnection();
 
@@ -110,7 +113,7 @@ class Hint implements FullHintData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 }
