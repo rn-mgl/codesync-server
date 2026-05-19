@@ -7,7 +7,7 @@ import type { BaseHintData } from "@src/interface/hint.interface";
 import type { BaseProblemData } from "@src/interface/problem.interface";
 import Hint from "@src/models/hint.model";
 import Problem from "@src/models/problem.model";
-import { buildHintPayload } from "@src/services/hint.service";
+import { buildHintPayload, getHintByLookup } from "@src/services/hint.service";
 import { getProblemByLookup } from "@src/services/problem.service";
 import {
   isValidIdentifierParam,
@@ -18,7 +18,6 @@ import {
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import type { RowDataPacket } from "mysql2";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
@@ -73,12 +72,10 @@ export const all = async (req: Request, res: Response) => {
 
     mappedHints.set(problem.slug, hints);
 
-    return res
-      .status(StatusCodes.OK)
-      .json({
-        success: true,
-        data: { hints: Object.fromEntries(mappedHints) },
-      });
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      data: { hints: Object.fromEntries(mappedHints) },
+    });
   } else {
     const problems = (await Problem.all()) as BaseProblemData[];
 
@@ -88,12 +85,10 @@ export const all = async (req: Request, res: Response) => {
       mappedHints.set(p.slug, hint);
     }
 
-    return res
-      .status(StatusCodes.OK)
-      .json({
-        success: true,
-        data: { hints: Object.fromEntries(mappedHints) },
-      });
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      data: { hints: Object.fromEntries(mappedHints) },
+    });
   }
 };
 
@@ -109,24 +104,9 @@ export const find = async (req: Request, res: Response) => {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  let hint: RowDataPacket[] | null = null;
+  const hint = await getHintByLookup(params.identifier, query.lookup);
 
-  switch (query.lookup) {
-    case "id":
-      const id = parseInt(params.identifier);
-
-      hint = await Hint.findById(id);
-
-      return res.json({ hint });
-    case "problem":
-      const problem = parseInt(params.identifier);
-
-      hint = await Hint.findByProblem(problem);
-
-      return res.json({ hint });
-    default:
-      throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
-  }
+  return res.status(StatusCodes.OK).json({ success: true, data: { hint } });
 };
 
 export const update = async (req: Request, res: Response) => {
@@ -149,21 +129,17 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid hint request.`, StatusCodes.BAD_REQUEST);
   }
 
-  const hint = body.hint;
+  const hintPayload = body.hint;
 
-  if (!isValidUpdateHintPayload(hint)) {
+  if (!isValidUpdateHintPayload(hintPayload)) {
     throw new AppError(`Invalid update data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const updateData = buildHintPayload(hint, "partial");
+  const hint = await getHintByLookup(params.id, "id");
 
-  const id = Number(params.id);
+  const updateData = buildHintPayload(hintPayload, "partial");
 
-  if (Number.isNaN(id)) {
-    throw new AppError(`Invalid identfier.`, StatusCodes.BAD_REQUEST);
-  }
-
-  const updated = await Hint.update(id, updateData);
+  const updated = await Hint.update(hint.id, updateData);
 
   if (!updated) {
     throw new AppError(
