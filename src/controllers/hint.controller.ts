@@ -3,16 +3,15 @@ import {
   isValidCreateHintPayload,
   isValidUpdateHintPayload,
 } from "@src/guard/hint.guard";
-import type { BaseHintData } from "@src/interface/hint.interface";
-import type { BaseProblemData } from "@src/interface/problem.interface";
 import Hint from "@src/models/hint.model";
-import Problem from "@src/models/problem.model";
-import { buildHintPayload, getHintByLookup } from "@src/services/hint.service";
+import {
+  buildHintPayload,
+  getAllHints,
+  getHintByLookup,
+} from "@src/services/hint.service";
 import { getProblemByLookup } from "@src/services/problem.service";
 import {
-  isValidIdentifierParam,
   isValidIdParam,
-  isValidLookupQuery,
   isValidObject,
   isValidString,
 } from "@src/utils/type.util";
@@ -63,48 +62,22 @@ export const all = async (req: Request, res: Response) => {
     slug = query.problem;
   }
 
-  const mappedHints = new Map<string, BaseHintData[]>();
+  const hints = await getAllHints(slug);
 
-  if (slug) {
-    const problem = await getProblemByLookup(slug, "slug");
-
-    const hints = (await Hint.findByProblem(problem.id)) as BaseHintData[];
-
-    mappedHints.set(problem.slug, hints);
-
-    return res.status(StatusCodes.OK).json({
-      success: true,
-      data: { hints: Object.fromEntries(mappedHints) },
-    });
-  } else {
-    const problems = (await Problem.all()) as BaseProblemData[];
-
-    for (const p of problems) {
-      const hint = (await Hint.findByProblem(p.id)) as BaseHintData[];
-
-      mappedHints.set(p.slug, hint);
-    }
-
-    return res.status(StatusCodes.OK).json({
-      success: true,
-      data: { hints: Object.fromEntries(mappedHints) },
-    });
-  }
+  return res.status(StatusCodes.OK).json({
+    success: true,
+    data: { hints: Object.fromEntries(hints) },
+  });
 };
 
 export const find = async (req: Request, res: Response) => {
   const params = req.params;
-  const query = req.query;
 
-  if (!isValidIdentifierParam(params)) {
+  if (!isValidIdParam(params)) {
     throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!isValidLookupQuery(query)) {
-    throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
-  }
-
-  const hint = await getHintByLookup(params.identifier, query.lookup);
+  const hint = await getHintByLookup(params.id, "id");
 
   return res.status(StatusCodes.OK).json({ success: true, data: { hint } });
 };

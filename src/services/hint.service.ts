@@ -3,6 +3,9 @@ import type { BaseHintData, HintPayload } from "@src/interface/hint.interface";
 import Hint from "@src/models/hint.model";
 import { assignField, type ValidationType } from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
+import { getProblemByLookup } from "./problem.service";
+import Problem from "@src/models/problem.model";
+import type { BaseProblemData } from "@src/interface/problem.interface";
 
 export function buildHintPayload(data: HintPayload, type?: "full"): HintPayload;
 
@@ -87,4 +90,26 @@ export async function getHintByLookup(identifier: string, lookup: string) {
     default:
       throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
+}
+
+export async function getAllHints(problemSlug?: string) {
+  const mappedHints = new Map<string, BaseHintData[]>();
+
+  if (problemSlug) {
+    const problem = await getProblemByLookup(problemSlug, "slug");
+
+    const hints = (await Hint.findByProblem(problem.id)) as BaseHintData[];
+
+    mappedHints.set(problem.slug, hints);
+  } else {
+    const problems = (await Problem.all()) as BaseProblemData[];
+
+    for (const p of problems) {
+      const hint = (await Hint.findByProblem(p.id)) as BaseHintData[];
+
+      mappedHints.set(p.slug, hint);
+    }
+  }
+
+  return mappedHints;
 }
