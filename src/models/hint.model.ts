@@ -69,6 +69,7 @@ class Hint implements BaseHintData {
 
       const query = `SELECT h.*, p.slug FROM hints h
                       INNER JOIN problems p
+                      ON p.id = h.problem_id
                       WHERE h.id = ? AND h.deleted_at IS NULL
                       AND p.deleted_at IS NULL;`;
 
@@ -89,6 +90,7 @@ class Hint implements BaseHintData {
 
       const query = `SELECT h.*, p.slug FROM hints h
                       INNER JOIN problems p
+                      ON p.id = h.problem_id
                       WHERE h.problem_id = ? AND h.deleted_at IS NULL
                       AND p.deleted_at IS NULL;`;
 
