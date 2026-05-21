@@ -104,6 +104,8 @@ export async function getAllHints(problemSlug?: string) {
   } else {
     const problems = (await Problem.all()) as BaseProblemData[];
 
+    console.log(problems);
+
     for (const p of problems) {
       const hint = (await Hint.findByProblem(p.id)) as BaseHintData[];
 

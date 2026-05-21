@@ -67,7 +67,10 @@ class Hint implements BaseHintData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM hints WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT h.*, p.slug FROM hints h
+                      INNER JOIN problems p
+                      WHERE h.id = ? AND h.deleted_at IS NULL
+                      AND p.deleted_at IS NULL;`;
 
       const values = [id];
 
@@ -84,7 +87,10 @@ class Hint implements BaseHintData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM hints WHERE problem_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT h.*, p.slug FROM hints h
+                      INNER JOIN problems p
+                      WHERE h.problem_id = ? AND h.deleted_at IS NULL
+                      AND p.deleted_at IS NULL;`;
 
       const values = [problemId];
 

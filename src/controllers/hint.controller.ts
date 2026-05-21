@@ -121,5 +121,7 @@ export const update = async (req: Request, res: Response) => {
     );
   }
 
-  return res.json({ success: !!updated });
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { message: "Hint updated successfully." } });
 };
