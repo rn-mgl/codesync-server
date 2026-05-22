@@ -5,6 +5,7 @@ import {
 } from "@src/guard/hint.guard";
 import Hint from "@src/models/hint.model";
 import {
+  buildDeleteHintPayload,
   buildHintPayload,
   getAllHints,
   getHintByLookup,
@@ -124,4 +125,33 @@ export const update = async (req: Request, res: Response) => {
   return res
     .status(StatusCodes.OK)
     .json({ success: true, data: { message: "Hint updated successfully." } });
+};
+
+export const destroy = async (req: Request, res: Response) => {
+  const params = req.params;
+
+  if (!isValidObject(params)) {
+    throw new AppError(`Invalid request.`, StatusCodes.BAD_REQUEST);
+  }
+
+  if (!isValidIdParam(params)) {
+    throw new AppError(`Invalid parameters.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const hint = await getHintByLookup(params.id, "id");
+
+  const payload = buildDeleteHintPayload();
+
+  const updated = await Hint.destroy(hint.id, payload);
+
+  if (!updated) {
+    throw new AppError(
+      `An error occurred during the update.`,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { message: "Hint deleted successfully." } });
 };

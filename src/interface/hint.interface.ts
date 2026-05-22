@@ -19,6 +19,8 @@ export type HintPayload = Pick<
   "hint" | "level" | "order_index" | "problem_id"
 >;
 
+export type SoftDeleteHintPayload = Pick<BaseHintData, "deleted_at">;
+
 export interface CreateHintPayload extends Omit<HintPayload, "problem_id"> {
   problem: string;
 }

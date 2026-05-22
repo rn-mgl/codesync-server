@@ -3,6 +3,7 @@ import type {
   BaseHintData,
   FullHintData,
   HintPayload,
+  SoftDeleteHintPayload,
 } from "@src/interface/hint.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
@@ -113,6 +114,26 @@ class Hint implements BaseHintData {
         .map((column) => `${column} = ?`)
         .join(", ");
       const values = Object.values(updates);
+
+      const query = `UPDATE hints SET ${update} WHERE id = ?;`;
+
+      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
+
+      return result[0];
+    } catch (error) {
+      console.log(error);
+      throw new Error("An error occurred during the operation.");
+    }
+  }
+
+  static async destroy(id: number, data: SoftDeleteHintPayload) {
+    try {
+      const db = createConnection();
+
+      const update = Object.keys(data)
+        .map((key) => `${key} = ?`)
+        .join(", ");
+      const values = Object.values(data);
 
       const query = `UPDATE hints SET ${update} WHERE id = ?;`;
 
