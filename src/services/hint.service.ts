@@ -110,14 +110,10 @@ export async function getAllHints(problemSlug?: string) {
     const problems = (await Problem.all()) as BaseProblemData[];
 
     for (const p of problems) {
-      console.log(p.id);
-
       const hint = (await Hint.findByProblem(p.id)) as BaseHintData[];
 
       mappedHints.set(p.slug, hint);
     }
-
-    console.log(mappedHints);
   }
 
   return mappedHints;
