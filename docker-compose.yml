@@ -12,6 +12,8 @@ services:
       - database
     profiles:
       - app
+    ports:
+      - "8000:8000"
 
   database:
     container_name: codesync-database
@@ -20,6 +22,8 @@ services:
       - database:/var/lib/mysql
     profiles:
       - app
+    ports:
+      - "3306:3306"
 
   sandbox-cleaner:
     build: ./cleaner

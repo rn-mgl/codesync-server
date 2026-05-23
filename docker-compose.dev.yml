@@ -10,12 +10,8 @@ services:
     volumes:
       - ./:/app
       - /app/node_modules
-    ports:
-      - "8000:8000"
     command: npm run dev
 
   database:
-    ports:
-      - "3306:3306"
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: true
