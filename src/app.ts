@@ -52,6 +52,9 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
+app.get("/", (req, res) => {
+  return res.json({ success: true });
+});
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/problem", authMiddleware, problemRouter);
