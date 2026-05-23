@@ -10,4 +10,4 @@ services:
     command: npm run start
   database:
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORDS: true
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
