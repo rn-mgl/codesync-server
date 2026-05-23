@@ -3,7 +3,7 @@ import type {
   BaseUserData,
   FullUserData,
 } from "@src/interface/user.interface";
-import { createConnection } from "@database/database.ts";
+import { createConnection } from "@database/database";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class User implements FullUserData {
