@@ -54,11 +54,6 @@ export async function getHintByLookup(
 
 export async function getHintByLookup(
   identfier: string,
-  lookup: "problem",
-): Promise<BaseHintData[]>;
-
-export async function getHintByLookup(
-  identfier: string,
   lookup: string,
 ): Promise<BaseHintData | BaseHintData[]>;
 
@@ -82,16 +77,32 @@ export async function getHintByLookup(identifier: string, lookup: string) {
 
       return hint[0];
 
-    case "problem":
-      const problem = Number(identifier);
+    default:
+      throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
+  }
+}
 
-      if (Number.isNaN(problem)) {
-        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+export async function getHintsByLookup(
+  identifier: number,
+  lookup: "problem",
+): Promise<BaseHintData[]>;
+
+export async function getHintsByLookup(
+  identifier: string | number,
+  lookup: string,
+) {
+  switch (lookup) {
+    case "problem":
+      const problemId = Number(identifier);
+
+      if (Number.isNaN(problemId)) {
+        throw new AppError(`Invalid parameter.`, StatusCodes.BAD_REQUEST);
       }
 
-      const hints = (await Hint.findByProblem(problem)) as BaseHintData[];
+      const hints = (await Hint.findByProblem(problemId)) as BaseHintData[];
 
       return hints;
+
     default:
       throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }

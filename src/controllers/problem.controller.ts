@@ -5,6 +5,7 @@ import {
 } from "@src/guard/problem.guard";
 import ProblemTopic from "@src/models/problem-topic.model";
 import Problem from "@src/models/problem.model";
+import { getHintsByLookup } from "@src/services/hint.service";
 import { syncProblemTopic } from "@src/services/problem-topic.service";
 import {
   buildDeleteProblemPayload,
@@ -100,9 +101,11 @@ export const find = async (req: Request, res: Response) => {
 
   const topics = await getTopicsByLookup(problem.id, "problem");
 
+  const hints = await getHintsByLookup(problem.id, "problem");
+
   return res.status(StatusCodes.OK).json({
     success: true,
-    data: { problem: problem, testCases, topics },
+    data: { problem: problem, testCases, topics, hints },
   });
 };
 

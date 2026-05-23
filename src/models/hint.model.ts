@@ -53,7 +53,9 @@ class Hint implements BaseHintData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM hints WHERE deleted_at IS NULL;`;
+      const query = `SELECT * FROM hints 
+                      WHERE deleted_at IS NULL 
+                      ORDER BY order_index ASC;`;
 
       const result = await db.execute<RowDataPacket[]>(query);
 
@@ -93,7 +95,8 @@ class Hint implements BaseHintData {
                       INNER JOIN problems p
                       ON p.id = h.problem_id
                       WHERE h.problem_id = ? AND h.deleted_at IS NULL
-                      AND p.deleted_at IS NULL;`;
+                      AND p.deleted_at IS NULL
+                      ORDER BY h.order_index ASC;`;
 
       const values = [problemId];
 
