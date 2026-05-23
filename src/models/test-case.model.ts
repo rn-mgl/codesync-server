@@ -80,7 +80,8 @@ class TestCase implements BaseTestCaseData {
       const query = `SELECT tc.*, 
                       p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
                       INNER JOIN problems AS p ON tc.problem_id = p.id
-                     WHERE ${mappedConditions};`;
+                     WHERE ${mappedConditions}
+                     ORDER BY order_index ASC;`;
 
       const result = await db.execute<RowDataPacket[]>(query, values);
 
@@ -155,7 +156,8 @@ class TestCase implements BaseTestCaseData {
       const query = `SELECT tc.*, 
                       p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
                       INNER JOIN problems AS p ON tc.problem_id = p.id
-                     WHERE ${mappedConditions};`;
+                     WHERE ${mappedConditions}
+                     ORDER BY order_index ASC;`;
 
       const result = await db.execute<RowDataPacket[]>(query, values);
 
