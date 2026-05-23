@@ -7,3 +7,6 @@ services:
     environment:
       - NODE_ENV=production
     command: npm run start
+  database:
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORDS: true

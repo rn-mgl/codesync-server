@@ -10,12 +10,16 @@ services:
       - uploads:/app/tmp/uploads
     depends_on:
       - database
+    profiles:
+      - app
 
   database:
     container_name: codesync-database
     image: mysql:9
     volumes:
       - database:/var/lib/mysql
+    profiles:
+      - app
 
   sandbox-cleaner:
     build: ./cleaner
