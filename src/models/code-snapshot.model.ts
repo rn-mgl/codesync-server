@@ -44,7 +44,7 @@ class CodeSnapshot implements FullCodeSnapshotData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -61,7 +61,7 @@ class CodeSnapshot implements FullCodeSnapshotData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -78,7 +78,7 @@ class CodeSnapshot implements FullCodeSnapshotData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -95,7 +95,7 @@ class CodeSnapshot implements FullCodeSnapshotData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 }

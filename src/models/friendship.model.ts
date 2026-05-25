@@ -40,7 +40,7 @@ class Friendship implements FullFriendshipData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -57,7 +57,7 @@ class Friendship implements FullFriendshipData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -74,7 +74,7 @@ class Friendship implements FullFriendshipData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -91,7 +91,7 @@ class Friendship implements FullFriendshipData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -111,7 +111,7 @@ class Friendship implements FullFriendshipData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 }

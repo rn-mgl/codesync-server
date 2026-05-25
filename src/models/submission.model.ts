@@ -52,7 +52,7 @@ class Submission implements BaseSubmissionData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -95,7 +95,7 @@ class Submission implements BaseSubmissionData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -112,7 +112,7 @@ class Submission implements BaseSubmissionData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -129,7 +129,7 @@ class Submission implements BaseSubmissionData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -146,7 +146,7 @@ class Submission implements BaseSubmissionData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -163,7 +163,7 @@ class Submission implements BaseSubmissionData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 }

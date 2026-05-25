@@ -42,7 +42,7 @@ class ChatMessages implements FullChatMessageData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -59,7 +59,7 @@ class ChatMessages implements FullChatMessageData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -76,7 +76,7 @@ class ChatMessages implements FullChatMessageData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -96,7 +96,7 @@ class ChatMessages implements FullChatMessageData {
       return result;
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 }

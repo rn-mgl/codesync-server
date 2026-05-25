@@ -46,7 +46,7 @@ class StudyGroup implements FullStudyGroupData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -63,7 +63,7 @@ class StudyGroup implements FullStudyGroupData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -80,7 +80,7 @@ class StudyGroup implements FullStudyGroupData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -97,7 +97,7 @@ class StudyGroup implements FullStudyGroupData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -114,7 +114,7 @@ class StudyGroup implements FullStudyGroupData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 
@@ -134,7 +134,7 @@ class StudyGroup implements FullStudyGroupData {
       return result[0];
     } catch (error) {
       console.log(error);
-      return [];
+      throw new Error("An error occurred during the operation.");
     }
   }
 }
