@@ -1,3 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
 
 --
 -- Table structure for table `achievements`
@@ -27,6 +28,94 @@ CREATE TABLE `achievements` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `problems`
+--
+
+DROP TABLE IF EXISTS `problems`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `problems` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `input_format` json DEFAULT NULL,
+  `output_format` json DEFAULT NULL,
+  `constraints` json DEFAULT NULL,
+  `editorial` text,
+  `difficulty` enum('easy','medium','hard') NOT NULL,
+  `acceptance_rate` int NOT NULL DEFAULT '0',
+  `total_submissions` int NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug` (`slug`),
+  KEY `idx_title` (`title`),
+  KEY `idx_slug` (`slug`),
+  FULLTEXT KEY `idx_description` (`description`),
+  CONSTRAINT `problems_chk_1` CHECK (json_valid(`input_format`)),
+  CONSTRAINT `problems_chk_2` CHECK (json_valid(`output_format`)),
+  CONSTRAINT `problems_chk_3` CHECK (json_valid(`constraints`))
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `topics`
+--
+
+DROP TABLE IF EXISTS `topics`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `topics` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `description` text,
+  `icon` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `slug` (`slug`),
+  KEY `idx_name` (`name`),
+  KEY `idx_slug` (`slug`),
+  FULLTEXT KEY `idx_description` (`description`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `first_name` varchar(255) NOT NULL,
+  `last_name` varchar(255) NOT NULL,
+  `problems_solved` int DEFAULT '0',
+  `total_submissions` int DEFAULT '0',
+  `is_verified` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`),
+  KEY `idx_username` (`username`),
+  KEY `idx_email` (`email`),
+  KEY `idx_first_name` (`first_name`),
+  KEY `idx_last_name` (`last_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `attempts`
 --
 
@@ -49,58 +138,6 @@ CREATE TABLE `attempts` (
   KEY `idx_is_solved` (`is_solved`),
   CONSTRAINT `attempts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `attempts_ibfk_2` FOREIGN KEY (`problem_id`) REFERENCES `problems` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `chat_messages`
---
-
-DROP TABLE IF EXISTS `chat_messages`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `chat_messages` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `session_id` int unsigned NOT NULL,
-  `sender_id` int unsigned NOT NULL,
-  `message` text NOT NULL,
-  `message_type` enum('text','code','system') NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `deleted_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `sender_id` (`sender_id`),
-  KEY `idx_session_id` (`session_id`),
-  KEY `idx_created_at` (`created_at`),
-  CONSTRAINT `chat_messages_ibfk_1` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `chat_messages_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `code_snapshots`
---
-
-DROP TABLE IF EXISTS `code_snapshots`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `code_snapshots` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `session_id` int unsigned NOT NULL,
-  `user_id` int unsigned NOT NULL,
-  `code_content` text NOT NULL,
-  `cursor_pointer` json NOT NULL,
-  `change_type` enum('insert','delete','replace') NOT NULL,
-  `line_number` int NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_session_id` (`session_id`),
-  KEY `idx_user_id` (`user_id`),
-  KEY `idx_created_at` (`created_at`),
-  CONSTRAINT `code_snapshots_ibfk_1` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `code_snapshots_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `code_snapshots_chk_1` CHECK (json_valid(`cursor_pointer`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -176,68 +213,6 @@ CREATE TABLE `problem_topics` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `problems`
---
-
-DROP TABLE IF EXISTS `problems`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `problems` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL,
-  `slug` varchar(255) NOT NULL,
-  `description` text NOT NULL,
-  `input_format` json DEFAULT NULL,
-  `output_format` json DEFAULT NULL,
-  `constraints` json DEFAULT NULL,
-  `editorial` text,
-  `difficulty` enum('easy','medium','hard') NOT NULL,
-  `acceptance_rate` int NOT NULL DEFAULT '0',
-  `total_submissions` int NOT NULL DEFAULT '0',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `deleted_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `slug` (`slug`),
-  KEY `idx_title` (`title`),
-  KEY `idx_slug` (`slug`),
-  FULLTEXT KEY `idx_description` (`description`),
-  CONSTRAINT `problems_chk_1` CHECK (json_valid(`input_format`)),
-  CONSTRAINT `problems_chk_2` CHECK (json_valid(`output_format`)),
-  CONSTRAINT `problems_chk_3` CHECK (json_valid(`constraints`))
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `session_participants`
---
-
-DROP TABLE IF EXISTS `session_participants`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `session_participants` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `session_id` int unsigned NOT NULL,
-  `user_id` int unsigned NOT NULL,
-  `role` enum('host','collaborator','observer') NOT NULL,
-  `joined_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `left_at` timestamp NULL DEFAULT NULL,
-  `lines_added` int NOT NULL DEFAULT '0',
-  `lines_deleted` int NOT NULL DEFAULT '0',
-  `is_active` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_session_user` (`session_id`,`user_id`),
-  KEY `idx_session_id` (`session_id`),
-  KEY `idx_user_id` (`user_id`),
-  CONSTRAINT `session_participants_ibfk_1` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `session_participants_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `sessions`
 --
 
@@ -269,31 +244,6 @@ CREATE TABLE `sessions` (
   KEY `idx_created_at` (`created_at`),
   CONSTRAINT `sessions_ibfk_1` FOREIGN KEY (`problem_id`) REFERENCES `problems` (`id`) ON DELETE CASCADE,
   CONSTRAINT `sessions_ibfk_2` FOREIGN KEY (`host_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `study_group_members`
---
-
-DROP TABLE IF EXISTS `study_group_members`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `study_group_members` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `group_id` int unsigned NOT NULL,
-  `user_id` int unsigned NOT NULL,
-  `role` enum('owner','moderator','member') NOT NULL,
-  `joined_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  `slug` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_group_users` (`group_id`,`user_id`),
-  UNIQUE KEY `slug` (`slug`),
-  KEY `idx_group_id` (`group_id`),
-  KEY `idx_user_id` (`user_id`),
-  CONSTRAINT `study_group_members_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `study_groups` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `study_group_members_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -380,31 +330,6 @@ CREATE TABLE `test_cases` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `topics`
---
-
-DROP TABLE IF EXISTS `topics`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `topics` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `slug` varchar(255) NOT NULL,
-  `description` text,
-  `icon` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
-  UNIQUE KEY `slug` (`slug`),
-  KEY `idx_name` (`name`),
-  KEY `idx_slug` (`slug`),
-  FULLTEXT KEY `idx_description` (`description`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `user_achievements`
 --
 
@@ -453,32 +378,109 @@ CREATE TABLE `user_progress` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `users`
+-- Table structure for table `chat_messages`
 --
 
-DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `chat_messages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users` (
+CREATE TABLE `chat_messages` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `first_name` varchar(255) NOT NULL,
-  `last_name` varchar(255) NOT NULL,
-  `problems_solved` int DEFAULT '0',
-  `total_submissions` int DEFAULT '0',
-  `is_verified` tinyint(1) NOT NULL DEFAULT '0',
+  `session_id` int unsigned NOT NULL,
+  `sender_id` int unsigned NOT NULL,
+  `message` text NOT NULL,
+  `message_type` enum('text','code','system') NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sender_id` (`sender_id`),
+  KEY `idx_session_id` (`session_id`),
+  KEY `idx_created_at` (`created_at`),
+  CONSTRAINT `chat_messages_ibfk_1` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `chat_messages_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `code_snapshots`
+--
+
+DROP TABLE IF EXISTS `code_snapshots`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `code_snapshots` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `session_id` int unsigned NOT NULL,
+  `user_id` int unsigned NOT NULL,
+  `code_content` text NOT NULL,
+  `cursor_pointer` json NOT NULL,
+  `change_type` enum('insert','delete','replace') NOT NULL,
+  `line_number` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_session_id` (`session_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_created_at` (`created_at`),
+  CONSTRAINT `code_snapshots_ibfk_1` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `code_snapshots_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `code_snapshots_chk_1` CHECK (json_valid(`cursor_pointer`))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `session_participants`
+--
+
+DROP TABLE IF EXISTS `session_participants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `session_participants` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `session_id` int unsigned NOT NULL,
+  `user_id` int unsigned NOT NULL,
+  `role` enum('host','collaborator','observer') NOT NULL,
+  `joined_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `left_at` timestamp NULL DEFAULT NULL,
+  `lines_added` int NOT NULL DEFAULT '0',
+  `lines_deleted` int NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`),
-  UNIQUE KEY `email` (`email`),
-  KEY `idx_username` (`username`),
-  KEY `idx_email` (`email`),
-  KEY `idx_first_name` (`first_name`),
-  KEY `idx_last_name` (`last_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `unique_session_user` (`session_id`,`user_id`),
+  KEY `idx_session_id` (`session_id`),
+  KEY `idx_user_id` (`user_id`),
+  CONSTRAINT `session_participants_ibfk_1` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `session_participants_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `study_group_members`
+--
+
+DROP TABLE IF EXISTS `study_group_members`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `study_group_members` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `group_id` int unsigned NOT NULL,
+  `user_id` int unsigned NOT NULL,
+  `role` enum('owner','moderator','member') NOT NULL,
+  `joined_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `slug` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_group_users` (`group_id`,`user_id`),
+  UNIQUE KEY `slug` (`slug`),
+  KEY `idx_group_id` (`group_id`),
+  KEY `idx_user_id` (`user_id`),
+  CONSTRAINT `study_group_members_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `study_groups` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `study_group_members_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+SET FOREIGN_KEY_CHECKS=1;
