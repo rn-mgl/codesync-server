@@ -27,7 +27,7 @@ services:
     container_name: codesync-nginx
     image: nginx:1.31
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     profiles:
       - app
     ports:
