@@ -48,6 +48,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+app.set("trust proxy", true);
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
