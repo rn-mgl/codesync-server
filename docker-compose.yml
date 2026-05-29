@@ -32,6 +32,8 @@ services:
       - app
     ports:
       - "80:80"
+    depends_on:
+      - backend
 
   sandbox-cleaner:
     build: ./cleaner
