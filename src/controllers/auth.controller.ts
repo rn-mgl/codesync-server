@@ -68,9 +68,7 @@ export const login = async (req: Request, res: Response) => {
       options,
     );
 
-    const sendVerification = await accountVerificationEmail(email, token);
-
-    console.log(sendVerification);
+    await accountVerificationEmail(email, token);
   } else {
     const secret = env.JWT_LOGIN_TOKEN;
     const algorithm = env.JWT_AUTH_ALGO as jwt.Algorithm;
@@ -83,7 +81,7 @@ export const login = async (req: Request, res: Response) => {
 
   return res.json({
     success: true,
-    data: { token: is_verified ? token : null, user: { id, is_verified } },
+    data: { token: is_verified ? token : null, user: { id, is_verified, name : `${first_name} ${last_name}` } },
   });
 };
 
@@ -139,9 +137,7 @@ export const register = async (req: Request, res: Response) => {
     options,
   );
 
-  const sendVerification = await accountVerificationEmail(email, token);
-
-  console.log(sendVerification);
+  await accountVerificationEmail(email, token);
 
   return res.json({ success: true, data: { token } });
 };
