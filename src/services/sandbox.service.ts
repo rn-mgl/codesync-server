@@ -585,17 +585,11 @@ class SandboxService implements SandboxServiceData {
     // create file for generated code template
     this.createSandboxFile();
 
-    console.log(this)
-
-    console.log("\n-----------------\n")
-
     // execute the said file
     const executedCode = await this.executeSandboxCode();
 
-    console.log(executedCode)
-
     // cleanup sandbox
-    // await this.cleanupSandbox();
+    await this.cleanupSandbox();
 
     // throw errors if necessary
     if (executedCode.stderr || executedCode.exitCode > 0) {
