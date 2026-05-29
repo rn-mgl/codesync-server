@@ -128,10 +128,12 @@ class SandboxService implements SandboxServiceData {
       console.log(error);
       const execError = error as ExecError;
 
-      executedCode.signal = execError.signal ?? "";
+      executedCode.signal = execError.signal || "";
+
       executedCode.stderr =
-        execError.stderr ?? execError.stdout ?? "Execution error";
-      executedCode.exitCode = execError.code ?? 1;
+        execError.stderr || execError.stdout || "Execution error";
+
+      executedCode.exitCode = execError.code || 1;
     }
 
     return executedCode;
@@ -612,7 +614,7 @@ class SandboxService implements SandboxServiceData {
       const judgeError: JudgeOutput = {
         success: false,
         error: "runtime_error",
-        message: errorMessage,
+        message: errorMessage.trim(),
       };
 
       return judgeError;
