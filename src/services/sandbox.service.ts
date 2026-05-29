@@ -248,11 +248,19 @@ class SandboxService implements SandboxServiceData {
                 break;
               }
 
-              const hasMissingValue = expectedOutput.find(
-                (output) => !functionOutput.includes(output),
-              );
+              // either the expected function output does not have all expected output
+              const mismatchedExpectedOutput =
+                expectedOutput.find(
+                  (output) => !functionOutput.includes(output),
+                ) !== undefined;
 
-              if (hasMissingValue) {
+              // or the function output has something that is not in the expected output
+              const mismatchedFunctionOutput =
+                functionOutput.find(
+                  (output) => !expectedOutput.includes(output),
+                ) !== undefined;
+
+              if (mismatchedExpectedOutput || mismatchedFunctionOutput) {
                 isMatched = false;
                 break;
               }
@@ -463,7 +471,10 @@ class SandboxService implements SandboxServiceData {
     return;
   }
 
-  private extractJavaImports(code: string): { imports: string[]; code: string } {
+  private extractJavaImports(code: string): {
+    imports: string[];
+    code: string;
+  } {
     const imports: string[] = [];
     const codeLines: string[] = [];
 
