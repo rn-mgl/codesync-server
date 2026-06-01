@@ -1,5 +1,4 @@
 import AppError from "@src/errors/app.error";
-import User from "@src/models/user.model";
 import { getUserByLookup } from "@src/services/user.service";
 import { isValidIdParam } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
