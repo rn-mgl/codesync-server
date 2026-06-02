@@ -1,4 +1,3 @@
-import { type BaseUserData } from "@interface/user.interface";
 import type {
   AdditionalAttemptData,
   BaseAttemptData,
