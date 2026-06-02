@@ -1,12 +1,11 @@
-import type {
-  AdditionalUserData,
-  BaseUserData,
-  FullUserData,
-} from "@src/interface/user.interface";
 import { createConnection } from "@database/database";
+import type {
+  BaseUserData,
+  CreateUserPayload,
+} from "@src/interface/user.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
-class User implements FullUserData {
+class User implements BaseUserData {
   id: number;
   first_name: string;
   last_name: string;
@@ -20,7 +19,7 @@ class User implements FullUserData {
   is_verified: boolean;
   deleted_at: string | null;
 
-  constructor(data: FullUserData) {
+  constructor(data: BaseUserData) {
     this.id = data.id;
     this.first_name = data.first_name;
     this.last_name = data.last_name;
@@ -35,7 +34,7 @@ class User implements FullUserData {
     this.deleted_at = data.deleted_at;
   }
 
-  static async create(data: BaseUserData) {
+  static async create(data: CreateUserPayload) {
     try {
       const db = createConnection();
 
@@ -126,10 +125,7 @@ class User implements FullUserData {
     }
   }
 
-  static async update(
-    id: number,
-    updates: Partial<BaseUserData & AdditionalUserData>,
-  ) {
+  static async update(id: number, updates: Partial<BaseUserData>) {
     try {
       const db = createConnection();
 

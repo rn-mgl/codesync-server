@@ -111,35 +111,6 @@ export const isValidString = (data: unknown): data is string => {
   return typeof data === "string";
 };
 
-export function isBaseUserData(
-  data: unknown,
-  type?: "full",
-): data is BaseUserData;
-
-export function isBaseUserData(
-  data: unknown,
-  type: "partial",
-): data is Partial<BaseUserData>;
-
-export function isBaseUserData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: readonly (keyof BaseUserData)[] = [
-    "email",
-    "first_name",
-    "last_name",
-    "password",
-    "username",
-  ];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
 export function isBaseHintData(
   data: unknown,
   type?: "full",

@@ -1,15 +1,20 @@
 import AppError from "@errors/app.error";
 import User from "@models/user.model";
+import { env } from "@src/configs/env.config";
+import {
+  isValidCreateUserPayload,
+  isValidUserData,
+} from "@src/guard/user.guard";
+import type { CreateUserPayload } from "@src/interface/user.interface";
 import {
   accountVerificationEmail,
   passwordResetMail,
 } from "@src/services/email.service";
-import { isBaseUserData } from "@src/utils/type.util";
+import { getUserByLookup } from "@src/services/user.service";
 import { hashString, verifyHash } from "@utils/crypt.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
-import { env } from "@src/configs/env.config";
 
 export const login = async (req: Request, res: Response) => {
   const body = req.body;
@@ -32,17 +37,10 @@ export const login = async (req: Request, res: Response) => {
 
   const { email: candidateEmail, password: candidatePassword } = credentials;
 
-  const user = await User.findByEmail(candidateEmail);
-
-  if (!user || !user[0]) {
-    throw new AppError(
-      `The email you entered is invalid.`,
-      StatusCodes.NOT_FOUND,
-    );
-  }
+  const user = await getUserByLookup(candidateEmail, "email");
 
   const { id, first_name, last_name, username, email, password, is_verified } =
-    user[0];
+    user;
 
   const isCorrectPassword = await verifyHash(candidatePassword, password);
 
@@ -81,7 +79,10 @@ export const login = async (req: Request, res: Response) => {
 
   return res.json({
     success: true,
-    data: { token: is_verified ? token : null, user: { id, is_verified, name : `${first_name} ${last_name}` } },
+    data: {
+      token: is_verified ? token : null,
+      user: { id, is_verified, name: `${first_name} ${last_name}` },
+    },
   });
 };
 
@@ -97,7 +98,7 @@ export const register = async (req: Request, res: Response) => {
 
   const { credentials } = body;
 
-  if (!credentials || !isBaseUserData(credentials)) {
+  if (!credentials || !isValidCreateUserPayload(credentials)) {
     throw new AppError(
       "Please fill out the required fields.",
       StatusCodes.BAD_REQUEST,
@@ -108,7 +109,8 @@ export const register = async (req: Request, res: Response) => {
 
   const hashedString = await hashString(password);
 
-  const userData = {
+  // hand pick
+  const userData: CreateUserPayload = {
     first_name,
     last_name,
     username,
@@ -162,13 +164,9 @@ export const verify = async (req: Request, res: Response) => {
 
   const { email } = decoded;
 
-  const user = await User.findByEmail(email);
+  const user = await getUserByLookup(email, "email");
 
-  if (!user || !user[0]) {
-    throw new AppError(`Invalid token provided`, StatusCodes.FORBIDDEN);
-  }
-
-  const verified = await User.update(user[0].id, {
+  const verified = await User.update(user.id, {
     is_verified: true,
   });
 
@@ -215,7 +213,7 @@ export const forgot = async (req: Request, res: Response) => {
     );
   }
 
-  if (!isBaseUserData(user[0], "full")) {
+  if (!isValidUserData(user[0], "full")) {
     throw new AppError(
       `The retrieved user is not valid.`,
       StatusCodes.BAD_REQUEST,
@@ -283,18 +281,11 @@ export const reset = async (req: Request, res: Response) => {
 
   const { email } = decoded;
 
-  const user = await User.findByEmail(email);
-
-  if (!user.length || !user[0]) {
-    throw new AppError(
-      `There is no user found using the token.`,
-      StatusCodes.NOT_FOUND,
-    );
-  }
+  const user = await getUserByLookup(email, "email");
 
   const encrypted = await hashString(password);
 
-  const updated = await User.update(user[0].id, { password: encrypted });
+  const updated = await User.update(user.id, { password: encrypted });
 
   if (!updated) {
     throw new AppError(

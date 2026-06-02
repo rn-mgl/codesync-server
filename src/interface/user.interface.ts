@@ -1,12 +1,10 @@
 export interface BaseUserData {
+  id: number;
   username: string;
   first_name: string;
   last_name: string;
   email: string;
   password: string;
-}
-
-export interface AdditionalUserData {
   problems_solved: number;
   total_submissions: number;
   created_at: string;
@@ -15,9 +13,29 @@ export interface AdditionalUserData {
   deleted_at: string | null;
 }
 
-export interface FullUserData extends BaseUserData, AdditionalUserData {
-  id: number;
-}
+export type UserPayload = Omit<
+  BaseUserData,
+  "id" | "created_at" | "updated_at"
+>;
+
+export type CreateUserPayload = Pick<
+  UserPayload,
+  "first_name" | "last_name" | "username" | "email" | "password"
+>;
+
+export type UpdateUserPayload = Partial<
+  Pick<
+    UserPayload,
+    | "first_name"
+    | "last_name"
+    | "username"
+    | "password"
+    | "problems_solved"
+    | "is_verified"
+    | "total_submissions"
+    | "deleted_at"
+  >
+>;
 
 export interface BaseUserProgressData {
   user_id: number;
