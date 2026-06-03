@@ -51,6 +51,7 @@ export function isValidUserData(data: unknown, type: ValidationType = "full") {
     "last_name",
     "email",
     "password",
+    "image",
     "problems_solved",
     "total_submissions",
     "created_at",

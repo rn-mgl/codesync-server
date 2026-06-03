@@ -18,6 +18,7 @@ class User implements BaseUserData {
   updated_at: string;
   is_verified: boolean;
   deleted_at: string | null;
+  image: string;
 
   constructor(data: BaseUserData) {
     this.id = data.id;
@@ -32,6 +33,7 @@ class User implements BaseUserData {
     this.updated_at = data.updated_at;
     this.is_verified = data.is_verified;
     this.deleted_at = data.deleted_at;
+    this.image = data.image;
   }
 
   static async create(data: CreateUserPayload) {

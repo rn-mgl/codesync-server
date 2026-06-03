@@ -5,6 +5,7 @@ export interface BaseUserData {
   last_name: string;
   email: string;
   password: string;
+  image: string;
   problems_solved: number;
   total_submissions: number;
   created_at: string;
@@ -34,6 +35,7 @@ export type UpdateUserPayload = Partial<
     | "is_verified"
     | "total_submissions"
     | "deleted_at"
+    | "image"
   >
 >;
 
