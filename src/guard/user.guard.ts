@@ -1,23 +1,13 @@
 import type {
   BaseUserData,
   CreateUserPayload,
+  UpdateUserPayload,
 } from "@src/interface/user.interface";
 import { validateFields, type ValidationType } from "@src/utils/type.util";
 
 export function isValidCreateUserPayload(
   data: unknown,
-  type?: "full",
-): data is CreateUserPayload;
-
-export function isValidCreateUserPayload(
-  data: unknown,
-  type: "partial",
-): data is Partial<CreateUserPayload>;
-
-export function isValidCreateUserPayload(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
+): data is CreateUserPayload {
   if (typeof data !== "object" || data === null) return false;
 
   const REQUIRED_FIELDS: (keyof CreateUserPayload)[] = [
@@ -28,7 +18,26 @@ export function isValidCreateUserPayload(
     "username",
   ];
 
-  return validateFields(data, REQUIRED_FIELDS, type);
+  return validateFields(data, REQUIRED_FIELDS, "full");
+}
+
+export function isValidUpdateUserPayload(
+  data: unknown,
+): data is UpdateUserPayload {
+  if (typeof data !== "object" || data === null) return false;
+
+  const REQUIRED_FIELDS: (keyof UpdateUserPayload)[] = [
+    "deleted_at",
+    "first_name",
+    "image",
+    "is_verified",
+    "last_name",
+    "problems_solved",
+    "total_submissions",
+    "username",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, "partial");
 }
 
 export function isValidUserData(

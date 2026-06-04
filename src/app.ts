@@ -58,7 +58,7 @@ app.get("/", (req, res) => {
   return res.json({ success: true });
 });
 app.use("/auth", authRouter);
-app.use("/user", userRouter);
+app.use("/user", [authMiddleware, upload.single("image")], userRouter);
 app.use("/problem", authMiddleware, problemRouter);
 app.use("/topic", [authMiddleware, upload.single("icon")], topicRouter);
 app.use("/test-case", authMiddleware, testCaseRouter);

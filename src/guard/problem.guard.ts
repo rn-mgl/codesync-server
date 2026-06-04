@@ -9,17 +9,17 @@ import {
   type ValidationType,
 } from "@src/utils/type.util";
 
-export function isValidProblemPayload(
+export function isValidProblemData(
   data: unknown,
   type?: "full",
 ): data is ProblemPayload;
 
-export function isValidProblemPayload(
+export function isValidProblemData(
   data: unknown,
   type: "partial",
 ): data is Partial<ProblemPayload>;
 
-export function isValidProblemPayload(
+export function isValidProblemData(
   data: unknown,
   type: ValidationType = "full",
 ): boolean {
@@ -44,7 +44,7 @@ export function isValidProblemPayload(
 export function isValidCreateProblemPayload(
   data: unknown,
 ): data is CreateProblemPayload {
-  if (!isValidProblemPayload(data)) return false;
+  if (!isValidProblemData(data)) return false;
 
   const payload = data as ProblemPayload & { topics?: unknown };
 
@@ -54,7 +54,7 @@ export function isValidCreateProblemPayload(
 export function isValidUpdateProblemPayload(
   data: unknown,
 ): data is UpdateProblemPayload {
-  if (!isValidProblemPayload(data, "partial")) return false;
+  if (!isValidProblemData(data, "partial")) return false;
 
   const payload = data as Partial<ProblemPayload> & { topics?: unknown };
 
