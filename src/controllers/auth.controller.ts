@@ -39,8 +39,16 @@ export const login = async (req: Request, res: Response) => {
 
   const user = await getUserByLookup(candidateEmail, "email");
 
-  const { id, first_name, last_name, username, email, password, is_verified } =
-    user;
+  const {
+    id,
+    first_name,
+    last_name,
+    username,
+    email,
+    password,
+    is_verified,
+    image,
+  } = user;
 
   const isCorrectPassword = await verifyHash(candidatePassword, password);
 
@@ -81,7 +89,12 @@ export const login = async (req: Request, res: Response) => {
     success: true,
     data: {
       token: is_verified ? token : null,
-      user: { id, is_verified, name: `${first_name} ${last_name}` },
+      user: {
+        id,
+        is_verified,
+        name: `${first_name} ${last_name}`,
+        image: image,
+      },
     },
   });
 };
