@@ -1,6 +1,10 @@
 import AppError from "@src/errors/app.error";
-import type { BaseUserData } from "@src/interface/user.interface";
+import type {
+  BaseUserData,
+  UpdateUserPayload,
+} from "@src/interface/user.interface";
 import User from "@src/models/user.model";
+import { assignField } from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
 
 export async function getUserByLookup(
@@ -51,4 +55,38 @@ export async function getUserByLookup(
     default:
       throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
+}
+
+export function buildUpdateUserPayload(data: UpdateUserPayload) {
+  const payload: UpdateUserPayload = {};
+
+  const FIELDS: (keyof UpdateUserPayload)[] = [
+    "deleted_at",
+    "first_name",
+    "image",
+    "is_verified",
+    "last_name",
+    "password",
+    "problems_solved",
+    "total_submissions",
+    "username",
+  ];
+
+  for (const field of FIELDS) {
+    const value = data[field];
+
+    if (value !== undefined) {
+      assignField(field, value, payload);
+    }
+  }
+
+  return payload;
+}
+
+export function buildChangePasswordPayload(password: string) {
+  const payload = {
+    password: password,
+  };
+
+  return payload;
 }

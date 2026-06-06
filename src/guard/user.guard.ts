@@ -1,5 +1,6 @@
 import type {
   BaseUserData,
+  ChangePasswordPayload,
   CreateUserPayload,
   UpdateUserPayload,
 } from "@src/interface/user.interface";
@@ -70,4 +71,18 @@ export function isValidUserData(data: unknown, type: ValidationType = "full") {
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);
+}
+
+export function isValidChangePasswordPayload<T>(
+  data: T,
+): data is Extract<object, T> & ChangePasswordPayload {
+  if (typeof data !== "object" || data === null) return false;
+
+  const REQUIRED_FIELDS: (keyof ChangePasswordPayload)[] = [
+    "confirm_new_password",
+    "current_password",
+    "new_password",
+  ];
+
+  return validateFields(data, REQUIRED_FIELDS, "full");
 }

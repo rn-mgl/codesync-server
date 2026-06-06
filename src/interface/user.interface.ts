@@ -39,6 +39,12 @@ export type UpdateUserPayload = Partial<
   >
 >;
 
+export interface ChangePasswordPayload {
+  current_password: string;
+  new_password: string;
+  confirm_new_password: string;
+}
+
 export interface BaseUserProgressData {
   user_id: number;
   progress_data: string;
