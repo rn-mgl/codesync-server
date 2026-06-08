@@ -2,7 +2,7 @@ import AppError from "@src/errors/app.error";
 import {
   isValidCreateHintPayload,
   isValidUpdateHintPayload,
-} from "@src/guard/hint.guard";
+} from "@src/guards/hint.guard";
 import Hint from "@src/models/hint.model";
 import {
   buildDeleteHintPayload,

@@ -1,5 +1,5 @@
 import AppError from "@src/errors/app.error";
-import { isValidTestCasePayload } from "@src/guard/test-case.guard";
+import { isValidTestCasePayload } from "@src/guards/test-case.guard";
 import TestCase from "@src/models/test-case.model";
 import { getProblemByLookup } from "@src/services/problem.service";
 import {

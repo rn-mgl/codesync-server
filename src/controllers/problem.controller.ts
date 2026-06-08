@@ -2,7 +2,7 @@ import AppError from "@src/errors/app.error";
 import {
   isValidCreateProblemPayload,
   isValidUpdateProblemPayload,
-} from "@src/guard/problem.guard";
+} from "@src/guards/problem.guard";
 import ProblemTopic from "@src/models/problem-topic.model";
 import Problem from "@src/models/problem.model";
 import { getHintsByLookup } from "@src/services/hint.service";

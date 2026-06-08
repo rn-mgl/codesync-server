@@ -4,7 +4,7 @@ import {
   isValidSubmissionLookupTypes,
   isValidSubmissionPayload,
   isValidSubmissionType,
-} from "@src/guard/submission.guard";
+} from "@src/guards/submission.guard";
 import type { UserMiddleware } from "@src/interface/auth.interface";
 import type { JudgeOutput } from "@src/interface/sandbox.interface";
 import type {

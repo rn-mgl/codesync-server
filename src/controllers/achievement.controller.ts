@@ -1,5 +1,5 @@
 import AppError from "@src/errors/app.error";
-import { isValidAchievementPayload } from "@src/guard/achievement.guard";
+import { isValidAchievementPayload } from "@src/guards/achievement.guard";
 import Achievement from "@src/models/achievement.model";
 import {
   buildAchievementPayload,

@@ -4,7 +4,7 @@ import { env } from "@src/configs/env.config";
 import {
   isValidCreateUserPayload,
   isValidUserData,
-} from "@src/guard/user.guard";
+} from "@src/guards/user.guard";
 import type { CreateUserPayload } from "@src/interface/user.interface";
 import {
   accountVerificationEmail,

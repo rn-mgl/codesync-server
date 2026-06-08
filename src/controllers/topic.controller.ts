@@ -1,5 +1,5 @@
 import AppError from "@src/errors/app.error";
-import { isValidTopicPayload } from "@src/guard/topic.guard";
+import { isValidTopicPayload } from "@src/guards/topic.guard";
 import Topic from "@src/models/topic.model";
 import { uploadFile } from "@src/services/cloudinary.service";
 import {

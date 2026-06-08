@@ -2,7 +2,7 @@ import AppError from "@src/errors/app.error";
 import {
   isValidChangePasswordPayload,
   isValidUpdateUserPayload,
-} from "@src/guard/user.guard";
+} from "@src/guards/user.guard";
 import type { UserMiddleware } from "@src/interface/auth.interface";
 import type { BaseUserData } from "@src/interface/user.interface";
 import User from "@src/models/user.model";
