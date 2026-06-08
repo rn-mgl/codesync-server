@@ -3,6 +3,8 @@ import {
   isValidCreateProblemPayload,
   isValidUpdateProblemPayload,
 } from "@src/guards/problem.guard";
+import type { BaseProblemData } from "@src/interface/problem.interface";
+import { redisClient } from "@src/libs/redis.lib";
 import ProblemTopic from "@src/models/problem-topic.model";
 import Problem from "@src/models/problem.model";
 import { getHintsByLookup } from "@src/services/hint.service";
@@ -90,10 +92,22 @@ export const find = async (req: Request, res: Response) => {
     throw new AppError(`Invalid parameter`, StatusCodes.BAD_REQUEST);
   }
 
+  const client = await redisClient();
+
   const lookup = query.lookup;
   const param = params.identifier;
 
-  const problem = await getProblemByLookup(param, lookup);
+  const cache = await client.get(`problem:${param}`);
+
+  let problem: BaseProblemData | null = cache
+    ? (JSON.parse(cache) as BaseProblemData)
+    : null;
+
+  if (!problem) {
+    problem = await getProblemByLookup(param, lookup);
+
+    await client.set(`problem:${problem.slug}`, JSON.stringify(problem));
+  }
 
   const testCases = await getTestCaseByLookup(problem.id, "problem", {
     is_sample: true,

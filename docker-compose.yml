@@ -10,6 +10,7 @@ services:
       - uploads:/app/tmp/uploads
     depends_on:
       - database
+      - redis
     profiles:
       - app
 
@@ -34,6 +35,14 @@ services:
       - "80:80"
     depends_on:
       - backend
+
+  redis:
+    container_name: codesync-redis
+    image: redis:8.8
+    profiles:
+      - app
+    ports:
+      - "6379:6379"
 
   sandbox-cleaner:
     build: ./cleaner

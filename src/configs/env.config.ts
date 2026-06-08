@@ -18,6 +18,8 @@ const REQUIRED_ENV = [
   "CLOUDINARY_NAME",
   "CLOUDINARY_KEY",
   "CLOUDINARY_SECRET",
+  "REDIS_HOST",
+  "REDIS_PORT",
 ] as const;
 
 type EnvKeys = (typeof REQUIRED_ENV)[number];
