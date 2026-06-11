@@ -5,6 +5,7 @@ import {
   buildAchievementPayload,
   buildDeleteAchievementPayload,
   getAchievementByLookup,
+  getAllAchievements,
 } from "@src/services/achievement.service";
 import { uploadFile } from "@src/services/cloudinary.service";
 import {
@@ -74,7 +75,7 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const all = async (req: Request, res: Response) => {
-  const achievements = await Achievement.all();
+  const achievements = await getAllAchievements();
 
   return res
     .status(achievements ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
