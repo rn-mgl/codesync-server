@@ -52,13 +52,34 @@ class Achievement implements BaseAchievementData {
     }
   }
 
-  static async all() {
+  static async all(options?: Partial<BaseAchievementData>) {
     try {
       const db = createConnection();
 
-      const query = `SELECT id, name, slug, description, icon, badge_color, category, points FROM achievements WHERE deleted_at IS NULL;`;
+      const conditions = ["deleted_at IS NULL"];
+      const values = [];
 
-      const result = await db.execute<RowDataPacket[]>(query);
+      const VALID_FIELDS: (keyof BaseAchievementData)[] = [
+        "badge_color",
+        "category",
+      ];
+
+      if (options) {
+        for (const field of VALID_FIELDS) {
+          const value = options[field];
+
+          if (value !== undefined) {
+            conditions.push(`${field} = ?`);
+            values.push(value);
+          }
+        }
+      }
+
+      const mappedConditions = conditions.join(" AND ");
+
+      const query = `SELECT * FROM achievements WHERE ${mappedConditions};`;
+
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
       return result[0];
     } catch (error) {

@@ -68,7 +68,7 @@ class Problem implements BaseProblemData {
     try {
       const db = createConnection();
 
-      const query = `SELECT id, title, slug, difficulty, acceptance_rate FROM problems 
+      const query = `SELECT * FROM problems 
                     WHERE deleted_at IS NULL;`;
 
       const result = await db.execute<RowDataPacket[]>(query);
