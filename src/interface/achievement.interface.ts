@@ -51,7 +51,7 @@ export type SoftDeleteAchievementPayload = Pick<
 
 type BADGE_COLORS = "diamond" | "gold" | "silver" | "bronze";
 
-type ACHIEVEMENT_CATEGORIES =
+export type ACHIEVEMENT_CATEGORIES =
   | "problems"
   | "streak"
   | "social"
