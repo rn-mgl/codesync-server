@@ -78,8 +78,8 @@ export const all = async (req: Request, res: Response) => {
   const achievements = await getAllAchievements();
 
   return res
-    .status(achievements ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
-    .json({ success: !!achievements, data: { achievements } });
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { achievements } });
 };
 
 export const find = async (req: Request, res: Response) => {
