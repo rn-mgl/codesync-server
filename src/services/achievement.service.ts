@@ -94,6 +94,16 @@ export async function getAchievementByLookup(
   return achievement[0];
 }
 
+export async function getAllAchievements(
+  options?: Partial<BaseAchievementData>,
+): Promise<BaseAchievementData[]> {
+  const achievements = (await Achievement.all(
+    options,
+  )) as BaseAchievementData[];
+
+  return achievements;
+}
+
 export function buildDeleteAchievementPayload(slug: string) {
   const updateData: SoftDeleteAchievementPayload = {
     deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),

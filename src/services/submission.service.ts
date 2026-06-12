@@ -210,8 +210,10 @@ export async function buildSubmissionStatistics(
   return statistics;
 }
 
-export async function getAllSubmissions(options?: Partial<BaseSubmissionData>) {
-  const submissions = await Submission.all(options);
+export async function getAllSubmissions(
+  options?: Partial<BaseSubmissionData>,
+): Promise<BaseSubmissionData[]> {
+  const submissions = (await Submission.all(options)) as BaseSubmissionData[];
 
   return submissions;
 }
