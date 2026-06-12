@@ -19,6 +19,7 @@ class Submission implements BaseSubmissionData {
   status: SubmissionStatus;
   test_results: JudgeSuccessOutput | null;
   user_id: number;
+  created_at: string;
   deleted_at: string | null;
 
   constructor(data: BaseSubmissionData) {
@@ -33,6 +34,7 @@ class Submission implements BaseSubmissionData {
     this.test_results = data.test_results;
     this.user_id = data.user_id;
     this.deleted_at = data.deleted_at;
+    this.created_at = data.created_at;
   }
 
   static async create(data: SubmissionPayload) {
