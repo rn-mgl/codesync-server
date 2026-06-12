@@ -12,6 +12,7 @@ export const createConnection = (): mysql.Pool => {
       password: env.DB_PASS ?? "",
       port: Number(env.DB_PORT),
       decimalNumbers: true,
+      dateStrings: true,
     });
   }
 
