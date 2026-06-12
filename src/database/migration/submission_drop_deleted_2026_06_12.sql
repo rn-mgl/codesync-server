@@ -1,0 +1,1 @@
+alter table submissions drop column deleted_at;
