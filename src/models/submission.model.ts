@@ -20,7 +20,6 @@ class Submission implements BaseSubmissionData {
   test_results: JudgeSuccessOutput | null;
   user_id: number;
   created_at: string;
-  deleted_at: string | null;
 
   constructor(data: BaseSubmissionData) {
     this.id = data.id;
@@ -33,7 +32,6 @@ class Submission implements BaseSubmissionData {
     this.status = data.status;
     this.test_results = data.test_results;
     this.user_id = data.user_id;
-    this.deleted_at = data.deleted_at;
     this.created_at = data.created_at;
   }
 
@@ -62,7 +60,7 @@ class Submission implements BaseSubmissionData {
     try {
       const db = createConnection();
 
-      const conditions = [`deleted_at IS NULL`];
+      const conditions = [];
       const values: unknown[] = [];
 
       if (options) {
@@ -105,7 +103,7 @@ class Submission implements BaseSubmissionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM submissions WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM submissions WHERE id = ?;`;
 
       const values = [id];
 
@@ -122,7 +120,7 @@ class Submission implements BaseSubmissionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM submissions WHERE user_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM submissions WHERE user_id = ?;`;
 
       const values = [userId];
 
@@ -139,7 +137,7 @@ class Submission implements BaseSubmissionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM submissions WHERE problem_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM submissions WHERE problem_id = ?;`;
 
       const values = [problemId];
 
@@ -156,7 +154,7 @@ class Submission implements BaseSubmissionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM submissions WHERE status = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM submissions WHERE status = ?;`;
 
       const values = [status];
 
