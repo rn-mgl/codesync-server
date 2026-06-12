@@ -13,7 +13,6 @@ export interface BaseSubmissionData {
   test_results: JudgeSuccessOutput | null;
   error_message: string | null;
   created_at: string;
-  deleted_at: string | null;
 }
 
 export type SubmissionPayload = Pick<
