@@ -15,6 +15,7 @@ import type {
 } from "@src/interface/submission.interface";
 import Submission from "@src/models/submission.model";
 import { getProblemByLookup } from "@src/services/problem.service";
+import { queue } from "@src/services/queue.service";
 import {
   analyzeResult,
   buildSubmissionPayload,
@@ -116,6 +117,11 @@ export const create = async (req: Request, res: Response) => {
           createData.language,
         );
       }
+
+      await queue.add("catch_achievement", {
+        userId: user.id,
+        category: "problems",
+      });
 
       return res
         .status(!!created ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)

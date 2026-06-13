@@ -57,3 +57,8 @@ export type ACHIEVEMENT_CATEGORIES =
   | "social"
   | "skill"
   | "special";
+
+export interface AchievementEvaluatorData {
+  category: ACHIEVEMENT_CATEGORIES;
+  userId: number;
+}

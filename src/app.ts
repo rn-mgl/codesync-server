@@ -29,6 +29,12 @@ import { randomUUID } from "node:crypto";
 import { env } from "./configs/env.config";
 import { authMiddleware } from "./middlewares/auth.middleware";
 
+import { createBullBoard } from "@bull-board/api";
+import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
+import { ExpressAdapter } from "@bull-board/express";
+
+import { queue } from "@services/queue.service";
+
 cloudinary.config({
   cloud_name: env.CLOUDINARY_NAME,
   api_key: env.CLOUDINARY_KEY,
@@ -47,6 +53,14 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage });
+
+const serverAdapter = new ExpressAdapter();
+serverAdapter.setBasePath("/queue");
+
+createBullBoard({
+  queues: [new BullMQAdapter(queue)],
+  serverAdapter,
+});
 
 app.set("trust proxy", true);
 
@@ -79,6 +93,7 @@ app.use(
   achievementRouter,
 );
 app.use("/user-achievement", authMiddleware, userAchievementRouter);
+app.use("/queue", serverAdapter.getRouter());
 
 app.use(errorMiddleware);
 
