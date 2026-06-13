@@ -31,9 +31,7 @@ import type {
   BaseStudyGroupMemberData,
 } from "@src/interface/study-group.interface";
 import type {
-  AdditionalUserAchievementData,
   AdditionalUserProgressData,
-  BaseUserAchievementData,
   BaseUserProgressData,
 } from "@src/interface/user.interface";
 
@@ -642,57 +640,6 @@ export function isAdditionalStudyGroupMemberData(
 
   const REQUIRED_FIELDS: (keyof AdditionalStudyGroupMemberData)[] = [
     "joined_at",
-  ];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isBaseUserAchievementData(
-  data: unknown,
-  type?: "full",
-): data is BaseUserAchievementData;
-
-export function isBaseUserAchievementData(
-  data: unknown,
-  type: "partial",
-): data is Partial<BaseUserAchievementData>;
-
-export function isBaseUserAchievementData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: (keyof BaseUserAchievementData)[] = [
-    "achievement_id",
-    "user_id",
-  ];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isAdditionalUserAchievementData(
-  data: unknown,
-  type?: "full",
-): data is AdditionalUserAchievementData;
-
-export function isAdditionalUserAchievementData(
-  data: unknown,
-  type: "partial",
-): data is Partial<AdditionalUserAchievementData>;
-
-export function isAdditionalUserAchievementData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: (keyof AdditionalUserAchievementData)[] = [
-    "earned_at",
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);

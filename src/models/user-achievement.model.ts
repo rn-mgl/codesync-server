@@ -1,26 +1,24 @@
 import { createConnection } from "@src/database/database";
 import type {
   BaseUserAchievementData,
-  FullUserAchievementData,
+  UserAchievementPayload,
 } from "@src/interface/user.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
-class UserAchievement implements FullUserAchievementData {
+class UserAchievement implements BaseUserAchievementData {
   id: number;
   achievement_id: number;
   earned_at: string;
   user_id: number;
-  deleted_at: string | null;
 
-  constructor(data: FullUserAchievementData) {
+  constructor(data: BaseUserAchievementData) {
     this.id = data.id;
     this.achievement_id = data.achievement_id;
     this.earned_at = data.earned_at;
     this.user_id = data.user_id;
-    this.deleted_at = data.deleted_at;
   }
 
-  static async create(data: BaseUserAchievementData) {
+  static async create(data: UserAchievementPayload) {
     try {
       const db = createConnection();
 
@@ -45,7 +43,7 @@ class UserAchievement implements FullUserAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_achievements WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM user_achievements WHERE id = ?;`;
 
       const values = [id];
 
@@ -62,7 +60,7 @@ class UserAchievement implements FullUserAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_achievements WHERE user_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM user_achievements WHERE user_id = ?;`;
 
       const values = [userId];
 
@@ -79,7 +77,7 @@ class UserAchievement implements FullUserAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_achievements WHERE achievement_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM user_achievements WHERE achievement_id = ?;`;
 
       const values = [achievementId];
 
@@ -92,15 +90,15 @@ class UserAchievement implements FullUserAchievementData {
     }
   }
 
-  static async delete(id: number) {
+  static async findByBridge(userId: number, achievementId: number) {
     try {
       const db = createConnection();
 
-      const values = Object.values(id);
+      const query = `SELECT * FROM user_achievements WHERE user_id = ? AND achievement_id = ?;`;
 
-      const query = `DELETE user_achievements WHERE id = ?;`;
+      const values = [userId, achievementId];
 
-      const result = await db.execute<ResultSetHeader>(query, values);
+      const result = await db.execute<RowDataPacket[]>(query, values);
 
       return result[0];
     } catch (error) {

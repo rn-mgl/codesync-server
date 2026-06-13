@@ -64,16 +64,13 @@ export interface FullUserProgressData
 }
 
 export interface BaseUserAchievementData {
+  id: number;
   user_id: number;
   achievement_id: number;
-}
-
-export interface AdditionalUserAchievementData {
   earned_at: string;
-  deleted_at: string | null;
 }
 
-export interface FullUserAchievementData
-  extends BaseUserAchievementData, AdditionalUserAchievementData {
-  id: number;
-}
+export type UserAchievementPayload = Pick<
+  BaseUserAchievementData,
+  "user_id" | "achievement_id"
+>;
