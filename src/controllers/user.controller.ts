@@ -19,7 +19,7 @@ import { StatusCodes } from "http-status-codes";
 
 export const find = async (req: Request, res: Response) => {
   const params = req.params;
-  const userMiddleware = req.app.get("user") as UserMiddleware;
+  const userMiddleware = req.user as UserMiddleware;
 
   if (!isValidIdParam(params)) {
     throw new AppError(`Invalid parameter.`, StatusCodes.BAD_REQUEST);
@@ -41,7 +41,7 @@ export const update = async (req: Request, res: Response) => {
   const file = req.file;
   const body = req.body;
   const params = req.params;
-  const userMiddleware = req.app.get("user") as UserMiddleware;
+  const userMiddleware = req.user as UserMiddleware;
 
   if (!isValidIdParam(params)) {
     throw new AppError(`Invalid parameter.`, StatusCodes.BAD_REQUEST);

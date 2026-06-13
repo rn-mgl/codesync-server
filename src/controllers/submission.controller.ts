@@ -35,7 +35,7 @@ import { StatusCodes } from "http-status-codes";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
-  const user = req.app.get("user") as UserMiddleware;
+  const user = req.user as UserMiddleware;
 
   if (!isValidObject(body)) {
     throw new AppError(
@@ -155,7 +155,7 @@ export const create = async (req: Request, res: Response) => {
 
 export const all = async (req: Request, res: Response) => {
   const query = req.query;
-  const user = req.app.get("user") as UserMiddleware;
+  const user = req.user as UserMiddleware;
 
   if (!isValidObject(query)) {
     throw new AppError(`Invalid request.`, StatusCodes.BAD_REQUEST);

@@ -3,6 +3,7 @@ import { type NextFunction, type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import { env } from "@src/configs/env.config";
+import type { UserMiddleware } from "@src/interface/auth.interface";
 
 export const authMiddleware = (
   req: Request,
@@ -49,7 +50,7 @@ export const authMiddleware = (
     );
   }
 
-  req.app.set("user", verified);
+  req.user = verified as UserMiddleware;
 
   next();
 };
