@@ -11,6 +11,7 @@ export const worker = new Worker(
       case "catch_achievement":
         const evaluator = new AchievementEvaluator(job.data);
         const output = await evaluator.catchAchievement();
+        console.log(output);
         break;
       default:
         console.log("Unknown job");

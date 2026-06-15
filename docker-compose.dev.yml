@@ -3,14 +3,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    env_file:
-      - .env
     volumes:
       - ./:/app
       - /app/node_modules
     command: npm run dev
     ports:
       - "8000:8000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: npx tsx src/services/worker.service.ts
 
   database:
     environment:

@@ -24,6 +24,8 @@ class AchievementEvaluator implements AchievementEvaluatorData {
   async catchAchievement() {
     const achievements = await getAllAchievements({ category: this.category });
 
+    let created = 0;
+
     for (const achievement of achievements) {
       const resolved = await this.resolveCriteria(achievement.unlock_criteria);
 
@@ -45,8 +47,12 @@ class AchievementEvaluator implements AchievementEvaluatorData {
         };
 
         await UserAchievement.create(payload);
+
+        created++;
       }
     }
+
+    return { created };
   }
 
   private compare(criteria: UnlockCriteria, resolved: number) {
