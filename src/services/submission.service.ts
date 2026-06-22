@@ -16,7 +16,11 @@ import type {
 } from "@src/interface/submission.interface";
 import type { BaseTestCaseData } from "@src/interface/test-case.interface";
 import Submission from "@src/models/submission.model";
-import { assignField, type ValidationType } from "@src/utils/type.util";
+import {
+  assignField,
+  isValidString,
+  type ValidationType,
+} from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
 import { getProblemByLookup } from "./problem.service";
 import { SandboxService } from "./sandbox.service";
@@ -224,12 +228,17 @@ export async function getSubmissionByLookup(
 ): Promise<BaseSubmissionData>;
 
 export async function getSubmissionByLookup(
-  identifier: string,
-  lookup: "user" | "problem" | "status",
+  identifier: string | number,
+  lookup: "user" | "problem",
 ): Promise<BaseSubmissionData[]>;
 
 export async function getSubmissionByLookup(
   identifier: string,
+  lookup: "status",
+): Promise<BaseSubmissionData[]>;
+
+export async function getSubmissionByLookup(
+  identifier: string | number,
   lookup: ValidSubmissionLookups,
 ): Promise<BaseSubmissionData | BaseSubmissionData[]> {
   switch (lookup) {
@@ -275,6 +284,10 @@ export async function getSubmissionByLookup(
       )) as BaseSubmissionData[];
     case "status":
       const status = identifier;
+
+      if (!isValidString(status)) {
+        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+      }
 
       return (await Submission.findByStatus(status)) as BaseSubmissionData[];
     default:
