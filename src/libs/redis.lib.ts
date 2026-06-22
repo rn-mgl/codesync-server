@@ -9,6 +9,7 @@ export const redisClient = async () => {
       host: env.REDIS_HOST,
       port: Number(env.REDIS_PORT),
     },
+    password: env.REDIS_PASS,
   })
     .on("err", (e) => console.log(`Redis Error: ${e}`))
     .connect();
