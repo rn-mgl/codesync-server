@@ -17,6 +17,7 @@
   "dependencies": {
     "@bull-board/api": "^8.0.0",
     "@bull-board/express": "^8.0.0",
+    "@google/genai": "^2.10.0",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.78.0",

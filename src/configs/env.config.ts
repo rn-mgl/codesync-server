@@ -21,6 +21,7 @@ const REQUIRED_ENV = [
   "REDIS_HOST",
   "REDIS_PORT",
   "REDIS_PASS",
+  "GEMINI_KEY",
 ] as const;
 
 type EnvKeys = (typeof REQUIRED_ENV)[number];
