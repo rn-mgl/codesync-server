@@ -21,6 +21,7 @@ import topicRouter from "@routers/topic.router";
 import userAchievementRouter from "@routers/user-achievement.router";
 import userProgressRouter from "@routers/user-progress.router";
 import userRouter from "@routers/user.router";
+import codyRouter from "@routers/cody.router";
 
 import errorMiddleware from "@middlewares/error.middleware";
 import { v2 as cloudinary } from "cloudinary";
@@ -94,6 +95,7 @@ app.use(
 );
 app.use("/user-achievement", authMiddleware, userAchievementRouter);
 app.use("/queue", serverAdapter.getRouter());
+app.use("/cody", authMiddleware, codyRouter);
 
 app.use(errorMiddleware);
 
