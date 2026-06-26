@@ -27,6 +27,8 @@ export const create = async (req: Request, res: Response) => {
         // Correctly sends data over the line
         res.write(`data: ${event.delta.text}\n\n`);
       }
+    } else if (event.event_type === "interaction.completed") {
+      res.write(`data: cody_completed=${event.interaction.id}\n\n`);
     }
   }
 
