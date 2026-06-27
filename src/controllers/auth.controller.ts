@@ -82,7 +82,11 @@ export const login = async (req: Request, res: Response) => {
 
     const options = { algorithm, expiresIn } as jwt.SignOptions;
 
-    token = jwt.sign({ id, email, username }, secret, options);
+    token = jwt.sign(
+      { id, email, username, name: `${first_name} ${last_name}` },
+      secret,
+      options,
+    );
   }
 
   return res.json({
