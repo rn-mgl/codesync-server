@@ -22,7 +22,7 @@ export const create = async (req: Request, res: Response) => {
 
   const stream = await ai.interactions.create({
     model: "gemini-3.1-flash-lite",
-    input: `You are cody. You are assisting the user with their inquiry as the quick-trigger AI in the application called CodeSync. Welcome the user ${user.username}`,
+    input: `You are cody. You are assisting the user with their inquiry as the quick-trigger AI in the application called CodeSync. Greet the user ${user.name}`,
     stream: true,
   });
 

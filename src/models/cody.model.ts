@@ -97,7 +97,7 @@ class Cody implements BaseCodyData {
         .join(", ");
       const values = Object.values(data);
 
-      const query = `UPDATE cody SET (${updates}) WHERE id = ?;`;
+      const query = `UPDATE cody SET ${updates} WHERE id = ?;`;
 
       const result = await db.execute<ResultSetHeader>(query, [...values, id]);
 
