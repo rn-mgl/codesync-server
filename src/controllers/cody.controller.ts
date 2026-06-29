@@ -2,8 +2,8 @@ import { GoogleGenAI } from "@google/genai";
 import { env } from "@src/configs/env.config";
 import AppError from "@src/errors/app.error";
 import type { UserMiddleware } from "@src/interface/auth.interface";
-import type { BaseCodyData } from "@src/interface/cody.interface";
 import Cody from "@src/models/cody.model";
+import { getCodyByLookup } from "@src/services/cody.service";
 import { isValidIdParam, isValidObject } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -22,7 +22,7 @@ export const create = async (req: Request, res: Response) => {
 
   const stream = await ai.interactions.create({
     model: "gemini-3.1-flash-lite",
-    input: `You are cody. You are assisting the user with their inquiry as the quick-trigger AI in the application called CodeSync. Greet the user ${user.name}`,
+    input: `You are Cody. You are assisting the user with their inquiry as the global AI in the application called CodeSync. Greet the user ${user.name}`,
     stream: true,
   });
 
@@ -36,6 +36,7 @@ export const create = async (req: Request, res: Response) => {
         const lines = event.delta.text.split("\n");
 
         for (const line of lines) {
+          res.write(`event: message\n`);
           res.write(`data: ${line}\n`);
         }
 
@@ -44,24 +45,16 @@ export const create = async (req: Request, res: Response) => {
     } else if (event.event_type === "interaction.completed") {
       interaction = event.interaction.id;
 
-      const lines = `cody_completed=${event.interaction.id}`.split("\n");
-
-      for (const line of lines) {
-        res.write(`data: ${line}\n`);
-      }
-
+      res.write(`event: cody_completed\n`);
+      res.write(`data: ${interaction}\n`);
       res.write(`\n`);
     }
   }
 
   const created = await Cody.create({ interaction, user_id: user.id });
 
-  const lines = `stored=${created.insertId}`.split("\n");
-
-  for (const line of lines) {
-    res.write(`data: ${line}\n`);
-  }
-
+  res.write(`event: stored\n`);
+  res.write(`data: ${created.insertId}\n`);
   res.write(`\n`);
 
   if (!created) {
@@ -88,22 +81,7 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid parameters.`, StatusCodes.BAD_REQUEST);
   }
 
-  const id = Number(params.id);
-
-  if (Number.isNaN(id)) {
-    throw new AppError(`Invalid parameters.`, StatusCodes.BAD_REQUEST);
-  }
-
-  const codyRecords = (await Cody.findById(id)) as BaseCodyData[];
-
-  if (!codyRecords || !codyRecords[0]) {
-    throw new AppError(
-      `The session could not be found.`,
-      StatusCodes.NOT_FOUND,
-    );
-  }
-
-  const cody = codyRecords[0];
+  const cody = await getCodyByLookup(params.id, "id");
 
   if (cody.user_id !== user.id) {
     throw new AppError(
@@ -138,6 +116,7 @@ export const update = async (req: Request, res: Response) => {
         const lines = event.delta.text.split("\n");
 
         for (const line of lines) {
+          res.write(`event: message\n`);
           res.write(`data: ${line}\n`);
         }
 
@@ -146,12 +125,8 @@ export const update = async (req: Request, res: Response) => {
     } else if (event.event_type === "interaction.completed") {
       interaction = event.interaction.id;
 
-      const lines = `cody_completed=${event.interaction.id}`.split("\n");
-
-      for (const line of lines) {
-        res.write(`data: ${line}\n`);
-      }
-
+      res.write(`event: cody_completed\n`);
+      res.write(`data: ${interaction}\n`);
       res.write(`\n`);
     }
   }
