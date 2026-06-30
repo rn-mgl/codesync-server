@@ -8,6 +8,7 @@ import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Cody implements BaseCodyData {
   id: number;
+  name: string;
   user_id: number;
   interaction: string;
   created_at: string;
@@ -15,6 +16,7 @@ class Cody implements BaseCodyData {
 
   constructor(data: BaseCodyData) {
     this.id = data.id;
+    this.name = data.name;
     this.user_id = data.user_id;
     this.created_at = data.created_at;
     this.interaction = data.interaction;

@@ -4,9 +4,14 @@ import AppError from "@src/errors/app.error";
 import type { UserMiddleware } from "@src/interface/auth.interface";
 import Cody from "@src/models/cody.model";
 import { getCodyByLookup } from "@src/services/cody.service";
-import { isValidIdParam, isValidObject } from "@src/utils/type.util";
+import {
+  isValidIdentifierParam,
+  isValidIdParam,
+  isValidObject,
+} from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import { DateTime } from "luxon";
 
 export const create = async (req: Request, res: Response) => {
   const user = req.user as UserMiddleware;
@@ -51,7 +56,13 @@ export const create = async (req: Request, res: Response) => {
     }
   }
 
-  const created = await Cody.create({ interaction, user_id: user.id });
+  const dateToday = DateTime.now().toFormat("yyyy-MM-dd hh:mm:ss");
+
+  const created = await Cody.create({
+    name: `Chat ${dateToday}`,
+    interaction,
+    user_id: user.id,
+  });
 
   res.write(`event: stored\n`);
   res.write(`data: ${created.insertId}\n`);
@@ -142,4 +153,52 @@ export const update = async (req: Request, res: Response) => {
 
   // end transaction
   res.end();
+};
+
+export const all = async (req: Request, res: Response) => {
+  const user = req?.user as UserMiddleware;
+
+  if (!user || !user.id) {
+    throw new AppError(
+      `You are unauthorized to proceed.`,
+      StatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  const chats = await Cody.findByUser(user.id);
+
+  return res.status(StatusCodes.OK).json({ success: true, data: { chats } });
+};
+
+export const find = async (req: Request, res: Response) => {
+  const user = req?.user as UserMiddleware;
+  const params = req.params;
+
+  if (!user || !user.id) {
+    throw new AppError(
+      `You are unauthorized to proceed.`,
+      StatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  if (!isValidIdentifierParam(params)) {
+    throw new AppError(`Invalid parameter.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const chat = await getCodyByLookup(params.identifier, "interaction");
+
+  if (chat.user_id !== user.id) {
+    throw new AppError(
+      `You are not allowed to view this session.`,
+      StatusCodes.UNAUTHORIZED,
+    );
+  }
+
+  const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
+
+  const interactions = await ai.interactions.get(chat.interaction);
+
+  console.log(interactions);
+
+  return res.status(StatusCodes.OK).json({ success: true, data: { chat } });
 };

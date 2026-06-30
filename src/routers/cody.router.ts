@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { create, update } from "@controllers/cody.controller";
+import { all, create, update } from "@controllers/cody.controller";
 
 const router = Router();
 
+router.get("/", all);
 router.post("/", create);
 router.patch("/:id", update);
 

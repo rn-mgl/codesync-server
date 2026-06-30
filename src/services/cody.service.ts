@@ -21,9 +21,23 @@ export async function getCodyByLookup(identifier: string, lookup: string) {
         );
       }
 
-      const cody = records[0];
+      return records[0];
 
-      return cody;
+    case "interaction":
+      const interaction = identifier;
+
+      const interactions = (await Cody.findByInteraction(
+        interaction,
+      )) as BaseCodyData[];
+
+      if (!interactions || !interactions[0]) {
+        throw new AppError(
+          `The session could not be found.`,
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
+      return interactions[0];
 
     default:
       throw new AppError(`Invalid lookup type.`, StatusCodes.BAD_REQUEST);
