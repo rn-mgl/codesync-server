@@ -1,15 +1,14 @@
 import { createConnection } from "@src/database/database";
-import type {
-  BaseCodyData,
-  CreateCodyPayload,
-  UpdateCodyPayload,
-} from "@src/interface/cody.interface";
+import type { BaseCodyData, CodyPayload } from "@src/interface/cody.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Cody implements BaseCodyData {
   id: number;
   name: string;
   user_id: number;
+  previous_interaction: string | null;
+  input: string;
+  output: string;
   interaction: string;
   created_at: string;
   updated_at: string;
@@ -19,11 +18,14 @@ class Cody implements BaseCodyData {
     this.name = data.name;
     this.user_id = data.user_id;
     this.created_at = data.created_at;
+    this.previous_interaction = data.previous_interaction;
     this.interaction = data.interaction;
+    this.input = data.input;
+    this.output = data.output;
     this.updated_at = data.updated_at;
   }
 
-  static async create(data: CreateCodyPayload) {
+  static async create(data: CodyPayload) {
     try {
       const db = createConnection();
 
@@ -90,7 +92,7 @@ class Cody implements BaseCodyData {
     }
   }
 
-  static async update(id: number, data: UpdateCodyPayload) {
+  static async update(id: number, data: Partial<CodyPayload>) {
     try {
       const db = createConnection();
 

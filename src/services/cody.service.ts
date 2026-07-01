@@ -1,6 +1,7 @@
 import AppError from "@src/errors/app.error";
-import type { BaseCodyData } from "@src/interface/cody.interface";
+import type { BaseCodyData, CodyPayload } from "@src/interface/cody.interface";
 import Cody from "@src/models/cody.model";
+import { assignField } from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
 
 export async function getCodyByLookup(identifier: string, lookup: string) {
@@ -42,4 +43,27 @@ export async function getCodyByLookup(identifier: string, lookup: string) {
     default:
       throw new AppError(`Invalid lookup type.`, StatusCodes.BAD_REQUEST);
   }
+}
+
+export function buildCreateCodyPayload(cody: CodyPayload) {
+  const payload = {} as CodyPayload;
+
+  const FIELDS: (keyof CodyPayload)[] = [
+    "input",
+    "interaction",
+    "name",
+    "output",
+    "previous_interaction",
+    "user_id",
+  ];
+
+  for (const field of FIELDS) {
+    const value = cody[field];
+
+    if (value !== undefined) {
+      assignField(field, value, payload);
+    }
+  }
+
+  return payload;
 }

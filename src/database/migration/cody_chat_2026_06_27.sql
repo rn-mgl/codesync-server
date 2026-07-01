@@ -2,7 +2,10 @@ create table cody (
 	id int unsigned primary key not null auto_increment,
     name varchar(255) not null,
     user_id int unsigned not null,
+    previous_interaction varchar(255) null,
     interaction varchar(255) not null,
+    input longtext not null,
+    output longtext not null,
     created_at timestamp not null default current_timestamp,
     updated_at timestamp not null default current_timestamp on update current_timestamp,
     

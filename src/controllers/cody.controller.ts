@@ -1,14 +1,17 @@
 import { GoogleGenAI } from "@google/genai";
 import { env } from "@src/configs/env.config";
 import AppError from "@src/errors/app.error";
+import {
+  isValidCodyChatPayload,
+  isValidCodyPayload,
+} from "@src/guards/cody.guard";
 import type { UserMiddleware } from "@src/interface/auth.interface";
 import Cody from "@src/models/cody.model";
-import { getCodyByLookup } from "@src/services/cody.service";
 import {
-  isValidIdentifierParam,
-  isValidIdParam,
-  isValidObject,
-} from "@src/utils/type.util";
+  buildCreateCodyPayload,
+  getCodyByLookup,
+} from "@src/services/cody.service";
+import { isValidIdParam, isValidObject } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
@@ -25,18 +28,23 @@ export const create = async (req: Request, res: Response) => {
     connection: "keep-alive",
   });
 
+  const message = `You are Cody. You are assisting the user with their inquiry as the global AI in the application called CodeSync. Greet the user ${user.name}`;
+
   const stream = await ai.interactions.create({
     model: "gemini-3.1-flash-lite",
-    input: `You are Cody. You are assisting the user with their inquiry as the global AI in the application called CodeSync. Greet the user ${user.name}`,
+    input: message,
     stream: true,
   });
 
   let interaction: string = "";
+  let output: string = "";
 
   for await (const event of stream) {
     if (event.event_type === "step.delta") {
       if (event.delta.type === "text") {
         // Correctly sends data over the line
+
+        output += event.delta.text;
 
         const lines = event.delta.text.split("\n");
 
@@ -58,11 +66,22 @@ export const create = async (req: Request, res: Response) => {
 
   const dateToday = DateTime.now().toFormat("yyyy-MM-dd hh:mm:ss");
 
-  const created = await Cody.create({
+  const data = {
     name: `Chat ${dateToday}`,
     interaction,
     user_id: user.id,
-  });
+    input: message,
+    output,
+    previous_interaction: null,
+  };
+
+  if (!isValidCodyPayload(data)) {
+    throw new AppError(`Invalid cody payload.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const payload = buildCreateCodyPayload(data);
+
+  const created = await Cody.create(payload);
 
   res.write(`event: stored\n`);
   res.write(`data: ${created.insertId}\n`);
@@ -92,6 +111,10 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid parameters.`, StatusCodes.BAD_REQUEST);
   }
 
+  if (!isValidCodyChatPayload(body)) {
+    throw new AppError(`Invalid payload.`, StatusCodes.BAD_REQUEST);
+  }
+
   const cody = await getCodyByLookup(params.id, "id");
 
   if (cody.user_id !== user.id) {
@@ -112,17 +135,20 @@ export const update = async (req: Request, res: Response) => {
 
   const stream = await ai.interactions.create({
     model: "gemini-3.1-flash-lite",
-    input: body.message,
+    input: body.input,
     previous_interaction_id: body.interaction ?? null,
     stream: true,
   });
 
   let interaction: string = "";
+  let output: string = "";
 
   for await (const event of stream) {
     if (event.event_type === "step.delta") {
       if (event.delta.type === "text") {
         // Correctly sends data over the line
+
+        output += event.delta.text;
 
         const lines = event.delta.text.split("\n");
 
@@ -142,9 +168,26 @@ export const update = async (req: Request, res: Response) => {
     }
   }
 
-  const updated = await Cody.update(cody.id, { interaction });
+  const dateToday = DateTime.now().toFormat("yyyy-MM-dd hh:mm:ss");
 
-  if (!updated) {
+  const data = {
+    name: `Chat ${dateToday}`,
+    interaction,
+    user_id: user.id,
+    input: body.input,
+    output,
+    previous_interaction: body.interaction,
+  };
+
+  if (!isValidCodyPayload(data)) {
+    throw new AppError(`Invalid cody payload.`, StatusCodes.BAD_REQUEST);
+  }
+
+  const payload = buildCreateCodyPayload(data);
+
+  const created = await Cody.create(payload);
+
+  if (!created) {
     throw new AppError(
       `An error occurred while updating the session.`,
       StatusCodes.NOT_FOUND,
@@ -181,11 +224,11 @@ export const find = async (req: Request, res: Response) => {
     );
   }
 
-  if (!isValidIdentifierParam(params)) {
+  if (!isValidIdParam(params)) {
     throw new AppError(`Invalid parameter.`, StatusCodes.BAD_REQUEST);
   }
 
-  const chat = await getCodyByLookup(params.identifier, "interaction");
+  const chat = await getCodyByLookup(params.id, "id");
 
   if (chat.user_id !== user.id) {
     throw new AppError(
@@ -197,8 +240,6 @@ export const find = async (req: Request, res: Response) => {
   const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
 
   const interactions = await ai.interactions.get(chat.interaction);
-
-  console.log(interactions);
 
   return res.status(StatusCodes.OK).json({ success: true, data: { chat } });
 };
