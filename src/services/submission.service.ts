@@ -16,37 +16,21 @@ import type {
 } from "@src/interface/submission.interface";
 import type { BaseTestCaseData } from "@src/interface/test-case.interface";
 import Submission from "@src/models/submission.model";
-import {
-  assignField,
-  isValidString,
-  type ValidationType,
-} from "@src/utils/type.util";
+import { assignField, isValidString } from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
 import { getProblemByLookup } from "./problem.service";
 import { SandboxService } from "./sandbox.service";
 import { getTestCaseByLookup } from "./test-case.service";
 
 export function buildSubmissionPayload(
-  submission: SubmissionPayload,
-  type?: "full",
-): SubmissionPayload;
-
-export function buildSubmissionPayload(
-  submission: Partial<SubmissionPayload>,
-  type: "partial",
-): Partial<SubmissionPayload>;
-
-export function buildSubmissionPayload(
   submission: SubmissionPayload | Partial<SubmissionPayload>,
-  type: ValidationType = "full",
-): typeof type extends "full" ? SubmissionPayload : Partial<SubmissionPayload> {
+) {
   const payload: SubmissionPayload | Partial<SubmissionPayload> = {};
 
   const FIELDS: (keyof SubmissionPayload)[] = [
     "code",
     "error_message",
     "execution_time_ms",
-
     "language",
     "memory_used_mb",
     "problem_id",
@@ -60,8 +44,6 @@ export function buildSubmissionPayload(
 
     if (value !== undefined) {
       assignField(field, value, payload);
-    } else if (value === undefined && type === "full") {
-      throw new AppError(`All values are required.`, StatusCodes.BAD_REQUEST);
     }
   }
 

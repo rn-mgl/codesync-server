@@ -44,8 +44,6 @@ export function buildAchievementPayload(
 
     if (value !== undefined) {
       assignField(field, value, payload);
-    } else if (value === undefined && type === "full") {
-      throw new AppError(`All values are required.`, StatusCodes.BAD_REQUEST);
     }
   }
 

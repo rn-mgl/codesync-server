@@ -5,28 +5,15 @@ import type {
   SoftDeleteProblemPayload,
 } from "@src/interface/problem.interface";
 import Problem from "@src/models/problem.model";
-import { assignField, type ValidationType } from "@src/utils/type.util";
+import { assignField } from "@src/utils/type.util";
 import { randomUUID } from "crypto";
 import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
 
 export function buildProblemPayload(
-  problem: ProblemPayload,
-  type?: "full",
-): ProblemPayload;
-
-export function buildProblemPayload(
-  problem: Partial<ProblemPayload>,
-  type: "partial",
-): Partial<ProblemPayload>;
-
-export function buildProblemPayload(
   problem: ProblemPayload | Partial<ProblemPayload>,
-  type: ValidationType = "full",
 ) {
-  const payload: typeof type extends "full"
-    ? ProblemPayload
-    : Partial<ProblemPayload> = {};
+  const payload: ProblemPayload | Partial<ProblemPayload> = {};
 
   const FIELDS: (keyof ProblemPayload)[] = [
     "title",
@@ -44,8 +31,6 @@ export function buildProblemPayload(
 
     if (value !== undefined) {
       assignField(field, value, payload);
-    } else if (value === undefined && type === "full") {
-      throw new AppError(`All values are required.`, StatusCodes.BAD_REQUEST);
     }
   }
 

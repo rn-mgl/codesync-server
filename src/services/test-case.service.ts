@@ -7,28 +7,15 @@ import type {
 } from "@src/interface/test-case.interface";
 import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
-import { assignField, type ValidationType } from "@src/utils/type.util";
+import { assignField } from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
 import { getProblemByLookup } from "./problem.service";
 
 export function buildTestCasePayload(
-  testCase: TestCasePayload,
-  type?: "full",
-): TestCasePayload;
-
-export function buildTestCasePayload(
-  testCase: Partial<TestCasePayload>,
-  type: "partial",
-): Partial<TestCasePayload>;
-
-export function buildTestCasePayload(
   testCase: TestCasePayload | Partial<TestCasePayload>,
-  type: ValidationType = "full",
 ) {
-  const payload: typeof type extends "full"
-    ? TestCasePayload
-    : Partial<TestCasePayload> = {};
+  const payload: TestCasePayload | Partial<TestCasePayload> = {};
 
   const FIELDS: (keyof TestCasePayload)[] = [
     "expected_output",
@@ -46,8 +33,6 @@ export function buildTestCasePayload(
 
     if (value !== undefined) {
       assignField(field, value, payload);
-    } else if (value === undefined && type === "full") {
-      throw new AppError(`All values are required.`, StatusCodes.BAD_REQUEST);
     }
   }
 

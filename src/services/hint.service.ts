@@ -4,28 +4,16 @@ import type {
   HintPayload,
   SoftDeleteHintPayload,
 } from "@src/interface/hint.interface";
-import Hint from "@src/models/hint.model";
-import { assignField, type ValidationType } from "@src/utils/type.util";
-import { StatusCodes } from "http-status-codes";
-import { getProblemByLookup } from "./problem.service";
-import Problem from "@src/models/problem.model";
 import type { BaseProblemData } from "@src/interface/problem.interface";
+import Hint from "@src/models/hint.model";
+import Problem from "@src/models/problem.model";
+import { assignField } from "@src/utils/type.util";
+import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
+import { getProblemByLookup } from "./problem.service";
 
-export function buildHintPayload(data: HintPayload, type?: "full"): HintPayload;
-
-export function buildHintPayload(
-  data: Partial<HintPayload>,
-  type?: "partial",
-): Partial<HintPayload>;
-
-export function buildHintPayload(
-  data: HintPayload | Partial<HintPayload>,
-  type: ValidationType = "full",
-) {
-  const payload: typeof type extends "full"
-    ? HintPayload
-    : Partial<HintPayload> = {};
+export function buildHintPayload(data: HintPayload | Partial<HintPayload>) {
+  const payload: HintPayload | Partial<HintPayload> = {};
 
   const FIELDS: (keyof HintPayload)[] = [
     "level",
@@ -39,8 +27,6 @@ export function buildHintPayload(
 
     if (value !== undefined) {
       assignField(field, value, payload);
-    } else if (value === undefined && type === "full") {
-      throw new AppError(`All values are required.`, StatusCodes.BAD_REQUEST);
     }
   }
 

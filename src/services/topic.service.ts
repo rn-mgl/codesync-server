@@ -9,29 +9,13 @@ import {
   assignField,
   isArrayNumber,
   isArrayString,
-  type ValidationType,
 } from "@src/utils/type.util";
 import { randomUUID } from "crypto";
 import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
 
-export function buildTopicPayload(
-  topic: TopicPayload,
-  type?: "full",
-): TopicPayload;
-
-export function buildTopicPayload(
-  topic: Partial<TopicPayload>,
-  type: "partial",
-): Partial<TopicPayload>;
-
-export function buildTopicPayload(
-  topic: TopicPayload | Partial<TopicPayload>,
-  type: ValidationType = "full",
-) {
-  const payload: typeof type extends "full"
-    ? TopicPayload
-    : Partial<TopicPayload> = {};
+export function buildTopicPayload(topic: TopicPayload | Partial<TopicPayload>) {
+  const payload: TopicPayload | Partial<TopicPayload> = {};
 
   const FIELDS: (keyof TopicPayload)[] = [
     "name",
@@ -45,8 +29,6 @@ export function buildTopicPayload(
 
     if (value !== undefined) {
       assignField(field, value, payload);
-    } else if (value === undefined && type === "full") {
-      throw new AppError(`All values are required.`, StatusCodes.BAD_REQUEST);
     }
   }
 
