@@ -60,12 +60,20 @@ class Cody implements BaseCodyData {
     }
   }
 
-  static async findByUser(userId: number) {
+  static async findByUser(userId: number, options?: { parentOnly: boolean }) {
     try {
       const db = createConnection();
       const values = [userId];
 
-      const query = `SELECT * FROM cody WHERE user_id = ?;`;
+      const conditions = [];
+
+      if (options?.parentOnly) {
+        conditions.push("previous_interaction IS NULL");
+      }
+
+      const mappedConditions = conditions.join(" AND ");
+
+      const query = `SELECT * FROM cody WHERE user_id = ? AND ${mappedConditions};`;
       const result = await db.execute<RowDataPacket[]>(query, values);
 
       return result[0];

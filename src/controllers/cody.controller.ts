@@ -208,7 +208,7 @@ export const all = async (req: Request, res: Response) => {
     );
   }
 
-  const chats = await Cody.findByUser(user.id);
+  const chats = await Cody.findByUser(user.id, { parentOnly: true });
 
   return res.status(StatusCodes.OK).json({ success: true, data: { chats } });
 };
