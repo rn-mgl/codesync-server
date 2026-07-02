@@ -131,6 +131,8 @@ export function buildChatHistory(
     .filter((c) => relatedInteractions.includes(c.interaction))
     .sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
 
+  console.log(relatedChats);
+
   const interaction = relatedChats[relatedChats.length - 1]?.interaction ?? "";
 
   const preparedChats: Chat[] = [];
@@ -142,14 +144,14 @@ export function buildChatHistory(
       sender: "cody",
     };
 
-    const userChat: Chat = {
-      id: Math.random(),
-      input: c.input,
-      sender: "user",
-    };
-
     // don't push the system first chat
     if (c.previous_interaction !== null) {
+      const userChat: Chat = {
+        id: Math.random(),
+        input: c.input,
+        sender: "user",
+      };
+
       preparedChats.push(userChat);
     }
 

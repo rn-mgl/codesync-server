@@ -73,7 +73,7 @@ class Cody implements BaseCodyData {
 
       const mappedConditions = conditions.join(" AND ");
 
-      const query = `SELECT * FROM cody WHERE ${mappedConditions};`;
+      const query = `SELECT * FROM cody WHERE ${mappedConditions} ORDER BY created_at DESC;`;
       const result = await db.execute<RowDataPacket[]>(query, values);
 
       return result[0];
