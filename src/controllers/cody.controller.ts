@@ -8,8 +8,10 @@ import {
 import type { UserMiddleware } from "@src/interface/auth.interface";
 import Cody from "@src/models/cody.model";
 import {
+  buildChatHistory,
   buildCreateCodyPayload,
   getCodyByLookup,
+  getCodysByLookup,
 } from "@src/services/cody.service";
 import { isValidIdParam, isValidObject } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
@@ -237,9 +239,11 @@ export const find = async (req: Request, res: Response) => {
     );
   }
 
-  const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
+  const userChats = await getCodysByLookup(chat.user_id, "user");
 
-  const interactions = await ai.interactions.get(chat.interaction);
+  const { chats, interaction } = buildChatHistory(userChats, chat.interaction);
 
-  return res.status(StatusCodes.OK).json({ success: true, data: { chat } });
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { chats, interaction } });
 };

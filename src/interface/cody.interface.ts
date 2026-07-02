@@ -20,4 +20,10 @@ export type CodyPayload = Pick<
   | "output"
 >;
 
+export interface Chat {
+  input: string;
+  sender: "cody" | "user";
+  id: number;
+}
+
 export type CodyChatPayload = Pick<BaseCodyData, "input" | "interaction">;

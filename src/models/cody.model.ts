@@ -65,7 +65,7 @@ class Cody implements BaseCodyData {
       const db = createConnection();
       const values = [userId];
 
-      const conditions = [];
+      const conditions = ["user_id = ?"];
 
       if (options?.parentOnly) {
         conditions.push("previous_interaction IS NULL");
@@ -73,7 +73,7 @@ class Cody implements BaseCodyData {
 
       const mappedConditions = conditions.join(" AND ");
 
-      const query = `SELECT * FROM cody WHERE user_id = ? AND ${mappedConditions};`;
+      const query = `SELECT * FROM cody WHERE ${mappedConditions};`;
       const result = await db.execute<RowDataPacket[]>(query, values);
 
       return result[0];
