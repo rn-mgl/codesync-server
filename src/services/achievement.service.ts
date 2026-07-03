@@ -5,28 +5,15 @@ import type {
   SoftDeleteAchievementPayload,
 } from "@src/interface/achievement.interface";
 import Achievement from "@src/models/achievement.model";
-import { assignField, type ValidationType } from "@src/utils/type.util";
+import { assignField } from "@src/utils/type.util";
 import { randomUUID } from "crypto";
 import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
 
 export function buildAchievementPayload(
-  achievement: AchievementPayload,
-  type?: "full",
-): AchievementPayload;
-
-export function buildAchievementPayload(
-  achievement: Partial<AchievementPayload>,
-  type: "partial",
-): Partial<AchievementPayload>;
-
-export function buildAchievementPayload(
   achievement: AchievementPayload | Partial<AchievementPayload>,
-  type: ValidationType = "full",
 ) {
-  const payload: typeof type extends "full"
-    ? AchievementPayload
-    : Partial<AchievementPayload> = {};
+  const payload: AchievementPayload = {} as AchievementPayload;
 
   const FIELDS: (keyof AchievementPayload)[] = [
     "badge_color",

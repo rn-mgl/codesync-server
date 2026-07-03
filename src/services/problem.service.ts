@@ -13,7 +13,7 @@ import { DateTime } from "luxon";
 export function buildProblemPayload(
   problem: ProblemPayload | Partial<ProblemPayload>,
 ) {
-  const payload: ProblemPayload | Partial<ProblemPayload> = {};
+  const payload: ProblemPayload = {} as ProblemPayload;
 
   const FIELDS: (keyof ProblemPayload)[] = [
     "title",

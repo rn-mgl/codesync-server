@@ -148,7 +148,7 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid problem data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const updateData = buildProblemPayload(problemPayload, "partial");
+  const updateData = buildProblemPayload(problemPayload);
 
   const slug = params.identifier;
 

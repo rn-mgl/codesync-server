@@ -147,7 +147,7 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  const updateData = buildAchievementPayload(achievementPayload, "partial");
+  const updateData = buildAchievementPayload(achievementPayload);
 
   const achievement = await getAchievementByLookup(
     params.identifier,
