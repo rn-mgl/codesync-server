@@ -15,7 +15,7 @@ import type {
 } from "@src/interface/submission.interface";
 import Submission from "@src/models/submission.model";
 import { getProblemByLookup } from "@src/services/problem.service";
-import { queue } from "@libs/queue.lib";
+import { listener } from "@services/queue.service";
 import {
   analyzeResult,
   buildSubmissionPayload,
@@ -118,7 +118,7 @@ export const create = async (req: Request, res: Response) => {
         );
       }
 
-      await queue.add("catch_achievement", {
+      await listener.add("catch_achievement", {
         userId: user.id,
         category: "problems",
       });
