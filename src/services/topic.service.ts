@@ -15,7 +15,7 @@ import { StatusCodes } from "http-status-codes";
 import { DateTime } from "luxon";
 
 export function buildTopicPayload(topic: TopicPayload | Partial<TopicPayload>) {
-  const payload: TopicPayload | Partial<TopicPayload> = {};
+  const payload: TopicPayload = {} as TopicPayload;
 
   const FIELDS: (keyof TopicPayload)[] = [
     "name",

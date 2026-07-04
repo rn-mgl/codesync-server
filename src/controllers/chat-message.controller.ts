@@ -65,20 +65,22 @@ export const find = async (req: Request, res: Response) => {
     throw new AppError(`Invalid lookup`, StatusCodes.BAD_REQUEST);
   }
 
-  let chatMessage: RowDataPacket[] | null = null;
+  let chatMessage: FullChatMessageData[] | null = null;
 
   switch (query.lookup) {
     case "id":
       const id = parseInt(params.identifier);
 
-      chatMessage = await ChatMessages.findById(id);
+      chatMessage = (await ChatMessages.findById(id)) as FullChatMessageData[];
 
       return res.json({ chat_message: chatMessage });
 
     case "session":
       const session = parseInt(params.identifier);
 
-      chatMessage = await ChatMessages.findBySession(session);
+      chatMessage = (await ChatMessages.findBySession(
+        session,
+      )) as FullChatMessageData[];
 
       return res.json({ chat_message: chatMessage });
     default:

@@ -13,7 +13,7 @@ import { DateTime } from "luxon";
 import { getProblemByLookup } from "./problem.service";
 
 export function buildHintPayload(data: HintPayload | Partial<HintPayload>) {
-  const payload: HintPayload | Partial<HintPayload> = {};
+  const payload: HintPayload = {} as HintPayload;
 
   const FIELDS: (keyof HintPayload)[] = [
     "level",

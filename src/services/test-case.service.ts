@@ -15,7 +15,7 @@ import { getProblemByLookup } from "./problem.service";
 export function buildTestCasePayload(
   testCase: TestCasePayload | Partial<TestCasePayload>,
 ) {
-  const payload: TestCasePayload | Partial<TestCasePayload> = {};
+  const payload: TestCasePayload = {} as TestCasePayload;
 
   const FIELDS: (keyof TestCasePayload)[] = [
     "expected_output",

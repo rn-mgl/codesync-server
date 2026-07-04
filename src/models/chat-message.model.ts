@@ -39,7 +39,7 @@ class ChatMessages implements FullChatMessageData {
 
       const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -56,7 +56,7 @@ class ChatMessages implements FullChatMessageData {
 
       const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -73,7 +73,7 @@ class ChatMessages implements FullChatMessageData {
 
       const result = await db.execute<RowDataPacket[]>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");
@@ -93,7 +93,7 @@ class ChatMessages implements FullChatMessageData {
 
       const result = await db.execute<ResultSetHeader>(query, values);
 
-      return result;
+      return result[0];
     } catch (error) {
       console.log(error);
       throw new Error("An error occurred during the operation.");

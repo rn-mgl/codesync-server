@@ -111,7 +111,7 @@ export const update = async (req: Request, res: Response) => {
 
   const hint = await getHintByLookup(params.id, "id");
 
-  const updateData = buildHintPayload(hintPayload, "partial");
+  const updateData = buildHintPayload(hintPayload);
 
   const updated = await Hint.update(hint.id, updateData);
 

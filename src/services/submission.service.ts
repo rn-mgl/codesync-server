@@ -12,7 +12,6 @@ import type {
   SubmissionStatistics,
   SubmissionType,
   SupportedLanguages,
-  ValidSubmissionLookups,
 } from "@src/interface/submission.interface";
 import type { BaseTestCaseData } from "@src/interface/test-case.interface";
 import Submission from "@src/models/submission.model";
@@ -25,7 +24,7 @@ import { getTestCaseByLookup } from "./test-case.service";
 export function buildSubmissionPayload(
   submission: SubmissionPayload | Partial<SubmissionPayload>,
 ) {
-  const payload: SubmissionPayload | Partial<SubmissionPayload> = {};
+  const payload: SubmissionPayload = {} as SubmissionPayload;
 
   const FIELDS: (keyof SubmissionPayload)[] = [
     "code",
@@ -221,7 +220,12 @@ export async function getSubmissionByLookup(
 
 export async function getSubmissionByLookup(
   identifier: string | number,
-  lookup: ValidSubmissionLookups,
+  lookup: string,
+): Promise<BaseSubmissionData[]>;
+
+export async function getSubmissionByLookup(
+  identifier: string | number,
+  lookup: string,
 ): Promise<BaseSubmissionData | BaseSubmissionData[]> {
   switch (lookup) {
     case "id":
