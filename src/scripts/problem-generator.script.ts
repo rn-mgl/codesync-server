@@ -1,0 +1,70 @@
+import { GoogleGenAI } from "@google/genai";
+import { env } from "@src/configs/env.config";
+import { isValidCreateProblemPayload } from "@src/guards/problem.guard";
+import type { BaseProblemData } from "@src/interface/problem.interface";
+import Problem from "@src/models/problem.model";
+import { buildProblemPayload } from "@src/services/problem.service";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
+export const run = async () => {
+  const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
+
+  console.log("initialized AI");
+
+  const problems = (await Problem.all()) as BaseProblemData[];
+
+  const mappedProblems = problems.map((p) => ({
+    title: p.title,
+    slug: p.slug,
+  }));
+
+  const stringifiedProblems = JSON.stringify(mappedProblems);
+
+  console.log("mapped problems: " + JSON.stringify(stringifiedProblems));
+
+  const promptPath = path.join(
+    process.cwd(),
+    "src/contexts/problem-generator.context.md",
+  );
+
+  console.log(promptPath);
+
+  const defaultPrompt = readFileSync(promptPath, "utf8");
+
+  const enhancedPrompt =
+    defaultPrompt +
+    "\n\n" +
+    `Currently uploaded problems:\n\n${stringifiedProblems}`;
+
+  console.log(enhancedPrompt);
+
+  const interaction = await ai.interactions.create({
+    model: "gemini-3.5-flash",
+    input: enhancedPrompt,
+  });
+
+  const response = interaction.output_text ?? "";
+
+  let parsed = "";
+
+  try {
+    console.log("parsing response");
+    parsed = JSON.parse(response);
+  } catch (error) {
+    console.log(error);
+    throw new Error(`Invalid problem format.`);
+  }
+
+  if (!isValidCreateProblemPayload(parsed)) {
+    throw new Error(`Invalid problem data.`);
+  }
+
+  const payload = buildProblemPayload(parsed);
+
+  const created = await Problem.create(payload);
+
+  console.log(`Created successfuly: ID ${created.insertId} - ${payload.title}`);
+
+  return { success: true, created: { payload } };
+};

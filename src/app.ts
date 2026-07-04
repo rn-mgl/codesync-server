@@ -34,7 +34,8 @@ import { createBullBoard } from "@bull-board/api";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
 import { ExpressAdapter } from "@bull-board/express";
 
-import { queue } from "@libs/queue.lib";
+import { listener, background } from "@services/queue.service";
+import { queueJobs } from "./services/job.service";
 
 cloudinary.config({
   cloud_name: env.CLOUDINARY_NAME,
@@ -56,12 +57,14 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 const serverAdapter = new ExpressAdapter();
-serverAdapter.setBasePath("/queue");
+serverAdapter.setBasePath("/queue-board");
 
 createBullBoard({
-  queues: [new BullMQAdapter(queue)],
+  queues: [new BullMQAdapter(listener), new BullMQAdapter(background)],
   serverAdapter,
 });
+
+await queueJobs();
 
 app.set("trust proxy", true);
 
@@ -94,7 +97,7 @@ app.use(
   achievementRouter,
 );
 app.use("/user-achievement", authMiddleware, userAchievementRouter);
-app.use("/queue", serverAdapter.getRouter());
+app.use("/queue-board", serverAdapter.getRouter());
 app.use("/cody", authMiddleware, codyRouter);
 
 app.use(errorMiddleware);
