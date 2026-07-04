@@ -32,16 +32,21 @@ export const run = async () => {
 
   const defaultPrompt = readFileSync(promptPath, "utf8");
 
-  const enhancedPrompt =
-    defaultPrompt +
-    "\n\n" +
-    `Currently uploaded problems:\n\n${stringifiedProblems}`;
+  const enhancedPrompt = [
+    defaultPrompt,
+    "Currently uploaded problems:",
+    stringifiedProblems,
+    "Sample description (reference to use html instead of markdown)",
+    problems[0]?.description,
+    "Sample editorial (reference to use html instead of markdown)",
+    problems[0]?.editorial,
+  ];
 
   console.log(enhancedPrompt);
 
   const interaction = await ai.interactions.create({
-    model: "gemini-3.5-flash",
-    input: enhancedPrompt,
+    model: "gemini-3.1-flash-lite",
+    input: enhancedPrompt.join("\n\n"),
   });
 
   const response = interaction.output_text ?? "";
