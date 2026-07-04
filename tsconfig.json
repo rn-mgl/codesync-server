@@ -35,7 +35,8 @@
       "@services/*": ["./src/services/*"],
       "@interface/*": ["./src/interface/*"],
       "@utils/*": ["./src/utils/*"],
-      "@errors/*": ["./src/errors/*"]
+      "@errors/*": ["./src/errors/*"],
+      "@libs/*": ["./src/libs/*"]
     }
   },
   "include": ["src/**/*"],

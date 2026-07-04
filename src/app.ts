@@ -34,7 +34,7 @@ import { createBullBoard } from "@bull-board/api";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
 import { ExpressAdapter } from "@bull-board/express";
 
-import { queue } from "@services/queue.service";
+import { queue } from "@libs/queue.lib";
 
 cloudinary.config({
   cloud_name: env.CLOUDINARY_NAME,

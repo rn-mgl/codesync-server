@@ -15,7 +15,7 @@ import type {
 } from "@src/interface/submission.interface";
 import Submission from "@src/models/submission.model";
 import { getProblemByLookup } from "@src/services/problem.service";
-import { queue } from "@src/services/queue.service";
+import { queue } from "@libs/queue.lib";
 import {
   analyzeResult,
   buildSubmissionPayload,
