@@ -16,7 +16,7 @@ constraints - JSON with problem constraints (e.g., {"n": "1 <= n <= 10^5", "time
 editorial - Official solution explanation with approach, complexity analysis. Provide the complete optimized solution using the valid languages Javascript, PHP, and Java in their own respective blocks with proper complete explanation and analysis. This will be rendered and edited using tiptap so ensure correct HTML format is applied and implemented.
 
 Input Format Contract
-style: "function" | "class";
+style: "function";
 version: number; Default to 1
 name: string;
 params: { name: string; type: string }[];
