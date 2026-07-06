@@ -38,7 +38,22 @@ export function buildProblemPayload(
 }
 
 export async function getProblemByLookup(
+  identifier: string | number,
+  lookup: "id",
+): Promise<BaseProblemData>;
+
+export async function getProblemByLookup(
   identifier: string,
+  lookup: "slug",
+): Promise<BaseProblemData>;
+
+export async function getProblemByLookup(
+  identifier: string | number,
+  lookup: string,
+): Promise<BaseProblemData>;
+
+export async function getProblemByLookup(
+  identifier: string | number,
   lookup: string,
 ): Promise<BaseProblemData> {
   let problem: BaseProblemData[] | null = null;
@@ -55,6 +70,10 @@ export async function getProblemByLookup(
 
       break;
     case "slug":
+      if (typeof identifier !== "string") {
+        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+      }
+
       problem = (await Problem.findBySlug(identifier)) as BaseProblemData[];
 
       break;

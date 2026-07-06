@@ -109,6 +109,8 @@ export const find = async (req: Request, res: Response) => {
     await client.set(`problem:${problem.slug}`, JSON.stringify(problem));
   }
 
+  console.log(problem);
+
   const testCases = await getTestCaseByLookup(problem.id, "problem", {
     is_sample: true,
   });
@@ -163,7 +165,13 @@ export const update = async (req: Request, res: Response) => {
     );
   }
 
+  const refreshedProblem = await getProblemByLookup(problem.id, "id");
+
   await syncProblemTopic(problem.id, problemPayload.topics ?? []);
+
+  const cache = await redisClient();
+
+  await cache.set(`problem:${slug}`, JSON.stringify(refreshedProblem));
 
   return res.status(StatusCodes.OK).json({
     success: true,
