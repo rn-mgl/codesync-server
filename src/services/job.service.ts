@@ -1,8 +1,6 @@
 import { background } from "./queue.service";
 
 export const queueJobs = async () => {
-  console.log("running");
-
   await background.upsertJobScheduler(
     "problem-generator",
     {
@@ -10,6 +8,16 @@ export const queueJobs = async () => {
     },
     {
       name: "problem-generator",
+    },
+  );
+
+  await background.upsertJobScheduler(
+    "test_case-generator",
+    {
+      pattern: "10 */2 * * *",
+    },
+    {
+      name: "test_case-generator",
     },
   );
 };
