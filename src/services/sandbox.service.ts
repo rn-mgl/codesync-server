@@ -298,9 +298,18 @@ class SandboxService implements SandboxServiceData {
 
   private javascriptTemplate(): void {
     const functionName = this.problem.input_format.name;
+    const methodName = this.problem.input_format.method ?? "solve";
+    const isClassStyle = this.problem.input_format.style === "class";
     const parameters = this.problem.input_format.params
-      .map((param) => `tc.input.${param.name}`)
+      .map((param) => this.javascriptParameter(param.name, param.type))
       .join(", ");
+    const invocation = isClassStyle
+      ? `new ${functionName}().${methodName}(${parameters})`
+      : `${functionName}(${parameters})`;
+    const resultExpression = this.isTreeNodeType(this.problem.output_format.type)
+      ? `serializeTree(${invocation})`
+      : invocation;
+    const helperCode = this.usesTreeNode() ? this.javascriptTreeNodeHelper() : "";
 
     const codeLines = [
       `const output = {};`,
@@ -308,13 +317,14 @@ class SandboxService implements SandboxServiceData {
       `let logs = [];`,
       `const logger = console.log;`,
       `console.log = (...args) => { args.forEach((arg) => logs.push(arg)); }`,
+      helperCode,
       this.code,
       `for (const tc of testCases) {`,
       `\toutput[tc.id] = {memory : {before : 0, after : 0}, cpu : {before : 0, after : 0}, result : {}, logs : []};`,
       `\toutput[tc.id].memory.before = process.memoryUsage().heapUsed;`,
       `\tconst cpuBefore = process.cpuUsage();`,
       `\toutput[tc.id].cpu.before = cpuBefore.system + cpuBefore.user;`,
-      `\toutput[tc.id].result = ${functionName}(${parameters});`,
+      `\toutput[tc.id].result = ${resultExpression};`,
       `\tif (logs.length) {`,
       `\t\toutput[tc.id].logs = logs;`,
       `\t}`,
@@ -332,24 +342,112 @@ class SandboxService implements SandboxServiceData {
     return;
   }
 
+  private javascriptParameter(name: string, type: string): string {
+    const value = `tc.input.${name}`;
+
+    if (this.isTreeNodeType(type)) {
+      return `buildTree(${value})`;
+    }
+
+    return value;
+  }
+
+  private javascriptTreeNodeHelper(): string {
+    return [
+      `class TreeNode {`,
+      `\tconstructor(val = 0, left = null, right = null) {`,
+      `\t\tthis.val = val;`,
+      `\t\tthis.left = left;`,
+      `\t\tthis.right = right;`,
+      `\t}`,
+      `}`,
+      ``,
+      `function buildTree(values) {`,
+      `\tif (!Array.isArray(values) || values.length === 0 || values[0] === null || values[0] === undefined) {`,
+      `\t\treturn null;`,
+      `\t}`,
+      ``,
+      `\tconst root = new TreeNode(values[0]);`,
+      `\tconst queue = [root];`,
+      `\tlet i = 1;`,
+      ``,
+      `\twhile (queue.length && i < values.length) {`,
+      `\t\tconst node = queue.shift();`,
+      ``,
+      `\t\tif (values[i] !== null && values[i] !== undefined) {`,
+      `\t\t\tnode.left = new TreeNode(values[i]);`,
+      `\t\t\tqueue.push(node.left);`,
+      `\t\t}`,
+      `\t\ti++;`,
+      ``,
+      `\t\tif (i < values.length && values[i] !== null && values[i] !== undefined) {`,
+      `\t\t\tnode.right = new TreeNode(values[i]);`,
+      `\t\t\tqueue.push(node.right);`,
+      `\t\t}`,
+      `\t\ti++;`,
+      `\t}`,
+      ``,
+      `\treturn root;`,
+      `}`,
+      ``,
+      `function serializeTree(root) {`,
+      `\tif (!root) {`,
+      `\t\treturn [];`,
+      `\t}`,
+      ``,
+      `\tconst values = [];`,
+      `\tconst queue = [root];`,
+      ``,
+      `\twhile (queue.length) {`,
+      `\t\tconst node = queue.shift();`,
+      ``,
+      `\t\tif (!node) {`,
+      `\t\t\tvalues.push(null);`,
+      `\t\t\tcontinue;`,
+      `\t\t}`,
+      ``,
+      `\t\tvalues.push(node.val);`,
+      `\t\tqueue.push(node.left);`,
+      `\t\tqueue.push(node.right);`,
+      `\t}`,
+      ``,
+      `\twhile (values.length && values[values.length - 1] === null) {`,
+      `\t\tvalues.pop();`,
+      `\t}`,
+      ``,
+      `\treturn values;`,
+      `}`,
+    ].join("\n");
+  }
+
   private phpTemplate(): void {
     const functionName = this.problem.input_format.name;
+    const methodName = this.problem.input_format.method ?? "solve";
+    const isClassStyle = this.problem.input_format.style === "class";
     const parameters = this.problem.input_format.params
-      .map((param) => `$tc["input"]["${param.name}"]`)
+      .map((param) => this.phpParameter(param.name, param.type))
       .join(", ");
+    const invocation = isClassStyle
+      ? `(new ${functionName}())->${methodName}(${parameters})`
+      : `${functionName}(${parameters})`;
+    const resultExpression = this.isTreeNodeType(this.problem.output_format.type)
+      ? `serializeTree(${invocation})`
+      : invocation;
+    const helperCode = this.usesTreeNode() ? this.phpTreeNodeHelper() : "";
 
     const codeLines = [
       `<?php`,
       `$output = [];`,
       `$testCases = json_decode('${JSON.stringify(this.testCases)}', true);`,
-      this.code,
+      helperCode,
+      this.stripPhpTags(this.code),
       `foreach ($testCases as $tc) {`,
       `\t$output[$tc["id"]] = ["memory" => ["before" => 0, "after" => 0], "cpu" => ["before" => 0, "after" => 0], "result" => [], "logs" => []];`,
       `\t$output[$tc["id"]]["memory"]["before"] = memory_get_usage();`,
       `\t$cpuBefore = getrusage();`,
       `\t$output[$tc["id"]]["cpu"]["before"] = $cpuBefore["ru_utime.tv_usec"] + $cpuBefore["ru_stime.tv_usec"];`,
       `\tob_start();`,
-      `\t$output[$tc["id"]]["result"] = ${functionName}(${parameters});`,
+      `\t$output[$tc["id"]]["result"] = ${resultExpression};`,
       `\t$buffer = ob_get_clean();`,
       `\tif ($buffer !== '') {`,
       `\t\t$output[$tc["id"]]["logs"][] = $buffer;`,
@@ -368,14 +466,109 @@ class SandboxService implements SandboxServiceData {
     return;
   }
 
+  private phpParameter(name: string, type: string): string {
+    const value = `$tc["input"]["${name}"]`;
+
+    if (this.isTreeNodeType(type)) {
+      return `buildTree(${value})`;
+    }
+
+    return value;
+  }
+
+  private phpTreeNodeHelper(): string {
+    return [
+      `class TreeNode {`,
+      `\tpublic $val;`,
+      `\tpublic $left;`,
+      `\tpublic $right;`,
+      ``,
+      `\tpublic function __construct($val = 0, $left = null, $right = null) {`,
+      `\t\t$this->val = $val;`,
+      `\t\t$this->left = $left;`,
+      `\t\t$this->right = $right;`,
+      `\t}`,
+      `}`,
+      ``,
+      `function buildTree($values) {`,
+      `\tif (!is_array($values) || count($values) === 0 || $values[0] === null) {`,
+      `\t\treturn null;`,
+      `\t}`,
+      ``,
+      `\t$root = new TreeNode($values[0]);`,
+      `\t$queue = [$root];`,
+      `\t$i = 1;`,
+      ``,
+      `\twhile (count($queue) > 0 && $i < count($values)) {`,
+      `\t\t$node = array_shift($queue);`,
+      ``,
+      `\t\tif ($values[$i] !== null) {`,
+      `\t\t\t$node->left = new TreeNode($values[$i]);`,
+      `\t\t\t$queue[] = $node->left;`,
+      `\t\t}`,
+      `\t\t$i++;`,
+      ``,
+      `\t\tif ($i < count($values) && $values[$i] !== null) {`,
+      `\t\t\t$node->right = new TreeNode($values[$i]);`,
+      `\t\t\t$queue[] = $node->right;`,
+      `\t\t}`,
+      `\t\t$i++;`,
+      `\t}`,
+      ``,
+      `\treturn $root;`,
+      `}`,
+      ``,
+      `function serializeTree($root) {`,
+      `\tif ($root === null) {`,
+      `\t\treturn [];`,
+      `\t}`,
+      ``,
+      `\t$values = [];`,
+      `\t$queue = [$root];`,
+      ``,
+      `\twhile (count($queue) > 0) {`,
+      `\t\t$node = array_shift($queue);`,
+      ``,
+      `\t\tif ($node === null) {`,
+      `\t\t\t$values[] = null;`,
+      `\t\t\tcontinue;`,
+      `\t\t}`,
+      ``,
+      `\t\t$values[] = $node->val;`,
+      `\t\t$queue[] = $node->left;`,
+      `\t\t$queue[] = $node->right;`,
+      `\t}`,
+      ``,
+      `\twhile (count($values) > 0 && $values[count($values) - 1] === null) {`,
+      `\t\tarray_pop($values);`,
+      `\t}`,
+      ``,
+      `\treturn $values;`,
+      `}`,
+    ].join("\n");
+  }
+
+  private stripPhpTags(code: string): string {
+    return code
+      .replace(/^\s*<\?(?:php)?/i, "")
+      .replace(/\?>\s*$/i, "")
+      .trim();
+  }
+
   private javaTemplate(): void {
     const functionName = this.problem.input_format.name;
+    const methodName = this.problem.input_format.method ?? "solve";
+    const isClassStyle = this.problem.input_format.style === "class";
     const parameters = this.problem.input_format.params
-      .map(
-        (param) =>
-          `gson.fromJson(tc.input.get("${param.name}"), ${this.javaTypeReference(param.type)})`,
-      )
+      .map((param) => this.javaParameter(param.name, param.type))
       .join(", ");
+    const invocation = isClassStyle
+      ? `new ${functionName}().${methodName}(${parameters})`
+      : `${functionName}(${parameters})`;
+    const resultExpression = this.isTreeNodeType(this.problem.output_format.type)
+      ? `serializeTree(${invocation})`
+      : invocation;
+    const helperCode = this.usesTreeNode() ? this.javaTreeNodeHelper() : "";
     const { imports, code } = this.extractJavaImports(this.code);
 
     const importLines = [
@@ -418,6 +611,8 @@ class SandboxService implements SandboxServiceData {
       `\t\treturn System.nanoTime() / 1000;`,
       `\t}`,
       ``,
+      helperCode,
+      ``,
       code,
       ``,
       `\tpublic static void main(String[] args) {`,
@@ -442,7 +637,7 @@ class SandboxService implements SandboxServiceData {
       `\t\t\tObject functionOutput;`,
       ``,
       `\t\t\ttry {`,
-      `\t\t\t\tfunctionOutput = ${functionName}(${parameters});`,
+      `\t\t\t\tfunctionOutput = ${resultExpression};`,
       `\t\t\t} finally {`,
       `\t\t\t\tcapture.flush();`,
       `\t\t\t\tSystem.setOut(logger);`,
@@ -471,6 +666,91 @@ class SandboxService implements SandboxServiceData {
     this.code = codeLines.join("\n");
 
     return;
+  }
+
+  private javaParameter(name: string, type: string): string {
+    const value = `gson.fromJson(tc.input.get("${name}"), ${this.javaTypeReference(type)})`;
+
+    if (this.isTreeNodeType(type)) {
+      return `buildTree(${value})`;
+    }
+
+    return value;
+  }
+
+  private javaTreeNodeHelper(): string {
+    return [
+      `\tstatic class TreeNode {`,
+      `\t\tint val;`,
+      `\t\tTreeNode left;`,
+      `\t\tTreeNode right;`,
+      ``,
+      `\t\tTreeNode(int val) {`,
+      `\t\t\tthis.val = val;`,
+      `\t\t}`,
+      `\t}`,
+      ``,
+      `\tprivate static TreeNode buildTree(Integer[] values) {`,
+      `\t\tif (values == null || values.length == 0 || values[0] == null) {`,
+      `\t\t\treturn null;`,
+      `\t\t}`,
+      ``,
+      `\t\tTreeNode root = new TreeNode(values[0]);`,
+      `\t\tList<TreeNode> queue = new ArrayList<>();`,
+      `\t\tqueue.add(root);`,
+      `\t\tint cursor = 0;`,
+      `\t\tint i = 1;`,
+      ``,
+      `\t\twhile (cursor < queue.size() && i < values.length) {`,
+      `\t\t\tTreeNode node = queue.get(cursor++);`,
+      ``,
+      `\t\t\tif (values[i] != null) {`,
+      `\t\t\t\tnode.left = new TreeNode(values[i]);`,
+      `\t\t\t\tqueue.add(node.left);`,
+      `\t\t\t}`,
+      `\t\t\ti++;`,
+      ``,
+      `\t\t\tif (i < values.length && values[i] != null) {`,
+      `\t\t\t\tnode.right = new TreeNode(values[i]);`,
+      `\t\t\t\tqueue.add(node.right);`,
+      `\t\t\t}`,
+      `\t\t\ti++;`,
+      `\t\t}`,
+      ``,
+      `\t\treturn root;`,
+      `\t}`,
+      ``,
+      `\tprivate static List<Integer> serializeTree(TreeNode root) {`,
+      `\t\tList<Integer> values = new ArrayList<>();`,
+      ``,
+      `\t\tif (root == null) {`,
+      `\t\t\treturn values;`,
+      `\t\t}`,
+      ``,
+      `\t\tList<TreeNode> queue = new ArrayList<>();`,
+      `\t\tqueue.add(root);`,
+      `\t\tint cursor = 0;`,
+      ``,
+      `\t\twhile (cursor < queue.size()) {`,
+      `\t\t\tTreeNode node = queue.get(cursor++);`,
+      ``,
+      `\t\t\tif (node == null) {`,
+      `\t\t\t\tvalues.add(null);`,
+      `\t\t\t\tcontinue;`,
+      `\t\t\t}`,
+      ``,
+      `\t\t\tvalues.add(node.val);`,
+      `\t\t\tqueue.add(node.left);`,
+      `\t\t\tqueue.add(node.right);`,
+      `\t\t}`,
+      ``,
+      `\t\twhile (!values.isEmpty() && values.get(values.size() - 1) == null) {`,
+      `\t\t\tvalues.remove(values.size() - 1);`,
+      `\t\t}`,
+      ``,
+      `\t\treturn values;`,
+      `\t}`,
+    ].join("\n");
   }
 
   private extractJavaImports(code: string): {
@@ -524,6 +804,7 @@ class SandboxService implements SandboxServiceData {
       "string[]": "String[].class",
       "char[]": "char[].class",
       "character[]": "Character[].class",
+      treenode: "Integer[].class",
     };
 
     if (primitiveTypes[normalized]) {
@@ -542,6 +823,19 @@ class SandboxService implements SandboxServiceData {
     }
 
     return "Object.class";
+  }
+
+  private usesTreeNode(): boolean {
+    return (
+      this.isTreeNodeType(this.problem.output_format.type) ||
+      this.problem.input_format.params.some((param) =>
+        this.isTreeNodeType(param.type),
+      )
+    );
+  }
+
+  private isTreeNodeType(type: string): boolean {
+    return type.toLowerCase().replace(/\s+/g, "") === "treenode";
   }
 
   private javaCollectionType(type: string): string {

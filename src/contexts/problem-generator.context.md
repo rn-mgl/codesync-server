@@ -16,10 +16,13 @@ constraints - JSON with problem constraints (e.g., {"n": "1 <= n <= 10^5", "time
 editorial - Official solution explanation with approach, complexity analysis. Provide the complete optimized solution using the valid languages Javascript, PHP, and Java in their own respective blocks with proper complete explanation and analysis. This will be rendered and edited using tiptap so ensure correct HTML format is applied and implemented.
 
 Input Format Contract
-style: "function";
+style: "function" | "class";
 version: number; Default to 1
-name: string;
+name: string; Function name when style is "function"; class name when style is "class"
+method?: string; Method name when style is "class"; defaults to "solve" when omitted
 params: { name: string; type: string }[];
+
+For binary tree problems, use type "TreeNode" for root parameters and TreeNode return values. Represent TreeNode test case input and expected output as level-order arrays with null placeholders, e.g. {"root": [1, 2, 3, null, 4]}. The sandbox converts input arrays into TreeNode objects before invoking the solution and serializes returned TreeNode objects back into level-order arrays for judging.
 
 Output Format Contract
 version: number;
