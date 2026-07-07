@@ -1,7 +1,8 @@
 import { env } from "@src/configs/env.config";
-import { run } from "@src/scripts/problem-generator.script";
+import { generateProblem } from "@src/scripts/problem-generator.script";
 import { type Job, Worker } from "bullmq";
 import { AchievementEvaluator } from "./achievement-evaluator.service";
+import { generateTestCase } from "@src/scripts/test_case-generator.script";
 
 export const listenerWorker = new Worker(
   "listener",
@@ -35,11 +36,25 @@ export const backgroundWorker = new Worker(
       case "problem-generator":
         await job.updateProgress("getting script");
 
-        const result = await run();
+        const generatedProblems = await generateProblem();
 
         await job.updateProgress("done script");
 
-        await job.log(`Result:\n\n ${JSON.stringify(result, null, 2)}`);
+        await job.log(
+          `Result:\n\n ${JSON.stringify(generatedProblems, null, 2)}`,
+        );
+
+        break;
+      case "test_case-generator":
+        await job.updateProgress("getting script");
+
+        const generatedTestCases = await generateTestCase();
+
+        await job.updateProgress("done script");
+
+        await job.log(
+          `Result:\n\n ${JSON.stringify(generatedTestCases, null, 2)}`,
+        );
 
         break;
       default:

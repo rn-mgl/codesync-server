@@ -7,7 +7,7 @@ import { buildProblemPayload } from "@src/services/problem.service";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-export const run = async () => {
+export const generateProblem = async () => {
   const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
 
   console.log("initialized AI");

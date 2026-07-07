@@ -11,7 +11,7 @@ import {
 import { readFileSync } from "fs";
 import path from "path";
 
-export const run = async () => {
+export const generateTestCase = async () => {
   const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
 
   const promptPath = path.join(
