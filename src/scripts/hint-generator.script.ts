@@ -74,7 +74,7 @@ export const generateHint = async () => {
       );
     }
 
-    await sleep(6000);
+    await sleep(60000);
 
     break;
   }
