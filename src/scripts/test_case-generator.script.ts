@@ -42,6 +42,13 @@ export const run = async () => {
       (tc) => ({ input: tc.input, output: tc.expected_output }),
     );
 
+    if (testCases.length >= 200) {
+      console.log(
+        `Skipping ${problem.title}. Test Case count is ${testCases.length + 1}`,
+      );
+      continue;
+    }
+
     const enhancedPrompt = [
       defaultPrompt,
       `The problem you are currently working on is ${problem.title} | ${problem.slug}`,
