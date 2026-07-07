@@ -20,4 +20,14 @@ export const queueJobs = async () => {
       name: "test_case-generator",
     },
   );
+
+  await background.upsertJobScheduler(
+    "hint-generator",
+    {
+      pattern: "0 */1 * * *",
+    },
+    {
+      name: "hint-generator",
+    },
+  );
 };
