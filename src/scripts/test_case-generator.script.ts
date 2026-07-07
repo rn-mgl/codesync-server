@@ -23,9 +23,13 @@ export const run = async () => {
 
   const defaultPrompt = readFileSync(promptPath, "utf8");
 
-  const problems = (await Problem.all()) as BaseProblemData[];
+  const slug = getArg();
 
-  problems.pop();
+  console.log(`Argument: ${slug}`);
+
+  const problems = slug
+    ? ((await Problem.findBySlug(slug)) as BaseProblemData[])
+    : ((await Problem.all()) as BaseProblemData[]);
 
   const exampleProblemInputFormat = `{"name":"twoSum","style":"function","params":[{"name":"nums","type":"number[]"},{"name":"target","type":"number"}],"version":1}`;
   const exampleProblemOutputFormat = `{"type":"number[]","version":1,"comparison":{"ordered":false}}`;
@@ -100,4 +104,12 @@ export const run = async () => {
 
 const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+const getArg = () => {
+  const args = process.argv.find((arg) => arg.startsWith("--problem="));
+
+  const slug = args?.split("--problem=")[1] ?? "";
+
+  return slug;
 };
