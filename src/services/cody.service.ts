@@ -144,17 +144,13 @@ export function buildChatHistory(
       sender: "cody",
     };
 
-    // don't push the system first chat
-    if (c.previous_interaction !== null) {
-      const userChat: Chat = {
-        id: Math.random(),
-        input: c.input,
-        sender: "user",
-      };
+    const userChat: Chat = {
+      id: Math.random(),
+      input: c.input,
+      sender: "user",
+    };
 
-      preparedChats.push(userChat);
-    }
-
+    preparedChats.push(userChat);
     preparedChats.push(codyChat);
   }
 
