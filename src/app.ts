@@ -78,7 +78,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRouter);
 app.use("/user", [authMiddleware, upload.single("image")], userRouter);
 app.use("/problem", authMiddleware, problemRouter);
-app.use("/topic", [authMiddleware, upload.single("icon")], topicRouter);
+app.use("/topic", authMiddleware, topicRouter);
 app.use("/test-case", authMiddleware, testCaseRouter);
 app.use("/hint", authMiddleware, hintRouter);
 app.use("/submission", authMiddleware, submissionRouter);

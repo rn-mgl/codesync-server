@@ -1,7 +1,6 @@
 import AppError from "@src/errors/app.error";
 import { isValidTopicPayload } from "@src/guards/topic.guard";
 import Topic from "@src/models/topic.model";
-import { uploadFile } from "@src/services/cloudinary.service";
 import {
   buildDeleteTopicPayload,
   buildTopicPayload,
@@ -11,46 +10,28 @@ import {
   isValidIdentifierParam,
   isValidLookupQuery,
   isValidObject,
-  isValidString,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
-  const file = req.file;
 
   if (!isValidObject(body)) {
     throw new AppError(`Invalid topic data.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!isValidObject(file)) {
-    throw new AppError(`Invalid file upload.`, StatusCodes.BAD_REQUEST);
+  if (!("topic" in body)) {
+    throw new AppError(`Invalid request.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!file.path) {
-    throw new AppError(
-      `File could not be found in the server.`,
-      StatusCodes.FAILED_DEPENDENCY,
-    );
-  }
+  const topic = body.topic;
 
-  const uploaded = await uploadFile(file.path);
-
-  const payload = {
-    name: body.name,
-    description: body.description,
-    slug: body.slug,
-    icon: uploaded.secure_url,
-  };
-
-  if (!isValidTopicPayload(payload)) {
+  if (!isValidTopicPayload(topic)) {
     throw new AppError(`Invalid topic data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const createData = buildTopicPayload(payload);
-
-  console.log(createData);
+  const createData = buildTopicPayload(topic);
 
   const created = await Topic.create(createData);
 
@@ -92,7 +73,6 @@ export const find = async (req: Request, res: Response) => {
 export const update = async (req: Request, res: Response) => {
   const params = req.params;
   const body = req.body;
-  const file = req.file;
   const query = req.query;
 
   if (!isValidIdentifierParam(params)) {
@@ -107,28 +87,17 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid query data.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (!file && !isValidString(body.icon)) {
+  if (!("topic" in body)) {
     throw new AppError(`Invalid request data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const payload = {
-    name: body.name,
-    description: body.description,
-    slug: body.slug,
-    icon: body.icon,
-  };
+  const topicPayload = body.topic;
 
-  if (file && isValidString(file.path)) {
-    const uploaded = await uploadFile(file.path);
-
-    payload.icon = uploaded.secure_url;
-  }
-
-  if (!isValidTopicPayload(payload, "partial")) {
+  if (!isValidTopicPayload(topicPayload, "partial")) {
     throw new AppError(`Invalid request data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const updateData = buildTopicPayload(payload);
+  const updateData = buildTopicPayload(topicPayload);
 
   const topic = await getTopicByLookup(params.identifier, query.lookup);
 
