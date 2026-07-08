@@ -22,6 +22,8 @@ export const generateHint = async () => {
 
   const problems = (await Problem.all()) as BaseProblemData[];
 
+  let count: number = 0;
+
   for (const problem of problems) {
     console.log(`Generating for ${problem.title}`);
 
@@ -72,10 +74,14 @@ export const generateHint = async () => {
       console.log(
         `Created hint for ${problem.title}. Hint id ${created.insertId}`,
       );
+
+      count++;
     }
 
     await sleep(60000);
   }
+
+  return { success: true, data: { created: count } };
 };
 
 const sleep = (ms: number) => {
