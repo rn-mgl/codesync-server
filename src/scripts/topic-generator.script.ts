@@ -64,5 +64,3 @@ export const generateTopic = async () => {
     data: { created: count },
   };
 };
-
-await generateTopic();

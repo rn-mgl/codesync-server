@@ -4,6 +4,7 @@ import { type Job, Worker } from "bullmq";
 import { AchievementEvaluator } from "./achievement-evaluator.service";
 import { generateTestCase } from "@src/scripts/test_case-generator.script";
 import { generateHint } from "@src/scripts/hint-generator.script";
+import { generateTopic } from "@src/scripts/topic-generator.script";
 
 export const listenerWorker = new Worker(
   "listener",
@@ -66,6 +67,18 @@ export const backgroundWorker = new Worker(
         await job.updateProgress("done script");
 
         await job.log(`Result:\n\n ${JSON.stringify(generatedHints, null, 2)}`);
+
+        break;
+      case "topic-generator":
+        await job.updateProgress("getting script");
+
+        const generatedTopics = await generateTopic();
+
+        await job.updateProgress("done script");
+
+        await job.log(
+          `Result:\n\n ${JSON.stringify(generatedTopics, null, 2)}`,
+        );
 
         break;
       default:
