@@ -12,7 +12,6 @@ class Friendship implements FullFriendshipData {
   requested_at: string;
   status: "pending" | "accepted" | "declined" | "blocked";
   user_id: number;
-  deleted_at: string | null;
 
   constructor(data: FullFriendshipData) {
     this.id = data.id;
@@ -21,7 +20,6 @@ class Friendship implements FullFriendshipData {
     this.requested_at = data.requested_at;
     this.status = data.status;
     this.user_id = data.user_id;
-    this.deleted_at = data.deleted_at;
   }
 
   static async create(data: BaseFriendshipData) {
@@ -48,7 +46,7 @@ class Friendship implements FullFriendshipData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM friendships WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM friendships WHERE id = ?;`;
 
       const values = [id];
 
@@ -65,7 +63,7 @@ class Friendship implements FullFriendshipData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM friendships WHERE user_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM friendships WHERE user_id = ?;`;
 
       const values = [userId];
 
@@ -82,7 +80,7 @@ class Friendship implements FullFriendshipData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM friendships WHERE status = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM friendships WHERE status = ?;`;
 
       const values = [status];
 

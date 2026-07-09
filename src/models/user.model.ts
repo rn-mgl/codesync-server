@@ -17,7 +17,6 @@ class User implements BaseUserData {
   created_at: string;
   updated_at: string;
   is_verified: boolean;
-  deleted_at: string | null;
   image: string;
 
   constructor(data: BaseUserData) {
@@ -32,7 +31,6 @@ class User implements BaseUserData {
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
     this.is_verified = data.is_verified;
-    this.deleted_at = data.deleted_at;
     this.image = data.image;
   }
 
@@ -63,7 +61,7 @@ class User implements BaseUserData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM users WHERE deleted_at IS NULL;`;
+      const query = `SELECT * FROM users;`;
 
       const result = await db.execute(query);
 
@@ -78,7 +76,7 @@ class User implements BaseUserData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM users WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM users WHERE id = ?;`;
 
       const values = [id];
 
@@ -95,7 +93,7 @@ class User implements BaseUserData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM users WHERE email = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM users WHERE email = ?;`;
 
       const values = [email];
 
@@ -117,7 +115,7 @@ class User implements BaseUserData {
         .join(" AND ");
       const values = Object.values(data);
 
-      const query = `SELECT * FROM users WHERE ${mappedWhere} AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM users WHERE ${mappedWhere};`;
       const result = await db.execute<RowDataPacket[]>(query, values);
 
       return result[0];

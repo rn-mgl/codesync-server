@@ -5,12 +5,7 @@ export interface BaseChatMessageData {
   message_type: MESSAGE_TYPES;
 }
 
-export interface AdditionalChatMessageData {
-  deleted_at: string | null;
-}
-
-export interface FullChatMessageData
-  extends BaseChatMessageData, AdditionalChatMessageData {
+export interface FullChatMessageData extends BaseChatMessageData {
   id: number;
 }
 

@@ -1,9 +1,5 @@
 import { createConnection } from "@src/database/database";
-import type {
-  CreateProblemTopicPayload,
-  SoftDeleteProblemTopicPayload,
-  UpdateProblemTopicPayload,
-} from "@src/interface/problem-topic.interface";
+import type { CreateProblemTopicPayload } from "@src/interface/problem-topic.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class ProblemTopic {
@@ -71,10 +67,7 @@ class ProblemTopic {
     }
   }
 
-  static async update(
-    ids: number[],
-    updates: Partial<UpdateProblemTopicPayload>,
-  ) {
+  static async destroy(ids: number[]) {
     try {
       if (!ids.length) {
         throw new Error(`Invalid data.`);
@@ -82,45 +75,10 @@ class ProblemTopic {
 
       const db = createConnection();
 
-      const update = Object.keys(updates)
-        .map((key) => `${key} = ?`)
-        .join(", ");
-      const values = Object.values(updates);
-
       const preparedIds = ids.map(() => "?").join(", ");
 
-      const query = `UPDATE problem_topics SET ${update} WHERE id IN (${preparedIds});`;
-      const result = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        ...ids,
-      ]);
-
-      return result[0];
-    } catch (error) {
-      console.log(error);
-      throw new Error("An error occurred during the operation.");
-    }
-  }
-
-  static async destroy(ids: number[], data: SoftDeleteProblemTopicPayload) {
-    try {
-      if (!ids.length) {
-        throw new Error(`Invalid data.`);
-      }
-
-      const db = createConnection();
-
-      const columns = Object.keys(data);
-      const values = Object.values(data);
-      const preparedIds = ids.map(() => "?").join(", ");
-
-      const update = columns.map((column) => `${column} = ?`).join(", ");
-
-      const query = `UPDATE problem_topics SET ${update} WHERE id IN (${preparedIds});`;
-      const result = await db.execute<ResultSetHeader>(query, [
-        ...values,
-        ...ids,
-      ]);
+      const query = `DELETE FROM problem_topics WHERE id IN (${preparedIds});`;
+      const result = await db.execute<ResultSetHeader>(query, [...ids]);
 
       return result[0];
     } catch (error) {

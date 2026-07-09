@@ -3,7 +3,6 @@ import { isValidTestCasePayload } from "@src/guards/test-case.guard";
 import TestCase from "@src/models/test-case.model";
 import { getProblemByLookup } from "@src/services/problem.service";
 import {
-  buildDeleteTestCasePayload,
   buildTestCasePayload,
   getAllTestCases,
   getTestCaseByLookup,
@@ -188,9 +187,7 @@ export const destroy = async (req: Request, res: Response) => {
 
   const testCase = await getTestCaseByLookup(identifier, "id");
 
-  const updateData = buildDeleteTestCasePayload();
-
-  const deleted = await TestCase.destroy(testCase.id, updateData);
+  const deleted = await TestCase.destroy(testCase.id);
 
   if (!deleted) {
     throw new AppError(

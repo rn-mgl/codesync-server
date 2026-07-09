@@ -2,14 +2,12 @@ import AppError from "@src/errors/app.error";
 import type { BaseProblemData } from "@src/interface/problem.interface";
 import type {
   BaseTestCaseData,
-  SoftDeleteTestCasePayload,
   TestCasePayload,
 } from "@src/interface/test-case.interface";
 import Problem from "@src/models/problem.model";
 import TestCase from "@src/models/test-case.model";
 import { assignField } from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
-import { DateTime } from "luxon";
 import { getProblemByLookup } from "./problem.service";
 
 export function buildTestCasePayload(
@@ -91,14 +89,6 @@ export async function getTestCaseByLookup(
   }
 
   return testCase;
-}
-
-export function buildDeleteTestCasePayload(): SoftDeleteTestCasePayload {
-  const updateData: SoftDeleteTestCasePayload = {
-    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
-  };
-
-  return updateData;
 }
 
 export async function getAllTestCases(

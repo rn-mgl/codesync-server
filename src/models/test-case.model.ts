@@ -1,7 +1,6 @@
 import { createConnection } from "@src/database/database";
 import type {
   BaseTestCaseData,
-  SoftDeleteTestCasePayload,
   TestCasePayload,
 } from "@src/interface/test-case.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
@@ -14,7 +13,6 @@ class TestCase implements BaseTestCaseData {
   order_index: number;
   problem_id: number;
   time_limit_ms: number;
-  deleted_at: string | null;
   is_sample: boolean;
   is_hidden: boolean;
 
@@ -26,7 +24,6 @@ class TestCase implements BaseTestCaseData {
     this.memory_limit_mb = data.memory_limit_mb;
     this.time_limit_ms = data.time_limit_ms;
     this.order_index = data.order_index;
-    this.deleted_at = data.deleted_at;
     this.is_hidden = data.is_hidden;
     this.is_sample = data.is_sample;
   }
@@ -58,7 +55,7 @@ class TestCase implements BaseTestCaseData {
     try {
       const db = createConnection();
 
-      const conditions = [`tc.deleted_at IS NULL`, `p.deleted_at IS NULL`];
+      const conditions = [];
 
       const values = [];
 
@@ -77,11 +74,15 @@ class TestCase implements BaseTestCaseData {
 
       const mappedConditions = conditions.join(" AND ");
 
-      const query = `SELECT tc.*, 
+      let query = `SELECT tc.*, 
                       p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
-                      INNER JOIN problems AS p ON tc.problem_id = p.id
-                     WHERE ${mappedConditions}
-                     ORDER BY order_index ASC;`;
+                      INNER JOIN problems AS p ON tc.problem_id = p.id`;
+
+      if (conditions.length) {
+        query += ` WHERE ${mappedConditions}`;
+      }
+
+      query += ` ORDER BY order_index ASC;`;
 
       const result = await db.execute<RowDataPacket[]>(query, values);
 
@@ -99,7 +100,7 @@ class TestCase implements BaseTestCaseData {
       const query = `SELECT tc.*, 
                       p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
                       INNER JOIN problems AS p ON tc.problem_id = p.id
-                     WHERE tc.deleted_at IS NULL AND p.deleted_at IS NULL AND tc.id = ?;`;
+                     WHERE tc.id = ?;`;
 
       const values = [id];
 
@@ -119,11 +120,7 @@ class TestCase implements BaseTestCaseData {
     try {
       const db = createConnection();
 
-      const conditions = [
-        "tc.deleted_at IS NULL",
-        "p.deleted_at IS NULL",
-        "p.id = ?",
-      ];
+      const conditions = ["p.id = ?"];
 
       const values: (string | number | boolean)[] = [problemId];
 
@@ -138,7 +135,6 @@ class TestCase implements BaseTestCaseData {
           "is_sample",
           "is_hidden",
           "order_index",
-          "deleted_at",
         ];
 
         for (const option of VALID_TYPES) {
@@ -188,18 +184,13 @@ class TestCase implements BaseTestCaseData {
     }
   }
 
-  static async destroy(id: number, data: SoftDeleteTestCasePayload) {
+  static async destroy(id: number) {
     try {
       const db = createConnection();
 
-      const update = Object.keys(data)
-        .map((key) => `${key} = ?`)
-        .join(", ");
-      const values = Object.values(data);
+      const query = `DELETE FROM test_cases WHERE id = ?;`;
 
-      const query = `UPDATE test_cases SET ${update} WHERE id = ?;`;
-
-      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
+      const result = await db.execute<ResultSetHeader>(query, [id]);
 
       return result[0];
     } catch (error) {

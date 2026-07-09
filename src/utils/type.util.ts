@@ -2,14 +2,8 @@ import type {
   AdditionalAttemptData,
   BaseAttemptData,
 } from "@src/interface/attempt.interface";
-import type {
-  AdditionalChatMessageData,
-  BaseChatMessageData,
-} from "@src/interface/chat-message.interface";
-import type {
-  AdditionalCodeSnapshotData,
-  BaseCodeSnapshotData,
-} from "@src/interface/code-snapshot.interface";
+import type { BaseChatMessageData } from "@src/interface/chat-message.interface";
+import type { BaseCodeSnapshotData } from "@src/interface/code-snapshot.interface";
 import type {
   AdditionalFriendshipData,
   BaseFriendshipData,
@@ -358,29 +352,6 @@ export function isBaseCodeSnapshotData(
   return validateFields(data, REQUIRED_FIELDS, type);
 }
 
-export function isAdditionalCodeSnapshotData(
-  data: unknown,
-  type?: "full",
-): data is AdditionalCodeSnapshotData;
-
-export function isAdditionalCodeSnapshotData(
-  data: unknown,
-  type: "partial",
-): data is Partial<AdditionalCodeSnapshotData>;
-
-export function isAdditionalCodeSnapshotData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: (keyof AdditionalCodeSnapshotData)[] = [];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
 export function isBaseChatMessageData(
   data: unknown,
   type?: "full",
@@ -405,29 +376,6 @@ export function isBaseChatMessageData(
     "sender_id",
     "session_id",
   ];
-
-  return validateFields(data, REQUIRED_FIELDS, type);
-}
-
-export function isAdditionalChatMessageData(
-  data: unknown,
-  type?: "full",
-): data is AdditionalChatMessageData;
-
-export function isAdditionalChatMessageData(
-  data: unknown,
-  type: "partial",
-): data is Partial<AdditionalChatMessageData>;
-
-export function isAdditionalChatMessageData(
-  data: unknown,
-  type: ValidationType = "full",
-): boolean {
-  if (typeof data !== "object" || data === null) {
-    return false;
-  }
-
-  const REQUIRED_FIELDS: (keyof AdditionalChatMessageData)[] = ["deleted_at"];
 
   return validateFields(data, REQUIRED_FIELDS, type);
 }

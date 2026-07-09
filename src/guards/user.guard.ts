@@ -28,7 +28,6 @@ export function isValidUpdateUserPayload(
   if (typeof data !== "object" || data === null) return false;
 
   const REQUIRED_FIELDS: (keyof UpdateUserPayload)[] = [
-    "deleted_at",
     "first_name",
     "image",
     "is_verified",
@@ -67,7 +66,6 @@ export function isValidUserData(data: unknown, type: ValidationType = "full") {
     "created_at",
     "updated_at",
     "is_verified",
-    "deleted_at",
   ];
 
   return validateFields(data, REQUIRED_FIELDS, type);

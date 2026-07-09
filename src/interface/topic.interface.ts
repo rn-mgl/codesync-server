@@ -4,12 +4,9 @@ export interface BaseTopicData {
   slug: string;
   description: string;
   icon: string;
-  deleted_at: string | null;
 }
 
 export type TopicPayload = Pick<
   BaseTopicData,
   "name" | "slug" | "description" | "icon"
 >;
-
-export type SoftDeleteTopicPayload = Pick<BaseTopicData, "slug" | "deleted_at">;

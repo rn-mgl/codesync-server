@@ -2,7 +2,6 @@ import AppError from "@src/errors/app.error";
 import { isValidTopicPayload } from "@src/guards/topic.guard";
 import Topic from "@src/models/topic.model";
 import {
-  buildDeleteTopicPayload,
   buildTopicPayload,
   getTopicByLookup,
 } from "@src/services/topic.service";
@@ -129,9 +128,7 @@ export const destroy = async (req: Request, res: Response) => {
 
   const topic = await getTopicByLookup(params.identifier, query.lookup);
 
-  const payload = buildDeleteTopicPayload(topic.slug);
-
-  const deleted = await Topic.destroy(topic.id, payload);
+  const deleted = await Topic.destroy(topic.id);
 
   if (!deleted) {
     throw new AppError(

@@ -1,6 +1,5 @@
 import { createConnection } from "@src/database/database";
 import type {
-  AdditionalChatMessageData,
   BaseChatMessageData,
   FullChatMessageData,
 } from "@src/interface/chat-message.interface";
@@ -8,7 +7,6 @@ import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class ChatMessages implements FullChatMessageData {
   id: number;
-  deleted_at: string | null;
   message: string;
   message_type: "text" | "code" | "system";
   sender_id: number;
@@ -16,16 +14,13 @@ class ChatMessages implements FullChatMessageData {
 
   constructor(data: FullChatMessageData) {
     this.id = data.id;
-    this.deleted_at = data.deleted_at;
     this.message = data.message;
     this.message_type = data.message_type;
     this.sender_id = data.sender_id;
     this.session_id = data.session_id;
   }
 
-  static async create(
-    data: BaseChatMessageData & Partial<AdditionalChatMessageData>,
-  ) {
+  static async create(data: BaseChatMessageData) {
     try {
       const db = createConnection();
 
@@ -50,7 +45,7 @@ class ChatMessages implements FullChatMessageData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM chat_messages WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM chat_messages WHERE id = ?;`;
 
       const values = [id];
 
@@ -67,7 +62,7 @@ class ChatMessages implements FullChatMessageData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM chat_messages WHERE session_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM chat_messages WHERE session_id = ?;`;
 
       const values = [sessionId];
 

@@ -5,7 +5,6 @@ import {
 } from "@src/guards/hint.guard";
 import Hint from "@src/models/hint.model";
 import {
-  buildDeleteHintPayload,
   buildHintPayload,
   getAllHints,
   getHintByLookup,
@@ -140,11 +139,9 @@ export const destroy = async (req: Request, res: Response) => {
 
   const hint = await getHintByLookup(params.id, "id");
 
-  const payload = buildDeleteHintPayload();
+  const deleted = await Hint.destroy(hint.id);
 
-  const updated = await Hint.destroy(hint.id, payload);
-
-  if (!updated) {
+  if (!deleted) {
     throw new AppError(
       `An error occurred during the update.`,
       StatusCodes.INTERNAL_SERVER_ERROR,

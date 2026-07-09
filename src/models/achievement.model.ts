@@ -2,7 +2,6 @@ import { createConnection } from "@src/database/database";
 import type {
   AchievementPayload,
   BaseAchievementData,
-  SoftDeleteAchievementPayload,
   UnlockCriteria,
 } from "@src/interface/achievement.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
@@ -17,7 +16,6 @@ class Achievement implements BaseAchievementData {
   points: number;
   slug: string;
   unlock_criteria: UnlockCriteria;
-  deleted_at: string | null;
 
   constructor(data: BaseAchievementData) {
     this.id = data.id;
@@ -29,7 +27,6 @@ class Achievement implements BaseAchievementData {
     this.points = data.points;
     this.slug = data.slug;
     this.unlock_criteria = data.unlock_criteria;
-    this.deleted_at = data.deleted_at;
   }
 
   static async create(data: AchievementPayload) {
@@ -56,7 +53,7 @@ class Achievement implements BaseAchievementData {
     try {
       const db = createConnection();
 
-      const conditions = ["deleted_at IS NULL"];
+      const conditions = [];
       const values = [];
 
       const VALID_FIELDS: (keyof BaseAchievementData)[] = [
@@ -77,7 +74,11 @@ class Achievement implements BaseAchievementData {
 
       const mappedConditions = conditions.join(" AND ");
 
-      const query = `SELECT * FROM achievements WHERE ${mappedConditions};`;
+      let query = `SELECT * FROM achievements`;
+
+      if (conditions.length) {
+        query += ` WHERE ${mappedConditions}`;
+      }
 
       const result = await db.execute<RowDataPacket[]>(query, values);
 
@@ -92,7 +93,7 @@ class Achievement implements BaseAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM achievements WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM achievements WHERE id = ?;`;
 
       const values = [id];
 
@@ -109,7 +110,7 @@ class Achievement implements BaseAchievementData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM achievements WHERE slug = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM achievements WHERE slug = ?;`;
 
       const values = [slug];
 
@@ -141,17 +142,12 @@ class Achievement implements BaseAchievementData {
     }
   }
 
-  static async destroy(id: number, data: SoftDeleteAchievementPayload) {
+  static async destroy(id: number) {
     try {
       const db = createConnection();
 
-      const update = Object.keys(data)
-        .map((key) => `${key} = ?`)
-        .join(", ");
-      const values = Object.values(data);
-
-      const query = `UPDATE achievements SET ${update} WHERE id = ?;`;
-      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
+      const query = `DELETE FROM achievements WHERE id = ?;`;
+      const result = await db.execute<ResultSetHeader>(query, [id]);
 
       return result[0];
     } catch (error) {

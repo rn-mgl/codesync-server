@@ -16,7 +16,6 @@ class SessionParticipant implements FullSessionParticipantData {
   role: "host" | "collaborator" | "observer";
   session_id: number;
   user_id: number;
-  deleted_at: string | null;
 
   constructor(data: FullSessionParticipantData) {
     this.is_active = data.is_active;
@@ -28,7 +27,6 @@ class SessionParticipant implements FullSessionParticipantData {
     this.session_id = data.session_id;
     this.user_id = data.user_id;
     this.id = data.id;
-    this.deleted_at = data.deleted_at;
   }
 
   static async create(
@@ -44,7 +42,7 @@ class SessionParticipant implements FullSessionParticipantData {
       const values = Object.values(data);
       const preparedValues = values.map(() => "?").join(", ");
 
-      const query = `INSERT INTO sessions_participants (${columns}) VALUES (${preparedValues});`;
+      const query = `INSERT INTO session_participants (${columns}) VALUES (${preparedValues});`;
 
       const result = await db.execute<ResultSetHeader>(query, values);
 
@@ -59,7 +57,7 @@ class SessionParticipant implements FullSessionParticipantData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM sessions_participants WHERE deleted_at IS NULL;`;
+      const query = `SELECT * FROM session_participants;`;
 
       const result = await db.execute<RowDataPacket[]>(query);
 
@@ -74,7 +72,7 @@ class SessionParticipant implements FullSessionParticipantData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM session_participants WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM session_participants WHERE id = ?;`;
 
       const values = [id];
 
@@ -91,7 +89,7 @@ class SessionParticipant implements FullSessionParticipantData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM session_participants WHERE session_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM session_participants WHERE session_id = ?;`;
 
       const values = [sessionId];
 

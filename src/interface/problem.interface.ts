@@ -26,7 +26,6 @@ export interface BaseProblemData {
   total_submissions: number;
   created_at: string;
   updated_at: string;
-  deleted_at: string | null;
 }
 
 export type ProblemPayload = Pick<
@@ -46,8 +45,3 @@ export type CreateProblemPayload = ProblemPayload & { topics?: string[] };
 export type UpdateProblemPayload = Partial<ProblemPayload> & {
   topics?: string[];
 };
-
-export type SoftDeleteProblemPayload = Pick<
-  BaseProblemData,
-  "slug" | "deleted_at"
->;

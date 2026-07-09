@@ -8,7 +8,6 @@ export interface BaseTestCaseData {
   is_sample: boolean;
   is_hidden: boolean;
   order_index: number;
-  deleted_at: string | null;
 }
 
 export type TestCasePayload = Pick<
@@ -22,5 +21,3 @@ export type TestCasePayload = Pick<
   | "is_hidden"
   | "order_index"
 >;
-
-export type SoftDeleteTestCasePayload = Pick<BaseTestCaseData, "deleted_at">;

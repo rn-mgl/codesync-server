@@ -61,7 +61,6 @@ export function buildUpdateUserPayload(data: UpdateUserPayload) {
   const payload: UpdateUserPayload = {};
 
   const FIELDS: (keyof UpdateUserPayload)[] = [
-    "deleted_at",
     "first_name",
     "image",
     "is_verified",

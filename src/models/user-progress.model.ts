@@ -14,7 +14,6 @@ class UserProgress implements FullUserProgressData {
   submissions_made: number;
   time_spent_seconds: number;
   user_id: number;
-  deleted_at: string | null;
 
   constructor(data: FullUserProgressData) {
     this.id = data.id;
@@ -24,7 +23,6 @@ class UserProgress implements FullUserProgressData {
     this.submissions_made = data.submissions_made;
     this.time_spent_seconds = data.time_spent_seconds;
     this.user_id = data.user_id;
-    this.deleted_at = data.deleted_at;
   }
 
   static async create(
@@ -54,7 +52,7 @@ class UserProgress implements FullUserProgressData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_progress WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM user_progress WHERE id = ?;`;
 
       const values = [id];
 
@@ -71,7 +69,7 @@ class UserProgress implements FullUserProgressData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_progress WHERE user_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM user_progress WHERE user_id = ?;`;
 
       const values = [userId];
 
@@ -88,7 +86,7 @@ class UserProgress implements FullUserProgressData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM user_progress WHERE progress_date = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM user_progress WHERE progress_date = ?;`;
 
       const values = [date];
 

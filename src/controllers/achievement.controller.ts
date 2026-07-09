@@ -3,7 +3,6 @@ import { isValidAchievementPayload } from "@src/guards/achievement.guard";
 import Achievement from "@src/models/achievement.model";
 import {
   buildAchievementPayload,
-  buildDeleteAchievementPayload,
   getAchievementByLookup,
   getAllAchievements,
 } from "@src/services/achievement.service";
@@ -186,9 +185,7 @@ export const destroy = async (req: Request, res: Response) => {
     query.lookup,
   );
 
-  const updateData = buildDeleteAchievementPayload(achievement.slug);
-
-  const deleted = await Achievement.destroy(achievement.id, updateData);
+  const deleted = await Achievement.destroy(achievement.id);
 
   if (!deleted) {
     throw new AppError(

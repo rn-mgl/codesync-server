@@ -20,7 +20,6 @@ class Session implements FullSessionData {
   status: "waiting" | "active" | "completed" | "cancelled";
   started_at: string | null;
   ended_at: string | null;
-  deleted_at: string | null;
 
   constructor(data: FullSessionData) {
     this.id = data.id;
@@ -35,7 +34,6 @@ class Session implements FullSessionData {
     this.status = data.status;
     this.started_at = data.started_at;
     this.ended_at = data.ended_at;
-    this.deleted_at = data.deleted_at;
   }
 
   static async create(data: BaseSessionData & Partial<AdditionalSessionData>) {
@@ -78,7 +76,7 @@ class Session implements FullSessionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM sessions WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM sessions WHERE id = ?;`;
 
       const values = [id];
 
@@ -95,7 +93,7 @@ class Session implements FullSessionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM sessions WHERE code = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM sessions WHERE code = ?;`;
 
       const values = [code];
 
@@ -112,7 +110,7 @@ class Session implements FullSessionData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM sessions WHERE status = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM sessions WHERE status = ?;`;
 
       const values = [status];
 

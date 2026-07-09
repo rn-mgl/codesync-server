@@ -1,13 +1,11 @@
 import { createConnection } from "@src/database/database";
 import type {
-  AdditionalCodeSnapshotData,
   BaseCodeSnapshotData,
   FullCodeSnapshotData,
 } from "@src/interface/code-snapshot.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class CodeSnapshot implements FullCodeSnapshotData {
-  deleted_at: string | null;
   change_type: "replace" | "insert" | "delete";
   code_content: string;
   cursor_pointer: string;
@@ -22,12 +20,9 @@ class CodeSnapshot implements FullCodeSnapshotData {
     this.line_number = data.line_number;
     this.session_id = data.session_id;
     this.user_id = data.user_id;
-    this.deleted_at = data.deleted_at;
   }
 
-  static async create(
-    data: BaseCodeSnapshotData & Partial<AdditionalCodeSnapshotData>,
-  ) {
+  static async create(data: BaseCodeSnapshotData) {
     try {
       const db = createConnection();
 
@@ -52,7 +47,7 @@ class CodeSnapshot implements FullCodeSnapshotData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM code_snapshots WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM code_snapshots WHERE id = ?;`;
 
       const values = [id];
 
@@ -69,7 +64,7 @@ class CodeSnapshot implements FullCodeSnapshotData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM code_snapshots WHERE session_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM code_snapshots WHERE session_id = ?;`;
 
       const values = [sessionId];
 
@@ -86,7 +81,7 @@ class CodeSnapshot implements FullCodeSnapshotData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM code_snapshots WHERE user_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM code_snapshots WHERE user_id = ?;`;
 
       const values = [userId];
 

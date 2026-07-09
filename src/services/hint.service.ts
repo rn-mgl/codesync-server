@@ -1,15 +1,10 @@
 import AppError from "@src/errors/app.error";
-import type {
-  BaseHintData,
-  HintPayload,
-  SoftDeleteHintPayload,
-} from "@src/interface/hint.interface";
+import type { BaseHintData, HintPayload } from "@src/interface/hint.interface";
 import type { BaseProblemData } from "@src/interface/problem.interface";
 import Hint from "@src/models/hint.model";
 import Problem from "@src/models/problem.model";
 import { assignField } from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
-import { DateTime } from "luxon";
 import { getProblemByLookup } from "./problem.service";
 
 export function buildHintPayload(data: HintPayload | Partial<HintPayload>) {
@@ -114,12 +109,4 @@ export async function getAllHints(problemSlug?: string) {
   }
 
   return mappedHints;
-}
-
-export function buildDeleteHintPayload(): SoftDeleteHintPayload {
-  const payload: SoftDeleteHintPayload = {
-    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
-  };
-
-  return payload;
 }

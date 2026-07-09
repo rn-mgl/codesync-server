@@ -29,7 +29,6 @@ export interface BaseAchievementData {
   category: ACHIEVEMENT_CATEGORIES;
   unlock_criteria: UnlockCriteria;
   points: number;
-  deleted_at: string | null;
 }
 
 export type AchievementPayload = Pick<
@@ -42,11 +41,6 @@ export type AchievementPayload = Pick<
   | "category"
   | "unlock_criteria"
   | "points"
->;
-
-export type SoftDeleteAchievementPayload = Pick<
-  BaseAchievementData,
-  "slug" | "deleted_at"
 >;
 
 type BADGE_COLORS = "diamond" | "gold" | "silver" | "bronze";

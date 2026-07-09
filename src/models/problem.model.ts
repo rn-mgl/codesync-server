@@ -4,7 +4,6 @@ import type {
   InputFormat,
   OutputFormat,
   ProblemPayload,
-  SoftDeleteProblemPayload,
 } from "@src/interface/problem.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
@@ -22,7 +21,6 @@ class Problem implements BaseProblemData {
   total_submissions: number;
   created_at: string;
   updated_at: string;
-  deleted_at: string | null;
 
   constructor(data: BaseProblemData) {
     this.id = data.id;
@@ -38,7 +36,6 @@ class Problem implements BaseProblemData {
     this.total_submissions = data.total_submissions;
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
-    this.deleted_at = data.deleted_at;
   }
 
   static async create(data: ProblemPayload) {
@@ -68,8 +65,7 @@ class Problem implements BaseProblemData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM problems 
-                    WHERE deleted_at IS NULL;`;
+      const query = `SELECT * FROM problems;`;
 
       const result = await db.execute<RowDataPacket[]>(query);
 
@@ -84,7 +80,7 @@ class Problem implements BaseProblemData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM problems WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM problems WHERE id = ?;`;
 
       const values = [id];
 
@@ -101,7 +97,7 @@ class Problem implements BaseProblemData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM problems WHERE slug = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM problems WHERE slug = ?;`;
 
       const values = [slug];
 
@@ -135,18 +131,13 @@ class Problem implements BaseProblemData {
     }
   }
 
-  static async destroy(id: number, data: SoftDeleteProblemPayload) {
+  static async destroy(id: number) {
     try {
       const db = createConnection();
 
-      const update = Object.keys(data)
-        .map((key) => `${key} = ?`)
-        .join(", ");
-      const values = Object.values(data);
+      const query = `DELETE FROM problems WHERE id = ?;`;
 
-      const query = `UPDATE problems SET ${update} WHERE id = ?;`;
-
-      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
+      const result = await db.execute<ResultSetHeader>(query, [id]);
 
       return result[0];
     } catch (error) {

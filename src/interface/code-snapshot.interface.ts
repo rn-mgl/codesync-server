@@ -7,11 +7,6 @@ export interface BaseCodeSnapshotData {
   line_number: number;
 }
 
-export interface AdditionalCodeSnapshotData {
-  deleted_at: string | null;
-}
-
-export type FullCodeSnapshotData = BaseCodeSnapshotData &
-  AdditionalCodeSnapshotData;
+export type FullCodeSnapshotData = BaseCodeSnapshotData;
 
 type CHANGE_TYPES = "insert" | "delete" | "replace";

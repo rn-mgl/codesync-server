@@ -1,7 +1,6 @@
 import { createConnection } from "@src/database/database";
 import type {
   BaseTopicData,
-  SoftDeleteTopicPayload,
   TopicPayload,
 } from "@src/interface/topic.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
@@ -12,7 +11,6 @@ class Topic implements BaseTopicData {
   description: string;
   slug: string;
   icon: string;
-  deleted_at: string | null;
 
   constructor(data: BaseTopicData) {
     this.id = data.id;
@@ -20,7 +18,6 @@ class Topic implements BaseTopicData {
     this.description = data.description;
     this.slug = data.slug;
     this.icon = data.icon;
-    this.deleted_at = data.deleted_at;
   }
 
   static async create(data: TopicPayload) {
@@ -48,7 +45,7 @@ class Topic implements BaseTopicData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM topics WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM topics WHERE id = ?;`;
 
       const values = [id];
 
@@ -71,7 +68,7 @@ class Topic implements BaseTopicData {
 
       const preparedValues = ids.map(() => "?").join(", ");
 
-      const query = `SELECT * FROM topics WHERE id IN (${preparedValues}) AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM topics WHERE id IN (${preparedValues});`;
 
       const result = await db.execute<RowDataPacket[]>(query, ids);
 
@@ -86,7 +83,7 @@ class Topic implements BaseTopicData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM topics WHERE slug = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM topics WHERE slug = ?;`;
 
       const values = [slug];
 
@@ -109,7 +106,7 @@ class Topic implements BaseTopicData {
 
       const preparedValues = slugs.map(() => "?").join(", ");
 
-      const query = `SELECT * FROM topics WHERE slug IN (${preparedValues}) AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM topics WHERE slug IN (${preparedValues});`;
 
       const result = await db.execute<RowDataPacket[]>(query, slugs);
 
@@ -129,9 +126,7 @@ class Topic implements BaseTopicData {
                     INNER JOIN problem_topics pt ON
                     pt.topic_id = t.id
                     WHERE 
-                      pt.problem_id = ? AND 
-                      pt.deleted_at IS NULL AND 
-                      t.deleted_at IS NULL;`;
+                      pt.problem_id = ?`;
 
       const values = [problemId];
 
@@ -148,7 +143,7 @@ class Topic implements BaseTopicData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM topics WHERE deleted_at IS NULL;`;
+      const query = `SELECT * FROM topics;`;
 
       const result = await db.execute<RowDataPacket[]>(query);
 
@@ -179,17 +174,12 @@ class Topic implements BaseTopicData {
     }
   }
 
-  static async destroy(id: number, data: SoftDeleteTopicPayload) {
+  static async destroy(id: number) {
     try {
       const db = createConnection();
 
-      const update = Object.keys(data)
-        .map((key) => `${key} = ?`)
-        .join(", ");
-      const values = Object.values(data);
-
-      const query = `UPDATE topics SET ${update} WHERE id = ?;`;
-      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
+      const query = `DELETE FROM topics WHERE id = ?;`;
+      const result = await db.execute<ResultSetHeader>(query, [id]);
 
       return result[0];
     } catch (error) {

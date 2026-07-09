@@ -1,12 +1,7 @@
 import AppError from "@src/errors/app.error";
-import type {
-  AdditionalCodeSnapshotData,
-  BaseCodeSnapshotData,
-} from "@src/interface/code-snapshot.interface";
+import type { BaseCodeSnapshotData } from "@src/interface/code-snapshot.interface";
 import CodeSnapshot from "@src/models/code-snapshot.model";
 import {
-  assignField,
-  isAdditionalCodeSnapshotData,
   isBaseCodeSnapshotData,
   isValidIdentifierParam,
   isValidLookupQuery,
@@ -22,26 +17,14 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid code snapshot data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const createData: BaseCodeSnapshotData & Partial<AdditionalCodeSnapshotData> =
-    {
-      change_type: body.change_type,
-      code_content: body.code_content,
-      cursor_pointer: body.cursor_pointer,
-      line_number: body.line_number,
-      session_id: body.session_id,
-      user_id: body.user_id,
-    };
-
-  if (isAdditionalCodeSnapshotData(body, "partial")) {
-    const FIELDS: (keyof AdditionalCodeSnapshotData)[] = [];
-
-    for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalCodeSnapshotData];
-      if (value !== undefined) {
-        assignField(field, value, createData);
-      }
-    }
-  }
+  const createData: BaseCodeSnapshotData = {
+    change_type: body.change_type,
+    code_content: body.code_content,
+    cursor_pointer: body.cursor_pointer,
+    line_number: body.line_number,
+    session_id: body.session_id,
+    user_id: body.user_id,
+  };
 
   const created = await CodeSnapshot.create(createData);
 

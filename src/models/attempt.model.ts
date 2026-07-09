@@ -13,7 +13,6 @@ class Attempt implements FullAttemptData {
   problem_id: number;
   time_spent_seconds: number;
   user_id: number;
-  deleted_at: string | null;
 
   constructor(data: FullAttemptData) {
     this.attempt_count = data.attempt_count;
@@ -22,7 +21,6 @@ class Attempt implements FullAttemptData {
     this.problem_id = data.problem_id;
     this.time_spent_seconds = data.time_spent_seconds;
     this.user_id = data.user_id;
-    this.deleted_at = data.deleted_at;
   }
 
   static async create(data: BaseAttemptData & Partial<AdditionalAttemptData>) {
@@ -50,7 +48,7 @@ class Attempt implements FullAttemptData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM attempts WHERE deleted_at IS NULL;`;
+      const query = `SELECT * FROM attempts;`;
 
       const result = await db.execute<RowDataPacket[]>(query);
 
@@ -65,7 +63,7 @@ class Attempt implements FullAttemptData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM attempts WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM attempts WHERE id = ?;`;
 
       const values = [id];
 
@@ -82,7 +80,7 @@ class Attempt implements FullAttemptData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM attempts WHERE user_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM attempts WHERE user_id = ?;`;
 
       const values = [userId];
 
@@ -99,7 +97,7 @@ class Attempt implements FullAttemptData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM attempts WHERE problem_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM attempts WHERE problem_id = ?;`;
 
       const values = [problemId];
 

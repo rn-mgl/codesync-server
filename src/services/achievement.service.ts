@@ -2,13 +2,10 @@ import AppError from "@src/errors/app.error";
 import type {
   AchievementPayload,
   BaseAchievementData,
-  SoftDeleteAchievementPayload,
 } from "@src/interface/achievement.interface";
 import Achievement from "@src/models/achievement.model";
 import { assignField } from "@src/utils/type.util";
-import { randomUUID } from "crypto";
 import { StatusCodes } from "http-status-codes";
-import { DateTime } from "luxon";
 
 export function buildAchievementPayload(
   achievement: AchievementPayload | Partial<AchievementPayload>,
@@ -87,13 +84,4 @@ export async function getAllAchievements(
   )) as BaseAchievementData[];
 
   return achievements;
-}
-
-export function buildDeleteAchievementPayload(slug: string) {
-  const updateData: SoftDeleteAchievementPayload = {
-    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
-    slug: slug + "_" + randomUUID(),
-  };
-
-  return updateData;
 }

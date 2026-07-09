@@ -11,7 +11,6 @@ export interface BaseUserData {
   created_at: string;
   updated_at: string;
   is_verified: boolean;
-  deleted_at: string | null;
 }
 
 export type UserPayload = Omit<
@@ -34,7 +33,6 @@ export type UpdateUserPayload = Partial<
     | "problems_solved"
     | "is_verified"
     | "total_submissions"
-    | "deleted_at"
     | "image"
   >
 >;
@@ -55,7 +53,6 @@ export interface AdditionalUserProgressData {
   time_spent_seconds: number;
   submissions_made: number;
   streak_days: number;
-  deleted_at: string | null;
 }
 
 export interface FullUserProgressData

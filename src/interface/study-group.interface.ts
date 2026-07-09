@@ -8,7 +8,6 @@ export interface BaseStudyGroupData {
 export interface AdditionalStudyGroupData {
   description: string;
   is_public: boolean;
-  deleted_at: string | null;
 }
 
 export interface FullStudyGroupData
@@ -24,7 +23,6 @@ export interface BaseStudyGroupMemberData {
 
 export interface AdditionalStudyGroupMemberData {
   joined_at: string;
-  deleted_at: string | null;
 }
 
 export interface FullStudyGroupMemberData

@@ -12,7 +12,6 @@ class StudyGroupMember implements FullStudyGroupMemberData {
   joined_at: string;
   role: "owner" | "moderator" | "member";
   user_id: number;
-  deleted_at: string | null;
 
   constructor(data: FullStudyGroupMemberData) {
     this.id = data.id;
@@ -20,7 +19,6 @@ class StudyGroupMember implements FullStudyGroupMemberData {
     this.joined_at = data.joined_at;
     this.role = data.role;
     this.user_id = data.user_id;
-    this.deleted_at = data.deleted_at;
   }
 
   static async create(
@@ -49,7 +47,7 @@ class StudyGroupMember implements FullStudyGroupMemberData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_group_members WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM study_group_members WHERE id = ?;`;
       const values = [id];
 
       const result = await db.execute<RowDataPacket[]>(query, values);
@@ -65,7 +63,7 @@ class StudyGroupMember implements FullStudyGroupMemberData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_group_members WHERE group_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM study_group_members WHERE group_id = ?;`;
       const values = [groupId];
 
       const result = await db.execute<RowDataPacket[]>(query, values);
@@ -81,7 +79,7 @@ class StudyGroupMember implements FullStudyGroupMemberData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_group_members WHERE user_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM study_group_members WHERE user_id = ?;`;
       const values = [userId];
 
       const result = await db.execute<RowDataPacket[]>(query, values);
@@ -97,7 +95,7 @@ class StudyGroupMember implements FullStudyGroupMemberData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_group_members WHERE role = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM study_group_members WHERE role = ?;`;
       const values = [role];
 
       const result = await db.execute<RowDataPacket[]>(query, values);

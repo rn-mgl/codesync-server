@@ -14,7 +14,6 @@ class StudyGroup implements FullStudyGroupData {
   is_public: boolean;
   name: string;
   owner_id: number;
-  deleted_at: string | null;
 
   constructor(data: FullStudyGroupData) {
     this.id = data.id;
@@ -24,7 +23,6 @@ class StudyGroup implements FullStudyGroupData {
     this.is_public = data.is_public;
     this.name = data.name;
     this.owner_id = data.owner_id;
-    this.deleted_at = data.deleted_at;
   }
 
   static async create(
@@ -54,7 +52,7 @@ class StudyGroup implements FullStudyGroupData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_groups WHERE id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM study_groups WHERE id = ?;`;
 
       const values = [id];
 
@@ -71,7 +69,7 @@ class StudyGroup implements FullStudyGroupData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_groups WHERE owner_id = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM study_groups WHERE owner_id = ?;`;
 
       const values = [ownerId];
 
@@ -88,7 +86,7 @@ class StudyGroup implements FullStudyGroupData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_groups WHERE code = ? AND deleted_at IS NULL;`;
+      const query = `SELECT * FROM study_groups WHERE code = ?;`;
 
       const values = [code];
 
@@ -105,7 +103,7 @@ class StudyGroup implements FullStudyGroupData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM study_groups WHERE slug = ? AND deleted_at IS NULL`;
+      const query = `SELECT * FROM study_groups WHERE slug = ?`;
 
       const values = [slug];
 

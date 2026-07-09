@@ -1,12 +1,7 @@
-import type {
-  BaseProblemTopicData,
-  SoftDeleteProblemTopicPayload,
-  UpdateProblemTopicPayload,
-} from "@src/interface/problem-topic.interface";
+import type { BaseProblemTopicData } from "@src/interface/problem-topic.interface";
 import type { BaseTopicData } from "@src/interface/topic.interface";
 import ProblemTopic from "@src/models/problem-topic.model";
 import Topic from "@src/models/topic.model";
-import { DateTime } from "luxon";
 
 export async function syncProblemTopic(problemId: number, topics: string[]) {
   const problemTopics = (await ProblemTopic.findByProblem(
@@ -15,10 +10,7 @@ export async function syncProblemTopic(problemId: number, topics: string[]) {
 
   // pivot problem-topic, keyed by {topic_id : primary_key}
   const pivotTopics = Object.fromEntries(
-    problemTopics.map((pt) => [
-      pt.topic_id,
-      { id: pt.id, deleted_at: pt.deleted_at },
-    ]),
+    problemTopics.map((pt) => [pt.topic_id, { id: pt.id }]),
   );
 
   const topicsBySlug = topics?.length
@@ -30,40 +22,14 @@ export async function syncProblemTopic(problemId: number, topics: string[]) {
 
   // check if each pivot topics is not in selected
   const topicsToDelete = Object.entries(pivotTopics)
-    .filter(
-      ([topic, data]) =>
-        !selectedTopics.includes(Number(topic)) && data.deleted_at === null,
-    )
+    .filter(([topic]) => !selectedTopics.includes(Number(topic)))
     .map((data) => data[1].id);
 
-  const deletePayload: SoftDeleteProblemTopicPayload = {
-    deleted_at: DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss"),
-  };
-
   let deleted = 0;
-  let updated = 0;
   let created = 0;
 
   if (topicsToDelete.length) {
-    deleted = (await ProblemTopic.destroy(topicsToDelete, deletePayload))
-      .affectedRows;
-  }
-
-  // check if each pivot topics is in selected but is deleted in db
-  const topicsToRecover = Object.entries(pivotTopics)
-    .filter(
-      ([topic, data]) =>
-        selectedTopics.includes(Number(topic)) && data.deleted_at !== null,
-    )
-    .map((data) => data[1].id);
-
-  const recoverPayload: UpdateProblemTopicPayload = {
-    deleted_at: null,
-  };
-
-  if (topicsToRecover.length) {
-    updated = (await ProblemTopic.update(topicsToRecover, recoverPayload))
-      .affectedRows; //logic to undelete pivot rows using topicsToRecover;
+    deleted = (await ProblemTopic.destroy(topicsToDelete)).affectedRows;
   }
 
   // check if each selected topic is not yet in pivot
@@ -75,5 +41,5 @@ export async function syncProblemTopic(problemId: number, topics: string[]) {
     created = (await ProblemTopic.create(topicsToAdd)).affectedRows;
   }
 
-  return { deleted, updated, created };
+  return { deleted, created };
 }

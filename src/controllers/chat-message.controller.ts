@@ -1,20 +1,17 @@
-import ChatMessages from "@src/models/chat-message.model";
-import { StatusCodes } from "http-status-codes";
-import { type Request, type Response } from "express";
-import {
-  assignField,
-  isAdditionalChatMessageData,
-  isBaseChatMessageData,
-  isValidLookupQuery,
-  isValidIdentifierParam,
-} from "@src/utils/type.util";
 import AppError from "@src/errors/app.error";
 import type {
-  AdditionalChatMessageData,
   BaseChatMessageData,
   FullChatMessageData,
 } from "@src/interface/chat-message.interface";
-import type { RowDataPacket } from "mysql2";
+import ChatMessages from "@src/models/chat-message.model";
+import {
+  assignField,
+  isBaseChatMessageData,
+  isValidIdentifierParam,
+  isValidLookupQuery,
+} from "@src/utils/type.util";
+import { type Request, type Response } from "express";
+import { StatusCodes } from "http-status-codes";
 
 export const create = async (req: Request, res: Response) => {
   const body = req.body;
@@ -23,23 +20,12 @@ export const create = async (req: Request, res: Response) => {
     throw new AppError(`Invalid chat message data.`, StatusCodes.BAD_REQUEST);
   }
 
-  const createData: BaseChatMessageData & Partial<AdditionalChatMessageData> = {
+  const createData: BaseChatMessageData = {
     message: body.message,
     message_type: body.message_type,
     sender_id: body.sender_id,
     session_id: body.session_id,
   };
-
-  if (isAdditionalChatMessageData(body, "partial")) {
-    const FIELDS: (keyof AdditionalChatMessageData)[] = ["deleted_at"];
-
-    for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalChatMessageData];
-      if (value !== undefined) {
-        assignField(field, value, createData);
-      }
-    }
-  }
 
   const created = await ChatMessages.create(createData);
 
@@ -96,10 +82,7 @@ export const update = async (req: Request, res: Response) => {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
-  if (
-    !isBaseChatMessageData(body, "partial") &&
-    !isAdditionalChatMessageData(body, "partial")
-  ) {
+  if (!isBaseChatMessageData(body, "partial")) {
     throw new AppError(`Invalid update request.`, StatusCodes.BAD_REQUEST);
   }
 
@@ -115,17 +98,6 @@ export const update = async (req: Request, res: Response) => {
 
     for (const field of FIELDS) {
       const value = body[field];
-      if (value !== undefined) {
-        assignField(field, value, updateData);
-      }
-    }
-  }
-
-  if (isAdditionalChatMessageData(body, "partial")) {
-    const FIELDS: (keyof AdditionalChatMessageData)[] = ["deleted_at"];
-
-    for (const field of FIELDS) {
-      const value = body[field as keyof AdditionalChatMessageData];
       if (value !== undefined) {
         assignField(field, value, updateData);
       }

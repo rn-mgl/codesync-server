@@ -3,7 +3,6 @@ import type {
   BaseHintData,
   FullHintData,
   HintPayload,
-  SoftDeleteHintPayload,
 } from "@src/interface/hint.interface";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
@@ -12,7 +11,6 @@ class Hint implements BaseHintData {
   hint: string;
   problem_id: number;
   order_index: number;
-  deleted_at: string | null;
   id: number;
   created_at: string;
   updated_at: string;
@@ -22,7 +20,6 @@ class Hint implements BaseHintData {
     this.hint = data.hint;
     this.problem_id = data.problem_id;
     this.order_index = data.order_index;
-    this.deleted_at = data.deleted_at;
     this.id = data.id;
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
@@ -53,8 +50,7 @@ class Hint implements BaseHintData {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM hints 
-                      WHERE deleted_at IS NULL 
+      const query = `SELECT * FROM hints  
                       ORDER BY order_index ASC;`;
 
       const result = await db.execute<RowDataPacket[]>(query);
@@ -70,11 +66,10 @@ class Hint implements BaseHintData {
     try {
       const db = createConnection();
 
-      const query = `SELECT h.*, p.* FROM hints h
+      const query = `SELECT h.*, p.slug FROM hints h
                       INNER JOIN problems p
                       ON p.id = h.problem_id
-                      WHERE h.id = ? AND h.deleted_at IS NULL
-                      AND p.deleted_at IS NULL;`;
+                      WHERE h.id = ?;`;
 
       const values = [id];
 
@@ -94,8 +89,7 @@ class Hint implements BaseHintData {
       const query = `SELECT h.*, p.slug FROM hints h
                       INNER JOIN problems p
                       ON p.id = h.problem_id
-                      WHERE h.problem_id = ? AND h.deleted_at IS NULL
-                      AND p.deleted_at IS NULL
+                      WHERE h.problem_id = ?
                       ORDER BY h.order_index ASC;`;
 
       const values = [problemId];
@@ -129,18 +123,13 @@ class Hint implements BaseHintData {
     }
   }
 
-  static async destroy(id: number, data: SoftDeleteHintPayload) {
+  static async destroy(id: number) {
     try {
       const db = createConnection();
 
-      const update = Object.keys(data)
-        .map((key) => `${key} = ?`)
-        .join(", ");
-      const values = Object.values(data);
+      const query = `DELETE FROM hints WHERE id = ?;`;
 
-      const query = `UPDATE hints SET ${update} WHERE id = ?;`;
-
-      const result = await db.execute<ResultSetHeader>(query, [...values, id]);
+      const result = await db.execute<ResultSetHeader>(query, [id]);
 
       return result[0];
     } catch (error) {

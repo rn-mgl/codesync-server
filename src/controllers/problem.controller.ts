@@ -10,7 +10,6 @@ import Problem from "@src/models/problem.model";
 import { getHintsByLookup } from "@src/services/hint.service";
 import { syncProblemTopic } from "@src/services/problem-topic.service";
 import {
-  buildDeleteProblemPayload,
   buildProblemPayload,
   getProblemByLookup,
 } from "@src/services/problem.service";
@@ -193,9 +192,7 @@ export const destroy = async (req: Request, res: Response) => {
 
   const problem = await getProblemByLookup(params.identifier, query.lookup);
 
-  const updateData = buildDeleteProblemPayload(problem.slug);
-
-  const deleted = await Problem.destroy(problem.id, updateData);
+  const deleted = await Problem.destroy(problem.id);
 
   if (!deleted) {
     throw new AppError(
