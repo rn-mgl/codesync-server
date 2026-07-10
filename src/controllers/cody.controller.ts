@@ -110,8 +110,27 @@ export const create = async (req: Request, res: Response) => {
 
   const dateToday = DateTime.now().toFormat("yyyy-MM-dd hh:mm:ss");
 
+  let titleOutput = `Chat ${dateToday}`;
+
+  const titlePrompt = [
+    "You will help create a short chat title based on the user input:",
+    chat.input,
+    "and the AI response:",
+    output,
+    "Your response must only be the title, otherwise it will not be accepted.",
+  ];
+
+  if (!chat.interaction) {
+    const titleAI = await ai.interactions.create({
+      model: "gemini-3.1-flash-lite",
+      input: titlePrompt.join("\n\n"),
+    });
+
+    titleOutput = titleAI.output_text ?? `Chat ${dateToday}`;
+  }
+
   const data = {
-    name: `Chat ${dateToday}`,
+    name: titleOutput,
     interaction,
     user_id: user.id,
     input: chat.input,
