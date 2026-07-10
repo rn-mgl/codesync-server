@@ -1,3 +1,4 @@
+import { listener } from "@services/queue.service";
 import AppError from "@src/errors/app.error";
 import {
   isValidCreateSubmissionPayload,
@@ -6,6 +7,7 @@ import {
   isValidSubmissionType,
 } from "@src/guards/submission.guard";
 import type { UserMiddleware } from "@src/interface/auth.interface";
+import type { UpdateProblemPayload } from "@src/interface/problem.interface";
 import type { JudgeOutput } from "@src/interface/sandbox.interface";
 import type {
   BaseSubmissionData,
@@ -13,16 +15,18 @@ import type {
   SubmissionStatistics,
   SubmissionStatus,
 } from "@src/interface/submission.interface";
+import Problem from "@src/models/problem.model";
 import Submission from "@src/models/submission.model";
 import { getProblemByLookup } from "@src/services/problem.service";
-import { listener } from "@services/queue.service";
 import {
   analyzeResult,
   buildSubmissionPayload,
   buildSubmissionStatistics,
   executeSubmission,
   getSubmissionByLookup,
+  getSubmissionsByLookup,
   loadExecutionContext,
+  recomputeAcceptanceRate,
 } from "@src/services/submission.service";
 import { getTestCaseByLookup } from "@src/services/test-case.service";
 import {
@@ -116,6 +120,8 @@ export const create = async (req: Request, res: Response) => {
           problem.id,
           createData.language,
         );
+
+        await recomputeAcceptanceRate(problem.id);
       }
 
       await listener.add("catch_achievement", {

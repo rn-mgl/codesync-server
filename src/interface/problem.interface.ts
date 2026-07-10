@@ -38,9 +38,12 @@ export type ProblemPayload = Pick<
   | "output_format"
   | "constraints"
   | "editorial"
+  | "acceptance_rate"
 >;
 
-export type CreateProblemPayload = ProblemPayload & { topics?: string[] };
+export type CreateProblemPayload = Omit<ProblemPayload, "acceptance_rate"> & {
+  topics?: string[];
+};
 
 export type UpdateProblemPayload = Partial<ProblemPayload> & {
   topics?: string[];

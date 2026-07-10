@@ -1,5 +1,8 @@
 import AppError from "@src/errors/app.error";
-import type { BaseProblemData } from "@src/interface/problem.interface";
+import type {
+  BaseProblemData,
+  UpdateProblemPayload,
+} from "@src/interface/problem.interface";
 import type {
   JudgeOutput,
   SandboxServiceData,
@@ -20,6 +23,7 @@ import { StatusCodes } from "http-status-codes";
 import { getProblemByLookup } from "./problem.service";
 import { SandboxService } from "./sandbox.service";
 import { getTestCaseByLookup } from "./test-case.service";
+import Problem from "@src/models/problem.model";
 
 export function buildSubmissionPayload(
   submission: SubmissionPayload | Partial<SubmissionPayload>,
@@ -279,4 +283,73 @@ export async function getSubmissionByLookup(
     default:
       throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
   }
+}
+
+export async function getSubmissionsByLookup(
+  identifier: string | number,
+  lookup: "user" | "problem",
+): Promise<BaseSubmissionData[]>;
+
+export async function getSubmissionsByLookup(
+  identifier: string,
+  lookup: "status",
+): Promise<BaseSubmissionData[]>;
+
+export async function getSubmissionsByLookup(
+  identifier: string | number,
+  lookup: string,
+): Promise<BaseSubmissionData[]>;
+
+export async function getSubmissionsByLookup(
+  identifier: string | number,
+  lookup: string,
+): Promise<BaseSubmissionData[]> {
+  switch (lookup) {
+    case "user":
+      const userId = Number(identifier);
+
+      if (Number.isNaN(userId)) {
+        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+      }
+
+      return (await Submission.findByUser(userId)) as BaseSubmissionData[];
+    case "problem":
+      const problemId = Number(identifier);
+
+      if (Number.isNaN(problemId)) {
+        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+      }
+
+      return (await Submission.findByProblem(
+        problemId,
+      )) as BaseSubmissionData[];
+    case "status":
+      const status = identifier;
+
+      if (!isValidString(status)) {
+        throw new AppError(`Invalid identifier.`, StatusCodes.BAD_REQUEST);
+      }
+
+      return (await Submission.findByStatus(status)) as BaseSubmissionData[];
+    default:
+      throw new AppError(`Invalid lookup.`, StatusCodes.BAD_REQUEST);
+  }
+}
+
+export async function recomputeAcceptanceRate(problemId: number) {
+  const allSubmissions = await getSubmissionsByLookup(problemId, "problem");
+
+  const count = allSubmissions.length;
+
+  const allAccepted = allSubmissions.filter(
+    (s) => s.status === "accepted",
+  ).length;
+
+  const acceptancePercentage = Number(((allAccepted / count) * 100).toFixed(2));
+
+  const payload = {
+    acceptance_rate: acceptancePercentage,
+  } as UpdateProblemPayload;
+
+  await Problem.update(problemId, payload);
 }
