@@ -12,6 +12,6 @@ time_limit_ms - Maximum execution time in milliseconds (e.g., 1000ms)
 memory_limit_mb - Maximum memory usage in megabytes (e.g., 256MB)
 order_index - Display order for test cases (sample cases first)
 
-You must create ten valid test cases for the current problem you are working on and ensure there are no duplicated test cases.
+You must create ten valid test cases for the current problem you are working on and ensure there are no duplicated test cases. Ensure that the test case and the answer is correct. Prove this to yourself before actually providing the test case.
 
 Your response must only be the final output in a completely valid json format. No other words from your response as it will only be parsed as json, otherwise it will not be accepted. The expected output is an array of objects following the schema explained above that is completely loopable once JSON.parse is used in a javascript environment.
