@@ -48,12 +48,6 @@ services:
       - app
     ports:
       - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin",  "ping", "-h localhost", "-u root", "-p$DB_ROOT_PASS"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-      start_period: 10s
 
   nginx:
     container_name: codesync-nginx
