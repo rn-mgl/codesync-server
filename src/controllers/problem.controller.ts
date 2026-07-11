@@ -3,6 +3,7 @@ import {
   isValidCreateProblemPayload,
   isValidUpdateProblemPayload,
 } from "@src/guards/problem.guard";
+import type { RecordCount } from "@src/interface/model.interface";
 import type { BaseProblemData } from "@src/interface/problem.interface";
 import { redisClient } from "@src/libs/redis.lib";
 import ProblemTopic from "@src/models/problem-topic.model";
@@ -15,10 +16,12 @@ import {
 } from "@src/services/problem.service";
 import { getTestCaseByLookup } from "@src/services/test-case.service";
 import { getTopicsByLookup } from "@src/services/topic.service";
+import { getRecordCount } from "@src/utils/model.util";
 import {
   isValidIdentifierParam,
   isValidLookupQuery,
   isValidObject,
+  isValidPaginateQuery,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -78,9 +81,24 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const all = async (req: Request, res: Response) => {
-  const problems = await Problem.all();
+  const query = req.query;
 
-  return res.status(StatusCodes.OK).json({ success: true, data: { problems } });
+  let page: number = 0;
+  let limit: number = 10;
+
+  if (isValidPaginateQuery(query)) {
+    page = Number(query.page);
+    limit = Number(query.limit);
+  }
+
+  const problems = await Problem.all({ page, limit });
+  const total = (await getRecordCount("problems")) as RecordCount;
+  const pages = Math.ceil(total.count / limit);
+
+  return res.status(StatusCodes.OK).json({
+    success: true,
+    data: { problems, pagination: { pages } },
+  });
 };
 
 export const find = async (req: Request, res: Response) => {

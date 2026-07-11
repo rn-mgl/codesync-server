@@ -92,6 +92,21 @@ export const isValidLookupQuery = <T>(
   );
 };
 
+export const isValidPaginateQuery = <T>(
+  data: T,
+): data is Extract<T, object> & { limit: number; page: number } => {
+  if (typeof data !== "object" || data === null) return false;
+
+  if (!("limit" in data)) return false;
+
+  if (!("page" in data)) return false;
+
+  const page = Number(data.page);
+  const limit = Number(data.limit);
+
+  return !Number.isNaN(page) && !Number.isNaN(limit);
+};
+
 export const isValidObject = <T>(
   data: T,
 ): data is Extract<T, object> & Record<string, unknown> => {

@@ -1,10 +1,12 @@
 import { createConnection } from "@src/database/database";
+import type { Paginate } from "@src/interface/model.interface";
 import type {
   BaseProblemData,
   InputFormat,
   OutputFormat,
   ProblemPayload,
 } from "@src/interface/problem.interface";
+import { addLimitOffset, computeOffset } from "@src/utils/model.util";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class Problem implements BaseProblemData {
@@ -61,11 +63,20 @@ class Problem implements BaseProblemData {
     }
   }
 
-  static async all() {
+  static async all(paginate?: Paginate) {
     try {
       const db = createConnection();
 
-      const query = `SELECT * FROM problems;`;
+      let query = `SELECT * FROM problems`;
+
+      if (paginate) {
+        const offset = computeOffset(paginate);
+        const limit = paginate.limit;
+
+        query = addLimitOffset(query, limit, offset);
+      }
+
+      query += ";";
 
       const result = await db.execute<RowDataPacket[]>(query);
 
