@@ -23,6 +23,7 @@ services:
       - .env
     depends_on:
       - backend
+      - redis
     profiles:
       - app
 
