@@ -12,6 +12,8 @@ import { readFileSync } from "fs";
 import path from "path";
 
 export const generateTestCase = async () => {
+  const CAP = 500;
+
   const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
 
   const promptPath = path.join(
@@ -46,9 +48,9 @@ export const generateTestCase = async () => {
       (tc) => ({ input: tc.input, output: tc.expected_output }),
     );
 
-    if (testCases.length >= 200) {
+    if (testCases.length > CAP) {
       console.log(
-        `Skipping ${problem.title}. Test Case count is ${testCases.length + 1}`,
+        `Skipping ${problem.title}. Test Case count is ${testCases.length}`,
       );
       continue;
     }

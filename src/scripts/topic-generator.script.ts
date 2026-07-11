@@ -8,6 +8,8 @@ import { readFileSync } from "fs";
 import path from "path";
 
 export const generateTopic = async () => {
+  const CAP = 200;
+
   console.log("Starting topic generation.");
 
   const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
@@ -18,6 +20,13 @@ export const generateTopic = async () => {
   );
 
   const allTopics = (await Topic.all()) as BaseTopicData[];
+
+  if (allTopics.length > CAP) {
+    return {
+      success: true,
+      data: { created: 0, message: `${CAP} topics have already been created` },
+    };
+  }
 
   const topics = allTopics.map((topic) => ({
     name: topic.name,

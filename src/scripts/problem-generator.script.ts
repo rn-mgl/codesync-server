@@ -8,11 +8,20 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 export const generateProblem = async () => {
+  const CAP = 1000;
+
   const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
 
   console.log("initialized AI");
 
   const problems = (await Problem.all()) as BaseProblemData[];
+
+  if (problems.length > CAP) {
+    return {
+      success: true,
+      data: { created: 0, message: `${CAP} problems created.` },
+    };
+  }
 
   const mappedProblems = problems.map((p) => ({
     title: p.title,
