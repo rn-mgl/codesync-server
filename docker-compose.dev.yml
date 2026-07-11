@@ -19,3 +19,9 @@ services:
   database:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: true
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
