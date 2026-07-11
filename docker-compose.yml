@@ -17,7 +17,7 @@ services:
       - app
 
   worker:
-    container_name: codesync_worker
+    container_name: codesync-worker
     build: .
     env_file:
       - .env
