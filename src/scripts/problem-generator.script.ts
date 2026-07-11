@@ -1,11 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 import { env } from "@src/configs/env.config";
+import { generateProblemPrompt } from "@src/contexts/generator.context";
 import { isValidCreateProblemPayload } from "@src/guards/problem.guard";
 import type { BaseProblemData } from "@src/interface/problem.interface";
 import Problem from "@src/models/problem.model";
 import { buildProblemPayload } from "@src/services/problem.service";
-import { readFileSync } from "node:fs";
-import path from "node:path";
 
 export const generateProblem = async () => {
   const CAP = 1000;
@@ -32,14 +31,7 @@ export const generateProblem = async () => {
 
   console.log("mapped problems: " + JSON.stringify(stringifiedProblems));
 
-  const promptPath = path.join(
-    process.cwd(),
-    "src/contexts/problem-generator.context.md",
-  );
-
-  console.log(promptPath);
-
-  const defaultPrompt = readFileSync(promptPath, "utf8");
+  const defaultPrompt = generateProblemPrompt();
 
   const enhancedPrompt = [
     defaultPrompt,

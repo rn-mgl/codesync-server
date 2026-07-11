@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { env } from "@src/configs/env.config";
+import { generateTestCasePrompt } from "@src/contexts/generator.context";
 import { isValidTestCasePayload } from "@src/guards/test-case.guard";
 import type { BaseProblemData } from "@src/interface/problem.interface";
 import Problem from "@src/models/problem.model";
@@ -8,22 +9,13 @@ import {
   buildTestCasePayload,
   getTestCaseByLookup,
 } from "@src/services/test-case.service";
-import { readFileSync } from "fs";
-import path from "path";
 
 export const generateTestCase = async () => {
   const CAP = 500;
 
   const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
 
-  const promptPath = path.join(
-    process.cwd(),
-    "src/contexts/test_case-generator.context.md",
-  );
-
-  console.log(`Prompt path: ${promptPath}`);
-
-  const defaultPrompt = readFileSync(promptPath, "utf8");
+  const defaultPrompt = generateTestCasePrompt();
 
   const slug = getArg();
 

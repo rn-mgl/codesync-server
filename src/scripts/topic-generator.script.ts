@@ -1,11 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 import { env } from "@src/configs/env.config";
+import { generateTopicPrompt } from "@src/contexts/generator.context";
 import { isValidTopicPayload } from "@src/guards/topic.guard";
 import type { BaseTopicData } from "@src/interface/topic.interface";
 import Topic from "@src/models/topic.model";
 import { buildTopicPayload } from "@src/services/topic.service";
-import { readFileSync } from "fs";
-import path from "path";
 
 export const generateTopic = async () => {
   const CAP = 200;
@@ -13,11 +12,6 @@ export const generateTopic = async () => {
   console.log("Starting topic generation.");
 
   const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
-
-  const promptPath = path.join(
-    process.cwd(),
-    "src/contexts/topic-generator.context.md",
-  );
 
   const allTopics = (await Topic.all()) as BaseTopicData[];
 
@@ -34,7 +28,7 @@ export const generateTopic = async () => {
     icon: topic.icon,
   }));
 
-  const defaultPrompt = readFileSync(promptPath, "utf8");
+  const defaultPrompt = generateTopicPrompt();
 
   const enhancedPrompt = [
     defaultPrompt,

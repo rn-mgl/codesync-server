@@ -1,24 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 import { env } from "@src/configs/env.config";
+import { generateHintPrompt } from "@src/contexts/generator.context";
 import { isValidCreateHintPayload } from "@src/guards/hint.guard";
 import type { BaseProblemData } from "@src/interface/problem.interface";
 import Hint from "@src/models/hint.model";
 import Problem from "@src/models/problem.model";
 import { buildHintPayload, getHintsByLookup } from "@src/services/hint.service";
-import { readFileSync } from "fs";
-import path from "path";
 
 export const generateHint = async () => {
   const ai = new GoogleGenAI({ apiKey: env.GEMINI_KEY });
 
-  const promptPath = path.join(
-    process.cwd(),
-    "src/contexts/hint-generator.context.md",
-  );
-
-  console.log(`Prompt path: ${promptPath}`);
-
-  const defaultPrompt = readFileSync(promptPath, "utf8");
+  const defaultPrompt = generateHintPrompt();
 
   const problems = (await Problem.all()) as BaseProblemData[];
 
