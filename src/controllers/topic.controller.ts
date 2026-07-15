@@ -1,14 +1,17 @@
 import AppError from "@src/errors/app.error";
 import { isValidTopicPayload } from "@src/guards/topic.guard";
+import type { RecordCount } from "@src/interface/model.interface";
 import Topic from "@src/models/topic.model";
 import {
   buildTopicPayload,
   getTopicByLookup,
 } from "@src/services/topic.service";
+import { getRecordCount } from "@src/utils/model.util";
 import {
   isValidIdentifierParam,
   isValidLookupQuery,
   isValidObject,
+  isValidPaginateQuery,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -47,9 +50,23 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const all = async (req: Request, res: Response) => {
-  const topics = await Topic.all();
+  const query = req.query;
 
-  return res.status(StatusCodes.OK).json({ success: true, data: { topics } });
+  let page = 0;
+  let limit = 10;
+
+  if (isValidPaginateQuery(query)) {
+    page = Number(query.page);
+    limit = Number(query.limit);
+  }
+
+  const topics = await Topic.all({ page, limit });
+  const total = (await getRecordCount("topics")) as RecordCount;
+  const pages = Math.ceil(total.count / limit);
+
+  return res
+    .status(StatusCodes.OK)
+    .json({ success: true, data: { topics, pagination: { pages } } });
 };
 
 export const find = async (req: Request, res: Response) => {

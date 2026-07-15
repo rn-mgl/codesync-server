@@ -94,7 +94,7 @@ export const isValidLookupQuery = <T>(
 
 export const isValidPaginateQuery = <T>(
   data: T,
-): data is Extract<T, object> & { limit: number; page: number } => {
+): data is Extract<T, object> & { limit: string; page: string } => {
   if (typeof data !== "object" || data === null) return false;
 
   if (!("limit" in data)) return false;
