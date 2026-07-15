@@ -6,6 +6,7 @@ import Problem from "@src/models/problem.model";
 import { assignField } from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
 import { getProblemByLookup } from "./problem.service";
+import type { Paginate } from "@src/interface/model.interface";
 
 export function buildHintPayload(data: HintPayload | Partial<HintPayload>) {
   const payload: HintPayload = {} as HintPayload;
@@ -89,7 +90,7 @@ export async function getHintsByLookup(
   }
 }
 
-export async function getAllHints(problemSlug?: string) {
+export async function getAllHints(problemSlug?: string, paginate?: Paginate) {
   const mappedHints = new Map<string, BaseHintData[]>();
 
   if (problemSlug) {
@@ -99,7 +100,7 @@ export async function getAllHints(problemSlug?: string) {
 
     mappedHints.set(problem.slug, hints);
   } else {
-    const problems = (await Problem.all()) as BaseProblemData[];
+    const problems = (await Problem.all(paginate)) as BaseProblemData[];
 
     for (const p of problems) {
       const hint = (await Hint.findByProblem(p.id)) as BaseHintData[];

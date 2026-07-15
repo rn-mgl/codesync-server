@@ -3,6 +3,7 @@ import {
   isValidCreateHintPayload,
   isValidUpdateHintPayload,
 } from "@src/guards/hint.guard";
+import type { RecordCount } from "@src/interface/model.interface";
 import Hint from "@src/models/hint.model";
 import {
   buildHintPayload,
@@ -10,9 +11,11 @@ import {
   getHintByLookup,
 } from "@src/services/hint.service";
 import { getProblemByLookup } from "@src/services/problem.service";
+import { getRecordCount } from "@src/utils/model.util";
 import {
   isValidIdParam,
   isValidObject,
+  isValidPaginateQuery,
   isValidString,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
@@ -57,16 +60,28 @@ export const all = async (req: Request, res: Response) => {
   const query = req.query;
 
   let slug: string = "";
+  let page = 0;
+  let pages = 0;
+  let limit = 10;
 
   if (isValidObject(query) && isValidString(query.problem)) {
     slug = query.problem;
   }
 
-  const hints = await getAllHints(slug);
+  // paginate's only applicable if there's no slug
+  if (isValidPaginateQuery(query) && !slug) {
+    page = Number(query.page);
+    limit = Number(query.limit);
+
+    const problems = (await getRecordCount("problems")) as RecordCount;
+    pages = Math.ceil(problems.count / limit);
+  }
+
+  const hints = await getAllHints(slug, { page, limit });
 
   return res.status(StatusCodes.OK).json({
     success: true,
-    data: { hints: Object.fromEntries(hints) },
+    data: { hints: Object.fromEntries(hints), pagination: { pages } },
   });
 };
 
