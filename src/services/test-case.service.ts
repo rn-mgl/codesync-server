@@ -9,6 +9,7 @@ import TestCase from "@src/models/test-case.model";
 import { assignField } from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
 import { getProblemByLookup } from "./problem.service";
+import type { Paginate } from "@src/interface/model.interface";
 
 export function buildTestCasePayload(
   testCase: TestCasePayload | Partial<TestCasePayload>,
@@ -93,6 +94,7 @@ export async function getTestCaseByLookup(
 
 export async function getAllTestCases(
   problemSlug?: string,
+  paginate?: Paginate,
 ): Promise<Map<string, BaseTestCaseData[]>> {
   const testCases: Map<string, BaseTestCaseData[]> = new Map();
 
@@ -105,7 +107,7 @@ export async function getAllTestCases(
 
     testCases.set(problem.slug, problemTestCases);
   } else {
-    const problems = (await Problem.all()) as BaseProblemData[];
+    const problems = (await Problem.all(paginate)) as BaseProblemData[];
 
     for (const p of problems) {
       const testCase = (await TestCase.findByProblem(

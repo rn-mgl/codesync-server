@@ -1,5 +1,6 @@
 import AppError from "@src/errors/app.error";
 import { isValidTestCasePayload } from "@src/guards/test-case.guard";
+import type { RecordCount } from "@src/interface/model.interface";
 import TestCase from "@src/models/test-case.model";
 import { getProblemByLookup } from "@src/services/problem.service";
 import {
@@ -7,11 +8,13 @@ import {
   getAllTestCases,
   getTestCaseByLookup,
 } from "@src/services/test-case.service";
+import { getRecordCount } from "@src/utils/model.util";
 import {
   isValidIdentifierParam,
   isValidIdParam,
   isValidLookupQuery,
   isValidObject,
+  isValidPaginateQuery,
   isValidString,
 } from "@src/utils/type.util";
 import { type Request, type Response } from "express";
@@ -73,16 +76,27 @@ export const all = async (req: Request, res: Response) => {
   const query = req.query;
 
   let slug: string = "";
+  let page: number = 0;
+  let pages: number = 0;
+  let limit: number = 10;
 
   if (isValidObject(query) && isValidString(query.problem)) {
     slug = query.problem;
   }
 
-  const testCases = await getAllTestCases(slug);
+  if (isValidPaginateQuery(query) && !slug) {
+    page = Number(query.page);
+    limit = Number(query.limit);
+
+    const problems = (await getRecordCount("problems")) as RecordCount;
+    pages = Math.ceil(problems.count / limit);
+  }
+
+  const testCases = await getAllTestCases(slug, { page, limit });
 
   return res.status(StatusCodes.OK).json({
     success: true,
-    data: { test_cases: Object.fromEntries(testCases) },
+    data: { test_cases: Object.fromEntries(testCases), pagination: { pages } },
   });
 };
 
