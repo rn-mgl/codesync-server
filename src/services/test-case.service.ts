@@ -9,7 +9,8 @@ import TestCase from "@src/models/test-case.model";
 import { assignField } from "@src/utils/type.util";
 import { StatusCodes } from "http-status-codes";
 import { getProblemByLookup } from "./problem.service";
-import type { Paginate } from "@src/interface/model.interface";
+import type { Paginate, RecordCount } from "@src/interface/model.interface";
+import { getRecordCount } from "@src/utils/model.util";
 
 export function buildTestCasePayload(
   testCase: TestCasePayload | Partial<TestCasePayload>,
@@ -115,6 +116,35 @@ export async function getAllTestCases(
       )) as BaseTestCaseData[];
 
       testCases.set(p.slug, testCase);
+    }
+  }
+
+  return testCases;
+}
+
+export async function getTestCasesCount(
+  problemSlug?: string,
+  paginate?: Paginate,
+): Promise<Map<string, number>> {
+  const testCases: Map<string, number> = new Map();
+
+  if (problemSlug) {
+    const problem = await getProblemByLookup(problemSlug, "slug");
+
+    const problemTestCases = (await getRecordCount("test_cases", {
+      problem_id: problem.id,
+    })) as RecordCount;
+
+    testCases.set(problem.slug, problemTestCases.count);
+  } else {
+    const problems = (await Problem.all(paginate)) as BaseProblemData[];
+
+    for (const p of problems) {
+      const testCase = (await getRecordCount("test_cases", {
+        problem_id: p.id,
+      })) as RecordCount;
+
+      testCases.set(p.slug, testCase.count);
     }
   }
 

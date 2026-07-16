@@ -7,6 +7,7 @@ import {
   buildTestCasePayload,
   getAllTestCases,
   getTestCaseByLookup,
+  getTestCasesCount,
 } from "@src/services/test-case.service";
 import { getRecordCount } from "@src/utils/model.util";
 import {
@@ -79,9 +80,17 @@ export const all = async (req: Request, res: Response) => {
   let page: number = 0;
   let pages: number = 0;
   let limit: number = 10;
+  let listAll: boolean = false;
 
-  if (isValidObject(query) && isValidString(query.problem)) {
+  if (isValidObject(query)) {
+  }
+
+  if (isValidString(query.problem)) {
     slug = query.problem;
+  }
+
+  if (isValidString(query.list_all)) {
+    listAll = query.list_all === "1";
   }
 
   if (isValidPaginateQuery(query) && !slug) {
@@ -92,7 +101,9 @@ export const all = async (req: Request, res: Response) => {
     pages = Math.ceil(problems.count / limit);
   }
 
-  const testCases = await getAllTestCases(slug, { page, limit });
+  const testCases = listAll
+    ? await getAllTestCases(slug, { page, limit })
+    : await getTestCasesCount(slug, { page, limit });
 
   return res.status(StatusCodes.OK).json({
     success: true,

@@ -1,5 +1,9 @@
 import { createConnection } from "@src/database/database";
-import type { Paginate, VALID_TABLES } from "@src/interface/model.interface";
+import type {
+  Paginate,
+  TableColumns,
+  VALID_TABLES,
+} from "@src/interface/model.interface";
 import type { RowDataPacket } from "mysql2";
 
 export const computeOffset = (paginate: Paginate) => {
@@ -20,13 +24,29 @@ export const addLimitOffset = (
   return (query += ` LIMIT ${limit} OFFSET ${offset}`);
 };
 
-export const getRecordCount = async (table: VALID_TABLES) => {
+export const getRecordCount = async <T extends VALID_TABLES>(
+  table: T,
+  options?: TableColumns<T>,
+) => {
   try {
     const db = createConnection();
 
-    const query = `SELECT COUNT(*) AS count FROM ${table};`;
+    let query = `SELECT COUNT(*) AS count FROM ${table}`;
 
-    const data = await db.execute<RowDataPacket[]>(query);
+    const conditions = [];
+    const values = [];
+
+    if (options) {
+      for (const [k, v] of Object.entries(options)) {
+        conditions.push(`${k} = ?`);
+        values.push(v);
+      }
+
+      const preparedCondtions = conditions.join(" AND ");
+      query += ` WHERE ${preparedCondtions};`;
+    }
+
+    const data = await db.execute<RowDataPacket[]>(query, values);
 
     if (!data[0]) {
       throw new Error(`Could not get record count.`);

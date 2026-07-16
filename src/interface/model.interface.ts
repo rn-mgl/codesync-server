@@ -1,3 +1,6 @@
+import type { BaseProblemData } from "./problem.interface";
+import type { BaseTestCaseData } from "./test-case.interface";
+
 export interface Paginate {
   page: number;
   limit: number;
@@ -25,3 +28,9 @@ export type VALID_TABLES =
   | "user_achievements"
   | "user_progress"
   | "users";
+
+export type TableColumns<T extends VALID_TABLES> = T extends "problems"
+  ? Partial<BaseProblemData>
+  : T extends "test_cases"
+    ? Partial<BaseTestCaseData>
+    : Record<string, unknown>;
