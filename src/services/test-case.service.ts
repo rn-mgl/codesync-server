@@ -104,6 +104,8 @@ export async function getAllTestCases(
 
     const problemTestCases = (await TestCase.findByProblem(
       problem.id,
+      {},
+      paginate,
     )) as BaseTestCaseData[];
 
     testCases.set(problem.slug, problemTestCases);

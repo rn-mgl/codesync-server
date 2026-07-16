@@ -1,8 +1,10 @@
 import { createConnection } from "@src/database/database";
+import type { Paginate } from "@src/interface/model.interface";
 import type {
   BaseTestCaseData,
   TestCasePayload,
 } from "@src/interface/test-case.interface";
+import { addLimitOffset, computeOffset } from "@src/utils/model.util";
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class TestCase implements BaseTestCaseData {
@@ -116,6 +118,7 @@ class TestCase implements BaseTestCaseData {
   static async findByProblem(
     problemId: number,
     options?: Partial<BaseTestCaseData>,
+    paginate?: Paginate,
   ) {
     try {
       const db = createConnection();
@@ -149,11 +152,20 @@ class TestCase implements BaseTestCaseData {
 
       const mappedConditions = conditions.join(" AND ");
 
-      const query = `SELECT tc.*, 
+      let query = `SELECT tc.*, 
                       p.id AS problem_id, p.title, p.slug FROM test_cases AS tc
                       INNER JOIN problems AS p ON tc.problem_id = p.id
                      WHERE ${mappedConditions}
-                     ORDER BY order_index ASC;`;
+                     ORDER BY order_index ASC`;
+
+      if (paginate) {
+        const offset = computeOffset(paginate);
+        const limit = paginate.limit;
+
+        query = addLimitOffset(query, limit, offset);
+      }
+
+      query += `;`;
 
       const result = await db.execute<RowDataPacket[]>(query, values);
 

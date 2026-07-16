@@ -82,9 +82,6 @@ export const all = async (req: Request, res: Response) => {
   let limit: number = 10;
   let listAll: boolean = false;
 
-  if (isValidObject(query)) {
-  }
-
   if (isValidString(query.problem)) {
     slug = query.problem;
   }
@@ -93,12 +90,25 @@ export const all = async (req: Request, res: Response) => {
     listAll = query.list_all === "1";
   }
 
-  if (isValidPaginateQuery(query) && !slug) {
+  if (isValidPaginateQuery(query)) {
     page = Number(query.page);
     limit = Number(query.limit);
 
-    const problems = (await getRecordCount("problems")) as RecordCount;
+    const problems = (await getRecordCount(
+      "problems",
+      slug ? { slug } : undefined,
+    )) as RecordCount;
     pages = Math.ceil(problems.count / limit);
+  }
+
+  if (listAll && slug) {
+    const problem = await getProblemByLookup(slug, "slug");
+
+    const testCase = (await getRecordCount("test_cases", {
+      problem_id: problem.id,
+    })) as RecordCount;
+
+    pages = Math.ceil(testCase.count / limit);
   }
 
   const testCases = listAll

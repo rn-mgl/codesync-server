@@ -64,6 +64,7 @@ export const getRecordCount = async <T extends VALID_TABLES>(
 
     return extracted;
   } catch (e) {
+    console.log(e);
     throw new Error(`An error occurred when getting the record count.`);
   }
 };
