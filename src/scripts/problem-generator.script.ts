@@ -52,7 +52,7 @@ export const generateProblem = async () => {
 
   const response = interaction.output_text ?? "";
 
-  let parsed = "";
+  let parsed: object | null = null;
 
   try {
     console.log("parsing response");
