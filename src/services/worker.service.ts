@@ -81,6 +81,18 @@ export const backgroundWorker = new Worker(
         );
 
         break;
+      case "achievement-generator":
+        await job.updateProgress("getting script");
+
+        const generatedAchievements = await generateTopic();
+
+        await job.updateProgress("done script");
+
+        await job.log(
+          `Result:\n\n ${JSON.stringify(generatedAchievements, null, 2)}`,
+        );
+
+        break;
       default:
         console.log("Unknown job");
         break;

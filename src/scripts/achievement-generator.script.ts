@@ -5,7 +5,6 @@ import { isValidAchievementPayload } from "@src/guards/achievement.guard";
 import type { BaseAchievementData } from "@src/interface/achievement.interface";
 import Achievement from "@src/models/achievement.model";
 import { buildAchievementPayload } from "@src/services/achievement.service";
-import { exit } from "process";
 
 export const generateAchievement = async () => {
   const CAP = 200;

@@ -40,4 +40,14 @@ export const queueJobs = async () => {
       name: "topic-generator",
     },
   );
+
+  await background.upsertJobScheduler(
+    "achievement-generator",
+    {
+      pattern: "*/20 * * * *",
+    },
+    {
+      name: "achievement-generator",
+    },
+  );
 };
