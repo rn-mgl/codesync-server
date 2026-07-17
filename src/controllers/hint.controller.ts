@@ -9,6 +9,7 @@ import {
   buildHintPayload,
   getAllHints,
   getHintByLookup,
+  getHintsCount,
 } from "@src/services/hint.service";
 import { getProblemByLookup } from "@src/services/problem.service";
 import { getRecordCount } from "@src/utils/model.util";
@@ -63,12 +64,17 @@ export const all = async (req: Request, res: Response) => {
   let page = 0;
   let pages = 0;
   let limit = 10;
+  let listAll = false;
 
-  if (isValidObject(query) && isValidString(query.problem)) {
+  if (isValidString(query.problem)) {
     slug = query.problem;
   }
 
-  // paginate's only applicable if there's no slug
+  if (isValidString(query.list_all)) {
+    listAll = query.list_all === "1";
+  }
+
+  // paginate for hint index
   if (isValidPaginateQuery(query) && !slug) {
     page = Number(query.page);
     limit = Number(query.limit);
@@ -77,7 +83,20 @@ export const all = async (req: Request, res: Response) => {
     pages = Math.ceil(problems.count / limit);
   }
 
-  const hints = await getAllHints(slug, { page, limit });
+  // paginate for hint filtered by selected problem
+  if (listAll && slug) {
+    const problem = await getProblemByLookup(slug, "slug");
+
+    const hint = (await getRecordCount("hints", {
+      problem_id: problem.id,
+    })) as RecordCount;
+
+    pages = Math.ceil(hint.count / limit);
+  }
+
+  const hints = listAll
+    ? await getAllHints(slug, { page, limit })
+    : await getHintsCount(slug, { page, limit });
 
   return res.status(StatusCodes.OK).json({
     success: true,

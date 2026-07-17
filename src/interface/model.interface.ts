@@ -1,3 +1,4 @@
+import type { BaseHintData } from "./hint.interface";
 import type { BaseProblemData } from "./problem.interface";
 import type { BaseTestCaseData } from "./test-case.interface";
 
@@ -33,4 +34,6 @@ export type TableColumns<T extends VALID_TABLES> = T extends "problems"
   ? Partial<BaseProblemData>
   : T extends "test_cases"
     ? Partial<BaseTestCaseData>
-    : Record<string, unknown>;
+    : T extends "hints"
+      ? Partial<BaseHintData>
+      : Record<string, unknown>;
